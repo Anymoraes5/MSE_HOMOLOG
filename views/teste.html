@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="PT-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste Cadastro de Adolescentes/Jovens</title>
+   <!-- Adicionando Bootstrap -->
+   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+   <!-- Estilos personalizados -->
+    <link rel="stylesheet" href="/css/cadastrarAdolescente.css">
+</head>
+<body>
+    <nav id="menu-principal">
+        <img src="../public/images/image-removebg-preview.png" alt="logo" style="width: 5%; height: 5%;">
+        <span>|</span>
+        <a href="/consulta">Consulta de Usuários do Sistema </a>
+        <span>|</span>
+        <a href="/cadastro">Cadastro de Usuários do Sistema</a>
+        <span>|</span>
+        <a href="/verPessoas">Consulta de Adolescentes/Jovens</a>
+        <span>|</span>
+        <a href="/adminCadastraPessoa" class="active">Cadastrar Adolescente/Jovem</a>
+        <span>|</span>
+        <a href="#" onclick="confirmLogout()">Logout</a>
+        <span>|</span>
+    </nav>
+    
+    <div id="container" class="container-mt5"> <!-- Container para centralizar e adicionar margem superior -->
+        <h1>TESTE CADASTRO</h1>
+        <form id="editar-form" method="post">
+            <label for="cpf" class="form-label">CPF:</label>
+            <input type="text" id="cpf" name="cpf" class="form-control" placeholder="Formato: XXXXXXXXXXX" maxlength="11" minlength="11">
+            <div id="error-message" class="error-message"></div>
+
+            <button type="submit" id="cadastrar" class="btn btn-primary">Cadastrar</button>
+            <button type="button" id="cancelar" class="btn btn-secondary">Cancelar</button>
+        </form>
+    </div>
+    <script src="../public/js/teste.js"></script>
+</body>
+</html>
