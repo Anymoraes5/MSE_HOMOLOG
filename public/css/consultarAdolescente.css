@@ -1,0 +1,173 @@
+html, body {
+    height: 100%;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background-color: #f8f9fa; /* Fundo cinza claro */
+    /* Remove qualquer display: flex ou align-items aqui no body se houver */
+    /* Você quer que os elementos se comportem como blocos para o margin: auto funcionar no .container */
+}
+
+nav {
+    background-color: #bcc6d0; /* Azul */
+    padding: 20px 0;
+    text-align: center;
+    /* Adicione width: 100% para a navegação ocupar a largura total */
+    width: 100%;
+}
+
+#menu-principal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    z-index: 1000;
+}
+
+nav a {
+    text-decoration: none;
+    color: black;
+    margin: 0 10px;
+    padding: 5px;
+    border-radius: 5px;
+}
+
+nav a:hover{
+    text-decoration:overline;
+    color: black;
+    padding: 5px;
+    border-radius: 5%;
+    font-weight: bold;
+}
+
+.active {
+    text-decoration:overline;
+    padding: 5px;
+    margin: 5px;
+    border-radius: 5%;
+}
+
+nav img {
+    max-width: 100px;
+    height: auto;
+    vertical-align: middle;
+    margin-right: 20px;
+}
+
+/* --- AJUSTES AQUI --- */
+.container {
+    margin-top: 150px;
+    /* flex: 1; Remova ou comente esta linha. Não precisamos que ele se estique. */
+    /* Display flex e flex-direction: column são mantidos para empilhar form e table */
+    display: flex;
+    flex-direction: column;
+
+    /* ALINHAMENTO PRINCIPAL: Centraliza os filhos (form e table) horizontalmente dentro do .container */
+    align-items: center; /* MUDADO de 'stretch' para 'center' */
+
+    /* Garante que o container não seja maior que um certo limite, e centraliza o próprio container na tela */
+    max-width: 900px; /* Defina uma largura máxima razoável para o seu conteúdo */
+    width: 90%; /* Ocupa 90% da largura da tela, mas não mais que max-width */
+    margin-left: auto; /* Centraliza o .container na tela */
+    margin-right: auto; /* Centraliza o .container na tela */
+    /* Ou, mais concisamente: */
+    /* margin: 150px auto 0 auto; */ /* Margem superior, e auto para centralizar horizontalmente */
+
+    justify-content: center; /* Mantido se você quer centralização vertical dentro do container, mas flex-start é mais comum aqui */
+}
+
+form {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+    width: 100%;
+    /* Aumente este valor para deixar o formulário mais largo */
+    max-width: 700px; /* Exemplo: Aumentado para 700px. Você pode experimentar outros valores. */
+    box-sizing: border-box;
+}
+
+label {
+    color: #495057; /* Cinza escuro */
+}
+
+input[type="text"],
+input[type="password"],
+select {
+    margin-bottom: 20px;
+    padding: 10px;
+    border: 1px solid #ced4da; /* Cinza claro */
+    border-radius: 5px;
+    width: 100%; /* Continua ocupando 100% da largura do FORM */
+    box-sizing: border-box;
+}
+
+button[type="submit"],
+button[type="button"] {
+    background-color: #007bff;
+    color: #fff;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-right: 10px;
+}
+
+button[type="submit"]:hover,
+button[type="button"]:hover {
+    background-color: #0056b3;
+}
+
+table {
+    width: 80%; /* A tabela ocupará 80% da largura do .container */
+    max-width: 800px; /* Largura máxima para a tabela */
+    border-collapse: collapse;
+    background-color: #fff;
+    box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.1);
+    /* Remova o margin: 0 auto; daqui, pois align-items: center do .container já centraliza */
+    /* margin: 0 auto; */
+}
+
+th, td {
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+}
+
+th {
+    background-color: #007bff;
+    color: #fff;
+    text-align: left;
+}
+
+tbody tr:hover {
+    background-color: #f2f2f2;
+}
+
+footer {
+    background-color: #bcc6d0;
+    text-align: center;
+    padding: 10px 0;
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+    color: #333;
+    width: 100%;
+    position: relative;
+    bottom: 0;
+    /* Ajuste para garantir que o footer não fique sobreposto pela navbar */
+    margin-top: auto; /* Empurra o footer para o final da página se o body for flex-direction: column */
+}
+
+footer img {
+    max-width: 75px;
+    max-height: 75px;
+    height: auto;
+    margin-bottom: 10px;
+}
+
+footer p {
+    margin: 0;
+}

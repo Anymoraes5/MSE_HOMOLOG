@@ -1,0 +1,227 @@
+/* Seu CSS existente (não mude nada que já funcione bem) */
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background-color: #f8f9fa;
+}
+
+nav {
+    background-color: #bcc6d0;
+    padding: 20px 0;
+    text-align: center;
+}
+
+nav a {
+    text-decoration: none;
+    color: black;
+    margin: 0 10px;
+    padding: 5px;
+    border-radius: 5px;
+}
+
+.error-message {
+    color: red;
+    font-size: 0.875em;
+    margin-top: 0.25em;
+}
+
+nav a:hover{
+    text-decoration:overline;
+    color: black;
+    padding: 5px;
+    border-radius: 5%;
+    font-weight: bold;
+}
+
+.active {
+    text-decoration:overline;
+    padding: 5px;
+    margin: 5px;
+    border-radius: 5%;
+}
+
+nav img {
+    max-width: 100px;
+    height: auto;
+    vertical-align: middle;
+    margin-right: 20px;
+}
+
+h1 {
+    text-align: center;
+    margin-top: 5px;
+    font-size: 2em;
+    color: #2d2f32;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.4);
+}
+
+/* O form está dentro de .container, então não precisa de width: 50% e margin: auto */
+/* Remova ou ajuste o 'form' existente se ele estiver fora de um contêiner Bootstrap */
+/* Ajuste para que o formulário ocupe a largura completa do contêiner */
+.container form {
+    background-color: #f8f9fa;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.1);
+    margin-top: 20px;
+    width: 100%; /* Adapta-se à largura do .container */
+    box-sizing: border-box;
+}
+
+label {
+    color: #495057;
+}
+
+input[type="text"],
+input[type="password"],
+input[type="email"], /* Adicionei input type email */
+input[type="date"], /* Adicionei input type date */
+select {
+    margin-bottom: 20px;
+    padding: 10px;
+    border: 1px solid #ced4da;
+    border-radius: 5px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* Botões de formulário */
+button[type="button"],
+button[type="submit"] {
+    background-color: #007bff;
+    color: #fff;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-right: 10px;
+}
+
+button[type="button"]:hover,
+button[type="submit"]:hover {
+    background-color: #0056b3;
+}
+
+#salvar {
+    background-color: #28a745;
+}
+
+#salvar:hover {
+    background-color: #218838;
+}
+
+#cancelar {
+    background-color: #dc3545;
+}
+
+#cancelar:hover {
+    background-color: #c82333;
+}
+
+.red-asterisk {
+    color: red;
+}
+
+/* Seção de Cadastro - Renomeada de #cadastroSection para ser mais genérica para o container principal */
+/* Como você tem <div class="container">, não precisamos de #cadastroSection */
+/* Assegure-se de que o .container tem espaço suficiente */
+.container {
+    padding-top: 20px;
+    padding-bottom: 40px;
+    box-sizing: border-box;
+
+    /* ***** Regras para centralizar o contêiner ***** */
+    width: 95%; /* Mantenha esta largura ou ajuste se precisar */
+    max-width: 1400px; /* Mantenha ou ajuste a largura máxima desejada */
+    margin-left: auto; /* Centraliza o contêiner horizontalmente */
+    margin-right: auto; /* Centraliza o contêiner horizontalmente */
+    /* Ou, de forma abreviada: margin: 0 auto; */
+}
+
+
+#programas_sociais label {
+    margin-left: 5px;
+}
+
+#programas_sociais div {
+    margin-bottom: 8px;
+}
+
+#buttons_container {
+    margin-bottom: 1rem;
+}
+
+.d-flex {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.me-2 {
+    margin-right: 0.5rem;
+}
+
+footer {
+    background-color: #bcc6d0;
+    text-align: center;
+    padding: 10px 0;
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+    color: #333;
+    width: 100%;
+    position: relative;
+    bottom: 0;
+    margin-top: 40px;
+}
+
+footer img {
+    max-width: 50px;
+    max-height: 50px;
+    height: auto;
+    margin-bottom: 10px;
+}
+
+footer p {
+    margin: 0;
+}
+
+/* --- REGRAS PARA A TABELA (ADICIONE/MODIFIQUE ESSAS) --- */
+
+/* Assegura que o texto dentro das células não quebre a linha, 
+   permitindo que o `table-responsive` crie a rolagem. */
+#tabela-usuarios td {
+    white-space: normal; /* Impede que o texto quebre a linha */
+    word-wrap: break-word;
+    /* overflow: hidden; */ /* Oculta o conteúdo que excede a largura da célula */
+    /*text-overflow: ellipsis;*/ /* Adiciona reticências (...) para indicar texto cortado */
+    /*max-width: 150px;*/ /* Defina uma largura máxima para as células de dados gerais */
+    /* Ajuste conforme o conteúdo que você espera */
+}
+
+/* Ajustes específicos para as larguras das colunas (th e td) */
+/* Isso vai precisar de refinamento, pois `white-space: nowrap` pode fazer as colunas ficarem muito grandes */
+
+
+
+
+
+/* Colunas dos Botões */
+#tabela-usuarios th:nth-child(7), #tabela-usuarios td:nth-child(7) { /* Editar */
+    min-width: 80px; /* Largura para o botão Editar */
+    width: 80px;
+    text-align: center;
+}
+#tabela-usuarios th:nth-child(8), #tabela-usuarios td:nth-child(8) { /* Ativar/Desligar */
+    min-width: 120px; /* Largura para o botão Ativar/Desligar */
+    width: 120px;
+    text-align: center;
+}
+
+/* Garante que os botões não quebrem a linha */
+#tabela-usuarios td .btn {
+    white-space: normal;
+    word-wrap: break-word;
+}
