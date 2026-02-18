@@ -1,0 +1,18 @@
+userGroup_CadastrarAdolescente <=> AdminGroup_CadastrarAdolescente (PUBLIC) OK
+adminGroup_ConsultarAdolescente <=> userGroup_ConsultarAdolescente (PUBLIC) OK
+adminGroup_EditarAdolescente_Carga <=> userGroup_EditarAdolescente_Carga (PUBLIC) OK
+adminGroup_EditarAdolescente_Edicao <=> UserGroup_EditarAdolescente_Edicao (PUBLIC) OK
+
+userGroup_CadastrarAdolescente <=> AdminGroup_CadastrarAdolescente (ROUTES) OK
+adminGroup_ConsultarAdolescente <=> userGroup_ConsultarAdolescente (ROUTES) OK
+adminGroup_EditarAdolescente <=> userGroup_EditarAdolescente (ROUTES) OK
+
+userGroup_CadastrarAdolescente <=> AdminGroup_CadastrarAdolescente (HTML) OK
+adminGroup_EditarAdolescente <=> userGroup_EditarAdolescente (HTML) OK
+
+
+
+
+
+
+
