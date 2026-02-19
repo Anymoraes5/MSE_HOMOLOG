@@ -136,20 +136,43 @@ document.addEventListener('DOMContentLoaded', function() {
 	    aplicarMascaraCEP("cep_unidade");
 		aplicarMascaraCEP("cep");
 
-		function aplicarMascaraCEP(idCampo) {
-		const campo = document.getElementById(idCampo);
-		if (!campo) return;
+		
+    function formatarCEP(valor) {
+        if (!valor) return "";
+        
+        let v = valor.replace(/\D/g, '');
+        
+        if (v.length > 5) {
+            v = v.replace(/^(\d{5})(\d)/, "$1-$2");
+        }
 
-		campo.addEventListener("input", function () {
-			let v = this.value.replace(/\D/g, '');
+        return v.substring(0, 9);
+    }
 
-			if (v.length > 5) {
-				v = v.replace(/^(\d{5})(\d)/, "$1-$2");
-			}
+    function aplicarMascaraCEP(idCampo) {
+        const campo = document.getElementById(idCampo);
+        if (!campo) return;
 
-			this.value = v.slice(0, 9);
-		});
-	}
+        // 🔹 Sempre que digitar
+        campo.addEventListener("input", function () {
+            this.value = formatarCEP(this.value);
+        });
+
+        // 🔹 Observa mudanças feitas via JS (backend, AJAX, etc.)
+        const observer = new MutationObserver(() => {
+            campo.value = formatarCEP(campo.value);
+        });
+
+        observer.observe(campo, { attributes: true, attributeFilter: ['value'] });
+
+        // 🔹 Pequeno delay para garantir que o valor já foi inserido
+        setTimeout(() => {
+            campo.value = formatarCEP(campo.value);
+        }, 300);
+    }
+
+
+
 
     function formatarNome(inputElement) {
         inputElement.addEventListener('input', function() {
@@ -1215,6 +1238,9 @@ function confirmLogout() {
     }
 }
 
+
+
+
 // Buscar CEP
 const btnBuscarCep = document.getElementById("buscar_cep");
 
@@ -1292,3 +1318,5 @@ if (btnBuscarCep) {
 } else {
     console.warn("Botão buscar_cep não existe nesta tela (editar).");
 }
+
+
