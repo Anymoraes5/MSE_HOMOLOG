@@ -1,9 +1,11 @@
 DEIXEI OS ARQUIVOS ABERTOS QUE FARAO PARTE DA ANALISE MINUNCIOSA DO ITEM 1 do BackLog (historico_unidade_acolhedora mostra os campos com problemas)
-----------------------------------------------------------------------
+EDITAR/VER CADASTRAR - Erro ao buscar CEP 
 EDITAR - Quando salva campos preenchidos na unidade acolhedora ele salva na verdade alguns dados em branco na base de dados
+----------------------------------------------------------------------
+
 EDITAR - Esta permitindo gravar campos vazios em campos obrigatórios (unidade acolhedora)
 EDITAR - Quando Carrega o dado de CEP ele não vem com o "-" traço 
-EDITAR/VER CADASTRAR - Erro ao buscar CEP 
+
 
 Esta permitindo gravar processos duplicados? Pode isso? (Número do processo de execução: e Número do processo de apuração: e Número da Pasta Técnica (Fundação Casa):)
 

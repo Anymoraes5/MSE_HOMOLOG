@@ -122,11 +122,11 @@ function rota_adminEditaPessoa(app) {
                             UA.complemento AS 'complemento_unidade',
                             UA.bairro AS 'bairro_unidade',
                             UA.telefone AS 'telefone_unidade',
-                            UA.horario_inicio,
-                            UA.horario_fim,
+                            UA.horario_inicio_unidade,
+                            UA.horario_fim_unidade,
                             UA.dias_semana,
-                            UA.responsavel,
-                            UA.atividade                           
+                            UA.responsavel_unidade,
+                            UA.atividade_unidade                           
                         FROM pessoas P
                         LEFT JOIN creas CA ON CA.ID = P.fk_creas_atual
                         LEFT JOIN mse M ON M.ID = P.fk_mse
@@ -245,11 +245,11 @@ function rota_adminEditaPessoa(app) {
 			complemento_unidade,
 			bairro_unidade,
 			telefone_unidade,
-			horario_inicio,
-			horario_fim,
+			horario_inicio_unidade,
+			horario_fim_unidade,
 			dias_semana,
-			responsavel,
-			atividade, 
+			responsavel_unidade,
+			atividade_unidade, 
             ativo_inativo,    //: ativo_inativo, 
             dt_cadastro,    //: dt_cadastro, 
             creas_atual,    //: creas_atual, 
@@ -327,6 +327,29 @@ function rota_adminEditaPessoa(app) {
             email,    //: email 
         } = req.body;
 
+        console.log("ANTES DO TRATAMENTO:", req.body.cep_unidade);
+
+
+        if (typeof cep_unidade === "string") {
+            console.log("Valor original:", cep_unidade);
+            
+            cep_unidade = cep_unidade.trim(); // remove espaços invisíveis
+            cep_unidade = cep_unidade.replace(/\D/g, '');
+
+            console.log("Após replace:", cep_unidade);
+            console.log("Tamanho:", cep_unidade.length);
+
+            if (cep_unidade.length !== 8) {
+                console.log("CEP inválido, setando null");
+                cep_unidade = null;
+            }
+        } else {
+            cep_unidade = null;
+        }
+
+        console.log("DEPOIS DO TRATAMENTO:", cep_unidade);
+
+
         var dt_desligamento = req.body.dt_desligamento;
         // Se estiver inativo (ativo_inativo == 0)
         if (ativo_inativo == 0) {
@@ -345,6 +368,7 @@ function rota_adminEditaPessoa(app) {
         } else {
             dt_desligamento = null
         }
+
 		
 		// remove qualquer coisa que não seja número do CEP
 		/*const cep_unidade_limpo = cep_unidade
@@ -765,6 +789,11 @@ function rota_adminEditaPessoa(app) {
                                         return;
                                     }
 									
+                                    // console.log("CEP recebido:", req.body.cep_unidade);
+                                    // console.log(cep_unidade)
+                                    
+
+                                    
 									// ATUALIZAÇÃO DIRETA DOS CAMPOS DA UNIDADE ACOLHEDORA
 									connection.query(`UPDATE unidade_acolhedora UA
 										INNER JOIN adolescente_unidade_acolhedora AUA ON AUA.fk_unidade_acolhedora = UA.id
@@ -778,11 +807,11 @@ function rota_adminEditaPessoa(app) {
 											UA.complemento = ?,
 											UA.bairro = ?,
 											UA.telefone = ?,
-											UA.horario_inicio = ?,
-											UA.horario_fim = ?,
+											UA.horario_inicio_unidade = ?,
+											UA.horario_fim_unidade = ?,
 											UA.dias_semana = ?,
-											UA.responsavel = ?,
-											UA.atividade = ?
+											UA.responsavel_unidade = ?,
+											UA.atividade_unidade = ?
 										WHERE AUA.fk_pessoa = ?`,
 										[
 											tipo_local,
@@ -794,11 +823,11 @@ function rota_adminEditaPessoa(app) {
 											complemento_unidade,
 											bairro_unidade,
 											telefone_unidade,
-											horario_inicio,
-											horario_fim,
+											horario_inicio_unidade,
+											horario_fim_unidade,
 											dias_semana,
-											responsavel,
-											atividade,
+											responsavel_unidade,
+											atividade_unidade,
 											ID
 										],
 										(errorUA, result) => {

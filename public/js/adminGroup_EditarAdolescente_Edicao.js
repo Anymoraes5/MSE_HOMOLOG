@@ -1,3 +1,4 @@
+console.log("JS CARREGANDO EDITAR EDIÇÃO");
 // Script para ajustar o scroll quando um link do menu lateral é clicado
 document.querySelectorAll('#menu-lateral a').forEach(anchor => {
     anchor.addEventListener('click', function(e) {
@@ -223,9 +224,20 @@ var dd = String(hoje.getDate()).padStart(2, '0');
 var mm = String(hoje.getMonth() + 1).padStart(2, '0'); // Janeiro é 0!
 var yyyy = hoje.getFullYear();
 // Define o valor do atributo max para a data atual
-document.getElementById("dt_nasc").max = yyyy + '-' + mm + '-' + dd;
-document.getElementById("dt_interpretacao_medida").max = yyyy + '-' + mm + '-' + dd;
-document.getElementById("dt_ultimo_relatorio_enviado").max = yyyy + '-' + mm + '-' + dd;
+const dtNasc = document.getElementById("dt_nasc");
+//novo 
+if (dtNasc){
+    dtNasc.max = yyyy + '-' + mm + '-' + dd
+}
+
+const dtInterpretacao = document.getElementById("dt_interpretacao_medida");
+if (dtInterpretacao){
+    dtInterpretacao.max = yyyy + '-' + mm + '-' + dd;
+}
+const dtUltimo = document.getElementById("dt_ultimo_relatorio_enviado");
+if (dtUltimo){
+    dtUltimo.max = yyyy + '-' + mm + '-' + dd;
+}
 
 // Função para validar os campos de nomes
 function validarNome(inputNome) {
@@ -519,11 +531,16 @@ validarCaracteresPermitidos("nome_do_contato", "qwertyuioplkjhgfdsazxcvbnm QWERT
 validarCaracteresPermitidos("telefone", "0123456789");
 
 /*---------------verifica se a dt_nasc mudou e altera a idade----------------------*/
-document.getElementById('dt_nasc').addEventListener('change', calculaIdade);
+const dtNascChange = document.getElementById('dt_nasc');
+if (dtNascChange) {
+    dtNascChange.addEventListener('change', calculaIdade);
+}
 
 /*-----EDITAR DADOS DA PESSOA----------------------------------------------------------------------------------------------------------*/
 
-document.getElementById('salvar').addEventListener('mouseover', function() {
+const btnSalvarMouse = document.getElementById('salvar');
+if(btnSalvarMouse){
+    btnSalvarMouse.addEventListener('mouseover', function() {
     var cpfInput = document.getElementById('cpf');
     var cpfValue = cpfInput.value;
     var cpfValido = validarCPF(cpfValue);
@@ -544,8 +561,15 @@ document.getElementById('salvar').addEventListener('mouseover', function() {
     }
 });
 
+}
+    
+
 //função para salvar os dados editados
-document.getElementById('salvar').addEventListener('click', function(event) {
+const btnSalvar = document.getElementById('salvar');
+
+if(btnSalvar){
+
+    btnSalvar.addEventListener('click', function(event) {
     if (!confirm("Tem certeza que deseja cadastrar o usuário?")) {
         alert("Operação cancelada");
         event.preventDefault()
@@ -903,6 +927,7 @@ document.getElementById('salvar').addEventListener('click', function(event) {
 
          var ubs = document.getElementById('ubs').value;
          var cep = document.getElementById('cep').value;
+        
 		 
         /* var cep = validarCEP(document.getElementById('cep')).replace(/-/g, "");
         if (!cep) {
@@ -977,6 +1002,7 @@ document.getElementById('salvar').addEventListener('click', function(event) {
 		var responsavel_unidade = document.getElementById('responsavel_unidade').value;
 		var horario_inicio_unidade = document.getElementById('horario_inicio_unidade').value;
 		var horario_fim_unidade = document.getElementById('horario_fim_unidade').value;
+		var cep_unidade = document.getElementById('cep_unidade').value;
 
 		// dias da semana (checkbox)
 		var dias_semana = Array
@@ -993,6 +1019,7 @@ document.getElementById('salvar').addEventListener('click', function(event) {
             body: JSON.stringify({				
 				nome_unidade: nome_unidade,
 				tipo_local: tipo_local,
+                cep_unidade : cep_unidade,
 				atividade_unidade: atividade_unidade,
 				tipo_logradouro: tipo_logradouro,
 				logradouro_unidade: logradouro_unidade,
@@ -1107,7 +1134,8 @@ document.getElementById('salvar').addEventListener('click', function(event) {
             }
         });
     }
-});
+})
+};
 	
 // ================= UNIDADE ACOLHEDORA =================
 
@@ -1168,9 +1196,12 @@ if (window.atualizarObrigatoriedadeUnidade) {
 
 /*-----CANCELAR----------------------------------------------------------------------------------------------------------*/
 
-document.getElementById('cancelar').addEventListener('click', function() {
+const btnCancelar = document.getElementById('cancelar');
+if (btnCancelar){
+    btnCancelar.addEventListener('click', function() {
     window.location.href = '/verPessoas'; // Redireciona para a página de consulta ao clicar em Cancelar
-});
+    })
+};
 
 /*-----CONFIRMAÇÃO DE LOGOUT----------------------------------------------------------------------------------------------------------*/
 
@@ -1190,6 +1221,8 @@ const btnBuscarCep = document.getElementById("buscar_cep");
 if (btnBuscarCep) {
     btnBuscarCep.addEventListener("click", function () {
         const campoCep = document.getElementById("cep_unidade");
+        
+
         if (!campoCep) return;
 
         let cep = campoCep.value.replace(/\D/g, "");
@@ -1198,17 +1231,18 @@ if (btnBuscarCep) {
             alert("CEP inválido. Digite um CEP com 8 números.");
             return;
         }
+        console.log(cep)
 
         fetch(`https://viacep.com.br/ws/${cep}/json/`)
             .then(response => response.json())
             .then(data => {
-                if (data.erro) {
+                if (data.erro === true) {
                     alert("CEP não encontrado.");
                     return;
                 }
 
                 // Validação São Paulo
-                if (data.localidade !== "São Paulo" || data.uf !== "SP") {
+                if (data.localidade.toLowerCase().trim() !== "são paulo" || data.uf.toUpperCase().trim() !== "SP") {
                     alert("Este CEP não pertence à cidade de São Paulo.");
 
                     const tipo = document.getElementById("tipo_logradouro");
@@ -1225,11 +1259,18 @@ if (btnBuscarCep) {
 
                 let resultado = { tipo: "", nome: "" };
 
-                // Só tenta extrair se o select existir
-                const selectTipo = document.getElementById("tipo_logradouro");
-                if (selectTipo && data.logradouro && data.logradouro.trim() !== "") {
-                    resultado = extrairTipoLogradouro(data.logradouro);
+                if (data.logradouro && data.logradouro.trim() !== "") {
+                    const partes = data.logradouro.trim().split(" ");
+                    resultado.tipo = partes[0];
+                    resultado.nome = partes.slice(1).join(" ");
                 }
+
+                // Só tenta extrair se o select existir
+                // const selectTipo = document.getElementById("tipo_logradouro");
+                // if (selectTipo && data.logradouro && data.logradouro.trim() !== "") {
+                //     resultado = extrairTipoLogradouro(data.logradouro);
+                
+                // }
 
                 const tipo = document.getElementById("tipo_logradouro");
                 const logradouro = document.getElementById("logradouro_unidade");

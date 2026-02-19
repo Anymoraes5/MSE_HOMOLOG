@@ -1,3 +1,4 @@
+console.log("JS CARREGANDO CONSULTAR USUARIO");
 /*-----AUTENTICAÇÃO---------------------------------------------------------------------------------------------------------*/
 
 // Verifica se o usuário está autenticado usando o cookie de admin

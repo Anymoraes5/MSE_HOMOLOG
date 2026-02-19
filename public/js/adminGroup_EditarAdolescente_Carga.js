@@ -1,3 +1,4 @@
+console.log("JS CARREGANDO EDITAR CARGA");
 /*-----AUTENTICAÇÃO---------------------------------------------------------------------------------------------------------*/
 
 // Verifica se o usuário está autenticado usando o cookie de admin
@@ -720,10 +721,10 @@ async function carregarDadosDoUsuario(ID) {
 			'complemento_unidade': data['complemento_unidade'] || '',
 			'bairro_unidade': data['bairro_unidade'] || '',
 			'telefone_unidade': data['telefone_unidade'] || '',
-			'responsavel_unidade': data['responsavel'] || '',
-			'horario_inicio_unidade': data['horario_inicio'] || '',
-			'horario_fim_unidade': data['horario_fim'] || '',
-			'atividade_unidade': data['atividade'] || '',			
+			'responsavel_unidade': data['responsavel_unidade'] || '',
+			'horario_inicio_unidade': data['horario_inicio_unidade'] || '',
+			'horario_fim_unidade': data['horario_fim_unidade'] || '',
+			'atividade_unidade': data['atividade_unidade'] || '',			
             'ativo_inativo': tratarValor(data['ativo_inativo']),
             'dt_cadastro': formatarData(data['dt_cadastro']),
             'dt_atualizacao': formatarData(data['dt_atualizacao']),

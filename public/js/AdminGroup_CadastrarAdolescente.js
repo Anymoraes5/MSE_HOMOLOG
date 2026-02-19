@@ -1,3 +1,5 @@
+console.log("JS CARREGADO");
+
 /*-----AUTENTICAÇÃO---------------------------------------------------------------------------------------------------------*/
 
 // Verifica se o usuário está autenticado usando o cookie de admin
@@ -1650,16 +1652,20 @@ window.onload = function carregarDados() {
         buscarTecRefPorMse(mseSelecionado); // Chama a função para buscar TecRef com base no mse
     });
 
-//Buscar CEP 
 // Buscar CEP
+
+
 const btnBuscarCep = document.getElementById("buscar_cep");
 
 if (btnBuscarCep) {
 
     btnBuscarCep.addEventListener("click", function (e) {
         e.preventDefault();
+        
 
         const inputCep = document.getElementById("cep_unidade");
+        console.log("Botão clicado", btnBuscarCep);
+
         if (!inputCep) return;
 
         const cep = inputCep.value.replace(/\D/g, "");
@@ -1668,8 +1674,10 @@ if (btnBuscarCep) {
             alert("CEP inválido. Digite um CEP com 8 números.");
             return;
         }
+        
 
-        fetch(`https://viacep.com.br/ws/${cep_unidade}/json/`)
+
+        fetch(`https://viacep.com.br/ws/${cep}/json/`)
             .then(response => response.json())
             .then(data => {
 
@@ -2118,6 +2126,7 @@ document.addEventListener('DOMContentLoaded', function () {
         document.getElementById("horario_fim_unidade"),
         document.getElementById("horas_psc")
     ].filter(Boolean);
+
 
     const complemento = document.getElementById("complemento_unidade");
     const checkboxesDias = document.querySelectorAll('#dias_semana input[type="checkbox"]');
