@@ -1,0 +1,23 @@
+@import url(../css/menus.css);
+
+html, body {
+    height: 100%; /* Garante que o body ocupe 100% da altura da tela */
+    margin: 0; /* Remove margens padrão */
+    padding: 0; /* Remove espaçamentos padrão */
+}
+
+
+h1 {
+    text-align: center;
+    margin-top: 5px;
+    font-size: 2em; /* Tamanho da fonte */
+    color: #00000096; /* Cor do texto principal */
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.4); /* Sombra para o efeito de profundidade */
+}
+.tittle{
+    text-align: center;
+    margin-top: 3rem; 
+    font-size: 2em;
+    color: #000000;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.4);
+}

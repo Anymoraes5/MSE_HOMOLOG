@@ -10,37 +10,9 @@
     <link rel="stylesheet" href="/css/cadastrarAdolescente.css">
 </head>
 <body>
-    <nav id="menu-principal">
-        <img src="/images/MSE.png" alt="logo-mse">
-        <span>|</span>
-        <a href="/home">Consulta de Adolescentes/Jovens</a>
-        <span>|</span>
-        <a href="#" class="active">Cadastro de Adolescentes/Jovens</a>
-        <span>|</span>
-        <a href="#" onclick="confirmLogout()">Logout</a>
-        <span>|</span>
-    </nav>
-    <nav id="menu-lateral">
-        <ul>
-            <hr>
-            <li><h5>Menu de Navegação</h3></li>
-            <hr>
-            <li><a href="#dados-do-servico">Dados do Serviço</a></li>
-            <hr>
-            <li><a href="#dados-da-pessoa">Dados pessoais do(a) Adolescente/Jovem</a></li>
-            <hr>
-            <li><a href="#informacoes-do-endereco">Informações do Endereço</a></li>
-            <hr>
-            <li><a href="#informacoes-da-pessoa">Informações do(a) Adolescente/Jovem</a></li>
-            <hr>
-            <li><a href="#informacoes-do-processo">Informações do Processo</a></li>
-            <hr>
-            <li><a href="#informacoes-do-contato">Informações do Contato</a></li>
-            <hr>
-            <li><a href="#identificador-da-pessoa">Identificador do Cadastro</a></li>
-            <hr>
-        </ul>
-    </nav>
+    <div id="navbarUser"></div>
+    
+    
     
     <div id="container" class="container-mt5"> <!-- Container para centralizar e adicionar margem superior -->
         <h1>CADASTRAR ADOLESCENTE/JOVEM</h1>
@@ -529,6 +501,8 @@
 
         </form>
     </div>
+    <script src="js/components/User/navUser.js"></script>
+    <script src="js/components/User/sidebarUser.js"></script>
     <script src="/js/userGroup_CadastrarAdolescente.js"></script>
 </body><br><br>
 <footer>

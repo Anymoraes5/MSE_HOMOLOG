@@ -10,45 +10,14 @@
     <link rel="stylesheet" href="/css/editarAdolescente.css">
 </head>
 <body>
+    
         <!-- Seu script JavaScript -->
         <script src="/js/adminGroup_EditarAdolescente_Carga.js"></script>
-        <nav id="menu-principal">
-            <img src="/images/MSE.png" alt="logo-mse">
-            <span>|</span>
-            <a href="/consulta">Consulta de Usuários do Sistema</a>
-            <span>|</span>
-            <a href="/cadastro">Cadastro de Usuários do Sistema</a>
-            <span>|</span>
-            <a href="/verPessoas">Consulta de Adolescentes/Jovens</a>
-            <span>|</span>
-            <a href="/adminCadastraPessoa">Cadastrar Adolescente/Jovem</a>
-            <span>|</span>
-            <a href="#" onclick="confirmLogout()">Logout</a>
-            <span>|</span>
-        </nav>
-        <nav id="menu-lateral">
-            <ul>
-                <hr>
-                <li><h5>Menu de Navegação</h3></li>
-                <hr>
-                <li><a href="#dados-do-servico">Dados do Serviço</a></li>
-                <hr>
-                <li><a href="#dados-da-pessoa">Dados pessoais do(a) Adolescente/Jovem</a></li>
-                <hr>
-                <li><a href="#informacoes-do-endereco">Informações do Endereço</a></li>
-                <hr>
-                <li><a href="#informacoes-da-pessoa">Informações do(a) Adolescente/Jovem</a></li>
-                <hr>
-                <li><a href="#informacoes-do-processo">Informações do Processo</a></li>
-                <hr>
-                <li><a href="#informacoes-do-contato">Informações do Contato</a></li>
-                <hr>
-                <li><a href="#identificador-da-pessoa">Identificador do Cadastro</a></li>
-                <hr>
-            </ul>
-        </nav>
+        <div id="navbar"></div>
+        <div id="sidebar"></div>
+        
         <div id="container" class="container-mt5"> <!-- Container para centralizar e adicionar margem superior -->
-        <h1>EDITAR ADOLESCENTE/JOVEM</h1>
+        <h1 class="tittle">EDITAR ADOLESCENTE/JOVEM</h1>
         <form id="editar-form">
             <hr><h2 id="dados-do-servico">DADOS DO SERVIÇO</h2><hr>
             <BR>
@@ -454,13 +423,13 @@
 			<input type="text" id="telefone_unidade" name="telefone_unidade" class="form-control telefone-br">
 
 			<label for="horario_inicio_unidade">Horário de início da medida:<span class="red-asterisk unidade-obrigatorio">*</span></label>
-			<input type="time" id="horario_inicio_unidade" name="horario_inicio_unidade" class="form-control">
+			<input type="time" id="horario_inicio_unidade" name="horario_inicio_unidade" class="form-control" required>
 
 			<label for="horario_fim_unidade">Horário de término da medida:<span class="red-asterisk unidade-obrigatorio">*</span></label>
-			<input type="time" id="horario_fim_unidade" name="horario_fim_unidade" class="form-control">
+			<input type="time" id="horario_fim_unidade" name="horario_fim_unidade" class="form-control" required>
 
 			<label>Dia da semana que presta a medida:<span class="red-asterisk unidade-obrigatorio">*</span></label>
-			<div id="dias_semana">
+			<div id="dias_semana" required>
 				<label><input type="checkbox" name="dias[]" value="Segunda"> Segunda</label>
 				<label><input type="checkbox" name="dias[]" value="Terça"> Terça</label>
 				<label><input type="checkbox" name="dias[]" value="Quarta"> Quarta</label>
@@ -525,7 +494,8 @@
     </div>
     <!-- Adicione os arquivos JavaScript do Bootstrap (opcional, mas necessário para alguns recursos) -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.4.0/dist/js/bootstrap.bundle.min.js"></script>
-
+    <script src="js/components/Admin/navAdmin.js"></script>
+    <script src="js/components/Admin/sidebarAdmin.js"></script>
     <script src="/js/adminGroup_EditarAdolescente_Edicao.js">
           
     </script>

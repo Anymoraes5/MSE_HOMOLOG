@@ -1,3 +1,5 @@
+@import url(../css/global.css);
+
 html, body {
     height: 100%; /* Garante que o body ocupe 100% da altura da tela */
     margin: 0; /* Remove margens padrão */
@@ -8,29 +10,7 @@ body {
     background-color: #f8f9fa; /* Fundo cinza claro */
 }
 
-nav {
-    background-color: #bcc6d0; /* Azul */
-    padding: 20px 0;
-    text-align: center;
-    
-}
 
-#menu-principal {
-    position: fixed;
-    top: 0; /* Ajuste conforme necessário */
-    left: 0;
-    width: 100vw;
-    z-index: 1000;
-}
-
-nav a {
-    text-decoration: none;
-    color: black;
-
-    margin: 0 10px;
-    padding: 5px;
-    border-radius: 5px;
-}
 
 
 .error-message {
@@ -39,13 +19,7 @@ nav a {
     margin-top: 0.25em;
 }
 
-nav a:hover{
-    text-decoration:overline;
-    color: black;
-    padding: 5px;
-    border-radius: 5%;
-    font-weight: bold;
-}
+
 
 .unidade-obrigatorio {
     display: none;
@@ -59,20 +33,6 @@ nav a:hover{
     border-radius: 5%;
 }
 
-nav img {
-    max-width: 100px; /* Ajusta o tamanho máximo da imagem (menor que antes) */
-    height: auto; /* Mantém a proporção original da imagem */
-    vertical-align: middle; /* Alinha a imagem verticalmente com o conteúdo do nav */
-    margin-right: 20px; /* Espaçamento à direita da imagem */
-}
-
-h1 {
-    text-align: center;
-    margin-top: 5px;
-    font-size: 2em; /* Tamanho da fonte */
-    color: #2d2f32; /* Cor do texto principal */
-    text-shadow: 2px 2px 4px rgba(0,0,0,0.4); /* Sombra para o efeito de profundidade */
-}
 
 
 form {
@@ -193,13 +153,7 @@ button[type="submit"]:hover {
     padding: 20px;
 }
 
-h1 {
-    text-align: center;
-    margin-top: 20px; /* Ajusta a margem superior */
-    font-size: 2em;
-    color: #2d2f32;
-    text-shadow: 2px 2px 4px rgba(0,0,0,0.4);
-}
+
 
 
 #programas_sociais label {

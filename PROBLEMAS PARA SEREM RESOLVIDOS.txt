@@ -1,13 +1,20 @@
 DEIXEI OS ARQUIVOS ABERTOS QUE FARAO PARTE DA ANALISE MINUNCIOSA DO ITEM 1 do BackLog (historico_unidade_acolhedora mostra os campos com problemas)
 EDITAR/VER CADASTRAR - Erro ao buscar CEP 
 EDITAR - Quando salva campos preenchidos na unidade acolhedora ele salva na verdade alguns dados em branco na base de dados
+EDITAR - Quando Carrega o dado de CEP ele não vem com o "-" traço 
+EDITAR - Esta permitindo gravar campos vazios em campos obrigatórios (unidade acolhedora)
+
 ----------------------------------------------------------------------
 
-EDITAR - Esta permitindo gravar campos vazios em campos obrigatórios (unidade acolhedora)
-EDITAR - Quando Carrega o dado de CEP ele não vem com o "-" traço 
+
 
 
 Esta permitindo gravar processos duplicados? Pode isso? (Número do processo de execução: e Número do processo de apuração: e Número da Pasta Técnica (Fundação Casa):)
+
+===========================================organização do css=========================
+1 criar o componentes
+2 criar os override se houver 
+3 chamar somente a pasta do override
 
 
 
