@@ -8,20 +8,8 @@
     <link rel="stylesheet" href="/css/consultarAdolescente.css">
 </head>
 <body>
-    <nav id="menu-principal">
-        <img src="/images/MSE.png" alt="logo-mse">
-        <span>|</span>
-        <a href="/consulta">Consulta de Usuários do Sistema</a>
-        <span>|</span>
-        <a href="/cadastro">Cadastrar Usuários do Sistema</a>
-        <span>|</span>
-        <a href="/verPessoas" class="active">Consulta de Adolescentes/Jovens</a>
-        <span>|</span>
-        <a href="/adminCadastraPessoa">Cadastrar Adolescentes/Jovens</a>
-        <span>|</span>
-        <a href="#" onclick="confirmLogout()">Logout</a>
-        <span>|</span>
-    </nav>
+    <div id="navbar"></div>
+
     <div class="container">
         <form id="filtro-form">
             <div class="form-row">
@@ -106,6 +94,7 @@
             </tbody>
         </table>
     </div>
+    <script src="js/components/Admin/navAdmin.js"></script>
     <script src="/js/adminGroup_ConsultarAdolescente.js"></script>
 </body><br>
 <footer>

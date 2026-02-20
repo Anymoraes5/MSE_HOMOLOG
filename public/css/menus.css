@@ -1,0 +1,38 @@
+/* ============================Menu top============================== */
+
+#menu-principal {
+    position: fixed;
+    top: 0; /* Ajuste conforme necessário */
+    left: 0;
+    width: 100vw;
+    z-index: 1000;
+}
+nav {
+    background-color: #bcc6d0; /* Azul */
+    padding: 20px 0;
+    text-align: center;
+    
+}
+nav a {
+    text-decoration: none;
+    color: black;
+
+    margin: 0 10px;
+    padding: 5px;
+    border-radius: 5px;
+}
+nav img {
+    max-width: 100px; /* Ajusta o tamanho máximo da imagem (menor que antes) */
+    height: auto; /* Mantém a proporção original da imagem */
+    vertical-align: middle; /* Alinha a imagem verticalmente com o conteúdo do nav */
+    margin-right: 20px; /* Espaçamento à direita da imagem */
+}
+nav a:hover{
+    text-decoration:overline;
+    color: black;
+    padding: 5px;
+    border-radius: 5%;
+    font-weight: bold;
+}
+
+/* =============================MENU LATERAL============================== */

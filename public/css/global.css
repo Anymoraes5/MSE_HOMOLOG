@@ -1,0 +1,7 @@
+@import url(menu.css);
+
+html, body {
+    height: 100%; /* Garante que o body ocupe 100% da altura da tela */
+    margin: 0; /* Remove margens padrão */
+    padding: 0; /* Remove espaçamentos padrão */
+}
