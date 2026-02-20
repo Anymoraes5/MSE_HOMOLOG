@@ -1,3 +1,5 @@
+@import url(../css/global.css);
+
 html, body {
     height: 100%; /* Garante que o body ocupe 100% da altura da tela */
     margin: 0; /* Remove margens padrão */
@@ -11,21 +13,13 @@ body {
 
 
 
-
-
 .error-message {
     color: red;
     font-size: 0.875em;
     margin-top: 0.25em;
 }
 
-nav a:hover{
-    text-decoration:overline;
-    color: black;
-    padding: 5px;
-    border-radius: 5%;
-    font-weight: bold;
-}
+
 
 .unidade-obrigatorio {
     display: none;
@@ -39,15 +33,6 @@ nav a:hover{
     border-radius: 5%;
 }
 
-
-
-h1 {
-    text-align: center;
-    margin-top: 5px;
-    font-size: 2em; /* Tamanho da fonte */
-    color: #2d2f32; /* Cor do texto principal */
-    text-shadow: 2px 2px 4px rgba(0,0,0,0.4); /* Sombra para o efeito de profundidade */
-}
 
 
 form {
@@ -168,13 +153,7 @@ button[type="submit"]:hover {
     padding: 20px;
 }
 
-h1 {
-    text-align: center;
-    margin-top: 20px; /* Ajusta a margem superior */
-    font-size: 2em;
-    color: #2d2f32;
-    text-shadow: 2px 2px 4px rgba(0,0,0,0.4);
-}
+
 
 
 #programas_sociais label {
