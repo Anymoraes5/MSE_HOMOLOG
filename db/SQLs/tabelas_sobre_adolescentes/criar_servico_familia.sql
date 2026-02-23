@@ -14,5 +14,4 @@ INSERT IGNORE INTO `servico_familia` (`ID`, `descricao`, `ativo_inativo`) VALUES
 (6, 'SPVV', 1),
 (7, 'NAISPD', 1),
 (8, 'SASF', 1),
-(9, 'NPJ', 1),
-(10, 'CDCM', 1);
+(9, 'CREAS', 1),
