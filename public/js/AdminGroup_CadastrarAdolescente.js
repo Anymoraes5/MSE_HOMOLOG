@@ -781,6 +781,10 @@ document.getElementById('dt_nasc').addEventListener('change', function() {
     if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
         age--;
     }
+    if (age < 12 || age > 21){
+        alert("Idade fora do escopo")
+        document.getElementById('idade').value="";
+    }
     document.getElementById('idade').value = age;
 });
 
