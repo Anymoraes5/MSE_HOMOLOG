@@ -1,4 +1,7 @@
+import {$, $$, on} from "./helpers.js"
+
 console.log("JS CARREGADO");
+
 
 /*-----AUTENTICAÇÃO---------------------------------------------------------------------------------------------------------*/
 
@@ -110,7 +113,7 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 //Limpar campos se o CEP for alterado
-document.getElementById("cep_unidade").addEventListener("input", function () {
+on("cep_unidade", "change", function() {
     document.getElementById("tipo_logradouro").value = "";
     document.getElementById("logradouro_unidade").value = "";
     document.getElementById("bairro_unidade").value = "";
@@ -263,7 +266,11 @@ var dd = String(hoje.getDate()).padStart(2, '0');
 var mm = String(hoje.getMonth() + 1).padStart(2, '0'); // Janeiro é 0!
 var yyyy = hoje.getFullYear();
 // Define o valor do atributo max para a data atual
-document.getElementById("dt_nasc").max = yyyy + '-' + mm + '-' + dd;
+// document.getElementById("dt_nasc").max = yyyy + '-' + mm + '-' + dd;
+const dtNasc = document.getElementById("dt_nasc");
+if (dtNasc) {
+    dtNasc.max = hoje;
+}
 document.getElementById("dt_interpretacao_medida").max = yyyy + '-' + mm + '-' + dd;
 document.getElementById("dt_ultimo_relatorio_enviado").max = yyyy + '-' + mm + '-' + dd;
 

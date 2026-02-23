@@ -44,7 +44,7 @@
             <input type="text" id="cartao_sus" name="cartao_sus" class="form-control" placeholder="Formato: XXXXXXXXXXXXXXX" maxlength="15" minlength="15">
 
             <label for="cad_unico" class="form-label">Adolescente ou família possui cadastro no CadÚnico?</label>
-            <select name="cad_unico" id="cad_unico" class="form-select" required onchange="cad_unico">
+            <select name="cad_unico" id="cad_unico" class="form-select" required onchange="checkCadUnico">
                 <option value=""></option>
                 <option value="0">Não</option>
                 <option value="1">Sim</option>
@@ -103,7 +103,7 @@
             <label for="cep" class="form-label">CEP:<span class="red-asterisk">*</span></label>
             <div>
                 <input type="text" id="cep" name="cep" class="form-control" required minlength="9" maxlength="9" placeholder="00000-000">
-                <button type="button" id="buscar_cep" class="btn btn-primary">Buscar CEP</button>
+                <!-- <button type="button" id="buscar_cep_pessoa" class="btn btn-primary">Buscar CEP</button> -->
             </div>
             
 
