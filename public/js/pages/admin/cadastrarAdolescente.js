@@ -1,4 +1,5 @@
-import { $,$$, on, somenteLetras, somenteNumeros, upperTrim } from "../../admin/helpers.js";
+import { $,$$, on, somenteLetras, somenteNumeros, upperTrim, validarObrigatoriosAutomatico, limparCampos, validarDocumento } from "../../admin/helpers.js";
+
 
 console.log("JS CARREGADO");
 
@@ -13,16 +14,17 @@ function validarObrigatorio(id, mensagem) {
     return true;  
 }
 //==========================validar data===================================
-function validarDataCampo(id, mensagem) {
-    const el = $(id);
-    const data = validarData(formatarData(el.value));
-    if (!data) {
-        alert(mensagem);
-        el.focus();
-        return false;
-    }
-    return true;
-}
+// function validarDataCampo(id, mensagem) {
+//     const el = $(id);
+//     const data = validarData(formatarData(el.value));
+//     if (!data) {
+//         alert(mensagem);
+//         el.focus();
+//         return false;
+//     }
+//     return true;
+// }
+
 
 
 /*-----AUTENTICAÇÃO---------------------------------------------------------------------------------------------------------*/
@@ -43,11 +45,11 @@ document.querySelectorAll('#menu-lateral a').forEach(anchor => {
 
         // Obter o ID do conteúdo correspondente ao link clicado
         const targetId = this.getAttribute('href').substring(1);
-        const targetElement = document.getElementById(targetId);
+        const targetElement = $(targetId);
 
         if (targetElement) {
             // Calcular a altura do menu principal
-            const menuPrincipalHeight = document.getElementById('menu-principal').offsetHeight;
+            const menuPrincipalHeight = $('menu-principal').offsetHeight;
 
             // Calcular a posição do topo do elemento alvo
             const targetTop = targetElement.offsetTop - menuPrincipalHeight;
@@ -74,29 +76,29 @@ on("cep_unidade", "change", function() {
 
 //Função para bloquear edição manual após escolha de CEP
 function bloquearCamposEndereco(bloquear = true) {
-    document.getElementById("tipo_logradouro").disabled = bloquear;
-    document.getElementById("logradouro_unidade").readOnly = bloquear;
-    document.getElementById("bairro_unidade").readOnly = bloquear;
+    $("tipo_logradouro").disabled = bloquear;
+    $("logradouro_unidade").readOnly = bloquear;
+    $("bairro_unidade").readOnly = bloquear;
 }
 
 //converte letras para maisusculo e impede espaços extras
 document.addEventListener('DOMContentLoaded', function() {
-    const nome = document.getElementById('nome');
-    const nome_social = document.getElementById('nome_social');
-    const nome_da_mae = document.getElementById('nome_da_mae');
-    const nome_do_pai = document.getElementById('nome_do_pai');
-    const nome_responsavel = document.getElementById('nome_responsavel');
-	const responsavel_unidade = document.getElementById('responsavel_unidade');
-    const bairro = document.getElementById('bairro');
-    const rua = document.getElementById('rua');
-    const complemento = document.getElementById('complemento');
-    const nome_do_contato = document.getElementById('nome_do_contato');
+    const nome = $('nome');
+    const nome_social = $('nome_social');
+    const nome_da_mae = $('nome_da_mae');
+    const nome_do_pai = $('nome_do_pai');
+    const nome_responsavel = $('nome_responsavel');
+	const responsavel_unidade = $('responsavel_unidade');
+    const bairro = $('bairro');
+    const rua = $('rua');
+    const complemento = $('complemento');
+    const nome_do_contato = $('nome_do_contato');
 
 		aplicarMascaraCEP("cep_unidade");
 		aplicarMascaraCEP("cep");
 
 		function aplicarMascaraCEP(idCampo) {
-		const campo = document.getElementById(idCampo);
+		const campo = $(idCampo);
 		if (!campo) return;
 
 		campo.addEventListener("input", function () {
@@ -111,19 +113,17 @@ document.addEventListener('DOMContentLoaded', function() {
 	}
 	
     function formatarNome(inputElement) {
+        if (!inputElement) return; // ← proteção
+
         inputElement.addEventListener('input', function() {
             let valor = this.value;
 
-            // Garante que haja apenas um espaço entre as palavras
             valor = valor.replace(/\s+/g, ' ');
-
-            // Converte para maiúsculas
             valor = valor.toUpperCase();
 
             this.value = valor;
         });
 
-        // Remove espaços no início e no final quando o campo perde o foco
         inputElement.addEventListener('blur', function() {
             this.value = this.value.trim();
         });
@@ -143,8 +143,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
 //função para padronizar numero do processo
 document.addEventListener('DOMContentLoaded', function() {
-    const nProcessoInput = document.getElementById('n_processo');
+    const nProcessoInput = $('n_processo');
     const formato = '0000000-00.0000.0.00.0000';
+
+    if(!nProcessoInput) return;
 
     nProcessoInput.addEventListener('input', function() {
         let valorDigitado = this.value.replace(/[^\d]/g, ''); // Remove tudo que não é dígito
@@ -179,7 +181,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // função para resetar os campos do tipo select
 function resetSelectField(selectId) {
-    var selectField = document.getElementById(selectId);
+    var selectField = $(selectId);
 
     if (!selectField) {
         console.warn('Select não encontrado:', selectId);
@@ -204,13 +206,20 @@ var dd = String(hoje.getDate()).padStart(2, '0');
 var mm = String(hoje.getMonth() + 1).padStart(2, '0'); // Janeiro é 0!
 var yyyy = hoje.getFullYear();
 // Define o valor do atributo max para a data atual
-// document.getElementById("dt_nasc").max = yyyy + '-' + mm + '-' + dd;
-const dtNasc = document.getElementById("dt_nasc");
+// $("dt_nasc").max = yyyy + '-' + mm + '-' + dd;
+const dtNasc = $("dt_nasc");
 if (dtNasc) {
-    dtNasc.max = hoje;
+    dtNasc.max = `${yyyy}-${mm}-${dd}`;
 }
-document.getElementById("dt_interpretacao_medida").max = yyyy + '-' + mm + '-' + dd;
-document.getElementById("dt_ultimo_relatorio_enviado").max = yyyy + '-' + mm + '-' + dd;
+const dtInterpretacao= $("dt_interpretacao_medida");
+if (dtInterpretacao) {
+    dtInterpretacao.max = `${yyyy}-${mm}-${dd}`;
+}
+const dtUltimoRelatorio = $("dt_ultimo_relatorio_enviado");
+if (dtUltimoRelatorio) {
+    dtUltimoRelatorio.max = `${yyyy}-${mm}-${dd}`;
+}
+
 
 
 //função para formatar uma data 
@@ -238,12 +247,15 @@ function validarNome(inputNome) {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
-    var cpfInput = document.getElementById('cpf');
-    var errorMessage = document.getElementById('error-message');
-    var cadastrarButton = document.getElementById('cadastrar');
+    var errorMessage = $('error-message');
+    var cadastrarButton = $('cadastrar');
+    var cpfInput = $('cpf');
 
-    cpfInput.addEventListener('input', function () {
-        var cpfValue = this.value;
+    if (!cpfInput || !cadastrarButton || !errorMessage) return;
+
+    if (cpfInput) {
+        cpfInput.addEventListener('input', function (){
+            var cpfValue = this.value;
         var cpfValido = validarCPF(cpfValue);
 
         if (!cpfValido) {
@@ -257,8 +269,10 @@ document.addEventListener('DOMContentLoaded', function() {
             cadastrarButton.disabled = false; // Ativar botão se CPF for válido
             cadastrarButton.title = '';
         }
-    });
 
+        });
+    }
+        
     cadastrarButton.addEventListener('mouseover', function(event) {
         if (cadastrarButton.disabled) {
             // Prevenir a ação padrão de um botão desabilitado (caso tenha sido reabilitado via código)
@@ -270,7 +284,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function checkDrogas() {
-    const select = document.getElementById('alcool_ou_drogas');
+    const select = $('alcool_ou_drogas');
     if (!select) return;
 
     if (select.value === '1') {
@@ -313,7 +327,7 @@ function validarCPF(cpf) {
 }
 
 function verificarComprimentoNProcesso() {
-    const nProcessoInput = document.getElementById('n_processo');
+    const nProcessoInput = $('n_processo');
 
     // Verifica se o elemento existe antes de tentar acessar seu valor
     if (nProcessoInput) {
@@ -332,22 +346,25 @@ function verificarComprimentoNProcesso() {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
-    var nProcessoInput = document.getElementById('n_processo');
-    var errorMessage = document.getElementById('error-message-processo');
+    var errorMessage = $('error-message-processo');
 
-    nProcessoInput.addEventListener('input', function () {
-        var nProcessoValue = this.value;
-        var nProcessoValido = verificarComprimentoNProcesso(nProcessoValue);
+    var nProcessoInput = $('n_processo');
+    if (nProcessoInput){
+        nProcessoInput.addEventListener('input', function(){
+            var nProcessoValue = this.value;
+            var nProcessoValido = verificarComprimentoNProcesso(nProcessoValue);
 
-        if (!nProcessoValido) {
-            // Exibir uma mensagem de erro
-            errorMessage.textContent = 'Processo inválido. Por favor, verifique e tente novamente.';
-            //event.preventDefault();
-        } else {
-            // Limpar a mensagem de erro se o CPF for válido
-            errorMessage.textContent = '';
-        }
-    });
+            if (!nProcessoValido) {
+                // Exibir uma mensagem de erro
+                errorMessage.textContent = 'Processo inválido. Por favor, verifique e tente novamente.';
+                //event.preventDefault();
+            } else {
+                // Limpar a mensagem de erro se o CPF for válido
+                errorMessage.textContent = '';
+            }
+
+        })
+    }
 });
 
 
@@ -447,7 +464,8 @@ function validarTelefone(telefone) {
 
 // Função genérica para validação de caracteres permitidos em campos de entrada
 function validarCaracteresPermitidos(elementId, allowedCharacters) {
-    var element = document.getElementById(elementId);
+    var element = $(elementId);
+    if (!element) return;
 
     element.setAttribute('autocomplete', 'off');
 
@@ -485,7 +503,7 @@ function extrairTipoLogradouro(logradouroCompleto) {
         return { tipo: "", nome: "" };
     }
 
-    const select = document.getElementById("tipo_logradouro");
+    const select = $("tipo_logradouro");
 
     // Se o select não existe ou está vazio, não valida
     if (!select || !select.value) {
@@ -552,9 +570,9 @@ const numeros = "0123456789";
 
 /*----as funções de check são chamadas dentro da tag html com o evento que verifica mudanças no campo---*/
 function checkSexo() {
-    var sexo = document.getElementById("sexo").value;
-    var gestante = document.getElementById("gestante");
-    var lactante = document.getElementById("lactante");
+    var sexo = $("sexo").value;
+    var gestante = $("gestante");
+    var lactante = $("lactante");
 
     if (sexo === "M") { // Masculino
         gestante.value = "0";
@@ -568,8 +586,8 @@ function checkSexo() {
 }
 
 function checkDeficiencia() {
-    var possui_deficiencia = document.getElementById("possui_deficiencia").value;
-    var deficiencia = document.getElementById("deficiencia");
+    var possui_deficiencia = $("possui_deficiencia").value;
+    var deficiencia = $("deficiencia");
 
     if (possui_deficiencia === "0") { // Não
         deficiencia.value = "";
@@ -594,8 +612,8 @@ function checkMedicamentos() {
 }
 
 function checkMedicamentosControlados() {
-    var faz_uso_de_medicamentos_controlados = document.getElementById("faz_uso_de_medicamentos_controlados").value;
-    var medicamentos_controlados = document.getElementById("medicamentos_controlados");
+    var faz_uso_de_medicamentos_controlados = $("faz_uso_de_medicamentos_controlados").value;
+    var medicamentos_controlados = $("medicamentos_controlados");
 
     if (faz_uso_de_medicamentos_controlados === "0") { // Não
         medicamentos_controlados.value = "";
@@ -610,7 +628,7 @@ function checkMedicamentosControlados() {
 function checkDemandaSaude() {
     var possui_demanda_saude = $("possui_demanda_saude").value;
     var saude = $("saude");
-    //var acompanhamento_saude = document.getElementById("acompanhamento_saude");
+    //var acompanhamento_saude = $("acompanhamento_saude");
 
     if (possui_demanda_saude === "0") { // Não
         saude.value = "";
@@ -625,8 +643,8 @@ function checkDemandaSaude() {
 
 function checkDemandaSaudeMental() {
     var possui_demanda_saude_mental = $("possui_demanda_saude_mental").value;
-    var saude_mental = document.getElementById("saude_mental");
-    //var acompanhamento_saude = document.getElementById("acompanhamento_saude");
+    var saude_mental = $("saude_mental");
+    //var acompanhamento_saude = $("acompanhamento_saude");
 
     if (possui_demanda_saude_mental === "0") { // Não
         saude_mental.value = "";
@@ -641,14 +659,14 @@ function checkDemandaSaudeMental() {
 
 function checkMatriculado() {
     // Obtendo os elementos
-    var matriculado = document.getElementById("matriculado").value;
-    // var numeroRa = document.getElementById("numeroRa");
-    var tipoEscola = document.getElementById("tipoEscola");
-    var ensinoModalidade = document.getElementById("ensinoModalidade");
-    var cicloEstudo = document.getElementById("cicloEstudo");
-    var frequenciaAula = document.getElementById("frequenciaAula");
-    var concluiuCurso = document.getElementById("concluiuCurso");
-    var paroudeEstudar = document.getElementById("paroudeEstudar");
+    var matriculado = $("matriculado").value;
+    // var numeroRa = $("numeroRa");
+    var tipoEscola = $("tipoEscola");
+    var ensinoModalidade = $("ensinoModalidade");
+    var cicloEstudo = $("cicloEstudo");
+    var frequenciaAula = $("frequenciaAula");
+    var concluiuCurso = $("concluiuCurso");
+    var paroudeEstudar = $("paroudeEstudar");
 
     tipoEscola.disabled = false;
     ensinoModalidade.disabled = false;
@@ -675,8 +693,8 @@ function checkMatriculado() {
 }
 
 function checkTecRef() {
-    var mse = document.getElementById("mse").value;
-    var tec_ref = document.getElementById("tec_ref");
+    var mse = $("mse").value;
+    var tec_ref = $("tec_ref");
 
     if (mse == "") { // Não
         tec_ref.value = "";
@@ -687,8 +705,8 @@ function checkTecRef() {
 }
 
 function checkTrabalho() {
-    var possui_trabalho = document.getElementById("possui_trabalho").value;
-    var trabalho = document.getElementById("trabalho");
+    var possui_trabalho = $("possui_trabalho").value;
+    var trabalho = $("trabalho");
 
     if (possui_trabalho == "1") {
         trabalho.disabled = false;
@@ -699,8 +717,8 @@ function checkTrabalho() {
 }
 
 function checkFamiliar() {
-    var possui_familia_em_servico = document.getElementById("possui_familia_em_servico").value;
-    var servico_familia = document.getElementById("servico_familia");
+    var possui_familia_em_servico = $("possui_familia_em_servico").value;
+    var servico_familia = $("servico_familia");
 
     if (possui_familia_em_servico == "1") {
         servico_familia.disabled = false;
@@ -711,8 +729,8 @@ function checkFamiliar() {
 }
 
 function checkCurso() {
-    var curso = document.getElementById("curso").value;
-    var listar_cursos = document.getElementById("listar_cursos");
+    var curso = $("curso").value;
+    var listar_cursos = $("listar_cursos");
 
     if (curso == "1") {
         listar_cursos.disabled = false;
@@ -724,458 +742,60 @@ function checkCurso() {
 
 /*--------------------------calcular idade----------------------------*/
 
-document.getElementById('dt_nasc').addEventListener('change', function() {
-    const birthDate = new Date(this.value);
-    const today = new Date();
-    let age = today.getFullYear() - birthDate.getFullYear();
-    const monthDiff = today.getMonth() - birthDate.getMonth();
-    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
-        age--;
-    }
-    if (age < 12 || age > 21){
-        alert("Idade fora do escopo")
-        document.getElementById('idade').value="";
-    }
-    document.getElementById('idade').value = age;
-});
+const dtNascField = $('dt_nasc');
+if (dtNascField) {
+    dtNascField.addEventListener('change', function() {
+        const birthDate = new Date(this.value);
+        const today = new Date();
+        let age = today.getFullYear() - birthDate.getFullYear();
+        const monthDiff = today.getMonth() - birthDate.getMonth();
+
+        if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+            age--;
+        }
+
+        if (age < 12 || age > 21){
+            alert("Idade fora do escopo");
+            $('idade') && ($('idade').value = "");
+        }
+
+        $('idade') && ($('idade').value = age);
+    });
+}
 
 /*-----CADASTRAR----------------------------------------------------------------------------------------------------------*/
 
-$('cadastrar').addEventListener('click', function(event) {
-    var cpfInput = document.getElementById('cpf');
-    var cpfValue = cpfInput.value;
-    var cpfValido = validarCPF(cpfValue);
-
-    var nProcessoInput = document.getElementById('n_processo');
-    var nProcessoValue = nProcessoInput.value;
-    var nProcessoValido = verificarComprimentoNProcesso(nProcessoValue);
-
-    // Se o CPF for inválido
-    if (!validarObrigatorio('CPF', 'CPF inválido.')) {
-    event.preventDefault();
-    return;
-    }
-
-	else if (!validarObrigatorio) {
-		event.preventDefault();
-		alert('Processo de execução inválido. Por favor, verifique e tente novamente.');
-	}
-});
-
-    $('editar-form').addEventListener('submit', function(event) {
-		if (!validarDiasUnidadeAcolhedora()) {
+const form = $('editar-form');
+if(form){
+    form.addEventListener('submit', function(event){
+        if (!validarDiasUnidadeAcolhedora()) {
 			event.preventDefault();
 			return;
 		}
-    if (!confirm("Tem certeza que deseja cadastrar a pessoa?")) {
-        alert("Operação cancelada");
-        event.preventDefault()
-        return; // Encerra a função se o usuário cancelar
-    } else {
-        // Obtém os valores dos campos do formulário e verifica se está vazio
-        var ativo_inativo = $('ativo_inativo').value;
-        // Se o status não for válido, exibe um alerta e retorna
-        if (!ativo_inativo) {
-            alert('Status inválido. Por favor, verifique e tente novamente.');
-            return;
-        }
-        var dt_cadastro = validarData(formatarData($('dt_cadastro').value));
-        // Se Data de cadastro não for válida, exibe um alerta e retorna
-        if (!dt_cadastro) {
-            alert('Data de cadastro inválida. Por favor, verifique e tente novamente.');
-            return;
-        }
+        //======================validar documento==============================
+        const validacoes = [
+            { id: 'cpf', func: validarCPF, msg: 'CPF inválido.' },
+            { id: 'nis', func: validaNis, msg: 'NIS inválido.' },
+            { id: 'cartao_sus', func: validaCartao_sus, msg: 'Cartão SUS inválido.' }
+        ];
 
-        var dt_atualizacao = validarData(formatarData($('dt_atualizacao').value));
-        // Se a Data de atualização não for válida, exibe um alerta e retorna
-        if (!dt_atualizacao) {
-            alert('Data de atualização inválida. Por favor, verifique e tente novamente.');
+        for (const v of validacoes) {
+            if (!validarDocumento(v.id, v.func, v.msg, event)) return;
+        }
+        //======================validar campos obrigatorios================
+        if (!validarObrigatoriosAutomatico()) {
+            event.preventDefault();
             return;
         }
+        //======================pegar campos do form ===================
+        const formData = new FormData(form);
+        const data = Object.fromEntries(formData.entries());
 
-        var dt_desligamento = validarData(formatarData($('dt_desligamento').value));
-        // Se Data de cadastro não for válida, exibe um alerta e retorna
-        if (!dt_desligamento) {
-            alert('dt_desligamento inválida. Por favor, verifique e tente novamente.');
-            return;
-        }
-
-        var creas_atual = $('creas_atual').value;
-        // Se o creas atual não for válido, exibe um alerta e retorna
-        if (!creas_atual) {
-            alert('CREAS atual inválido. Por favor, verifique e tente novamente.');
-            return;
-        }
-        var mse = $('mse').value;
-        // Se o mse não for válido, exibe um alerta e retorna
-        if (!mse) {
-            alert('MSE inválido. Por favor, verifique e tente novamente.');
-            return;
-        }
-
-        var tec_ref = $('tec_ref').value;
-         // Se o tec_ref não for válido, exibe um alerta e retorna
-         if (!tec_ref) {
-            alert('tec_ref inválido. Por favor, verifique e tente novamente.');
-            return;
-        }
-
-        var sas = $('sas').value;
-        // Se a SAS não for válido, exibe um alerta e retorna
-        if (!sas) {
-            alert('SAS inválida. Por favor, verifique e tente novamente.');
-            return;
-        }
-        var servico_familia = $('servico_familia').value;
-       
-        var distrito_servico = $('distrito_servico').value;
-        // Se o distrito do serviço não for válido, exibe um alerta e retorna
-        if (!distrito_servico) {
-            alert('Distrito do serviço inválido. Por favor, verifique e tente novamente.');
-            return;
-        }
-        var creas_origem = $('creas_origem').value; //sem validação pois é campo opcional
-
-        var nome = validarNome($('nome'));
-        if (!nome) {
-            // Se o nome não for válido, exibe um alerta e retorna
-            alert('Nome inválido. Por favor, verifique e tente novamente.');
-            return;
-        }
-		
-		var responsavelUnidade = validarNome($('responsavel_unidade'));
-		if (!responsavelUnidade) {
-			alert('Nome do responsável da unidade inválido.');
-			return;
-		}
-	
-        var nome_social = validarNome($('nome_social')); //sem validação pois é campo opcional
-
-        var dt_nasc = validarData(formatarData($('dt_nasc').value));
-        // Se a data de nascimento não for válida, exibe um alerta e retorna
-        if (!dt_nasc) {
-            alert('Data de nascimento inválida. Por favor, verifique e tente novamente.');
-            return;
-        }
-        
-        var cpfValue = $('cpf').value.replace(/[^\d]/g, '');
-        var cpfValido = validarCPF(cpfValue);
-        
-        if (!cpfValido) {
-            // Se o CPF não for válido, interrompe o processo de cadastro
-            alert('CPF inválido. Por favor, verifique e tente novamente.');
-            event.preventDefault(); // Evita o envio do formulário
-        }
-
-        var nisValue = $('nis').value.replace(/[^\d]/g, '');
-        var nisValido = validaNis(nisValue);
-        if (!nisValido) {
-            // Se o NIS não for válido, interrompe o processo de cadastro
-            alert('NIS inválido. Por favor, verifique e tente novamente.');
-            return;
-        }
-        if (nisValue.length !== 11 || /^(\d)\1{10}$/.test(nis)) {
-            alert('NIS inválido. Por favor, verifique e tente novamente.');
-            return;
+        if (!confirm("Tem certeza que deseja cadastrar a pessoa?")) {
+            alert("Operação cancelada");
+            event.preventDefault()
+            return; // Encerra a função se o usuário cancelar
         } 
-
-        var cartao_susValue = $('cartao_sus').value.replace(/[^\d]/g, '');
-        var cartao_susValido = validaCartao_sus(cartao_susValue);
-        if (!cartao_susValido) {
-            // Se o N° do cartão do SUS não for válido, interrompe o processo de cadastro
-            alert('N° do SUS inválido. Por favor, verifique e tente novamente.');
-            return;
-        }
-
-        var medidas_mse = $('medidas_mse').value;
-        // Se medidas não for válido, exibe um alerta e retorna
-        if (!medidas_mse) {
-            alert('Medidas inválida. Por favor, verifique e tente novamente.');
-            return;
-        }
-        var nome_da_mae = validarNome($('nome_da_mae'));
-        if (!nome_da_mae) {
-            // Se o nome não for válido, interrompe o processo de cadastro
-            alert('Nome da mãe inválido. Por favor, verifique e tente novamente.');
-            return;
-        }
-        var nome_do_pai = validarNome($('nome_do_pai')); //sem validação pois é campo opcional
-        var nome_responsavel = validarNome($('nome_responsavel'));
-        if (!nome_responsavel) {
-            // Se o nome_responsavel não for válido, exibe um alerta e retorna
-            alert('Nome do responsável inválido. Por favor, verifique e tente novamente.');
-            return;
-        }
-        var sexo = $('sexo').value;
-        // Se o sexo não for válido, exibe um alerta e retorna
-        if (!sexo) {
-            alert('Sexo inválido. Por favor, verifique e tente novamente.');
-            return;
-        }
-        var gestante = $('gestante').value;
-        
-        var parceira_gestante = document.getElementById('parceira_gestante').value;
-        // Se o parceira_gestante não for válido, exibe um alerta e retorna
-        if (!parceira_gestante) {
-            alert('Parceira(o) gestante inválido. Por favor, verifique e tente novamente.');
-            return;
-        }
-        var lactante = document.getElementById('lactante').value;
-        
-        var raca = document.getElementById('raca').value;
-        // Se a Raça não for válido, exibe um alerta e retorna
-        if (!raca) {
-            alert('Raça inválida. Por favor, verifique e tente novamente.');
-            return;
-        }
-        var nacionalidade = document.getElementById('nacionalidade').value;
-        // Se a nacionalidade não for válido, exibe um alerta e retorna
-        if (!nacionalidade) {
-            alert('Nacionalidade inválida. Por favor, verifique e tente novamente.');
-            return;
-        }
-        
-        var genero = document.getElementById('genero').value; //sem validação pois é campo opcional
-        var orientacao_sexual = document.getElementById('orientacao_sexual').value; //sem validação pois é campo opcional
-        var estado_civil = document.getElementById('estado_civil').value;
-        // Se o estado_civil não for válido, exibe um alerta e retorna
-        if (!estado_civil) {
-            alert('Estado civil inválido. Por favor, verifique e tente novamente.');
-            return;
-        }
-        var matriculado = document.getElementById('matriculado').value;
-        // Se o matriculado não for válido, exibe um alerta e retorna
-        if (!matriculado) {
-            alert('Matriculado inválida. Por favor, verifique e tente novamente.');
-            return;
-        }
-        var alfabetizado = document.getElementById('alfabetizado').value;
-        // Se o alfabetizado não for válido, exibe um alerta e retorna
-        if (!alfabetizado) {
-            alert('Alfabetizado inválida. Por favor, verifique e tente novamente.');
-            return;
-        }
-        var cicloEstudo = document.getElementById('cicloEstudo').value;
-        
-        var numeroRa = document.getElementById('numeroRa').value;
-        
-        var tipoEscola = document.getElementById('tipoEscola').value;
-        
-        var ensinoModalidade = document.getElementById('ensinoModalidade').value;
-        
-        var frequenciaAula = document.getElementById('frequenciaAula').value;
-        
-        var concluiuCurso = document.getElementById('concluiuCurso').value;
-        
-        var paroudeEstudar = document.getElementById('paroudeEstudar').value;
-       
-        var possui_deficiencia = document.getElementById('possui_deficiencia').value;
-        // Se o deficiencia não for válido, exibe um alerta e retorna
-        if (!possui_deficiencia) {
-            alert('Campo é pessoa com deficiência inválido. Por favor, verifique e tente novamente.');
-            return;
-        }
-        
-        var deficiencia = document.getElementById('deficiencia').value;
-       
-        var trabalho = document.getElementById('trabalho').value; //sem validação pois é campo opcional
-        var necessita_cuidados_terceiros = document.getElementById('necessita_cuidados_terceiros').value;
-        // Se o necessita_cuidados_terceiros não for válido, exibe um alerta e retorna
-        if (!necessita_cuidados_terceiros) {
-            alert('Necessita de cuidados de terceiros inválido. Por favor, verifique e tente novamente.');
-            return;
-        }
-        var possui_demanda_saude = document.getElementById('possui_demanda_saude').value;
-        // Se o possui_demanda_saude não for válido, exibe um alerta e retorna
-        if (!possui_demanda_saude) {
-            alert('possui_demanda_saude inválido. Por favor, verifique e tente novamente.');
-            return;
-        }
-        var saude = document.getElementById('saude').value;
-
-        var possui_demanda_saude_mental = document.getElementById('possui_demanda_saude_mental').value;
-        // Se o possui_demanda_saude não for válido, exibe um alerta e retorna
-        if (!possui_demanda_saude_mental) {
-            alert('possui_demanda_saude_mental inválido. Por favor, verifique e tente novamente.');
-            return;
-        }
-        var saude_mental = document.getElementById('saude_mental').value;
-        
-        var acompanhamento_saude = document.getElementById('acompanhamento_saude').value;
-       
-        var faz_uso_de_medicamentos = document.getElementById('faz_uso_de_medicamentos').value;
-        // Se o faz_uso_de_medicamentos não for válido, exibe um alerta e retorna
-        if (!faz_uso_de_medicamentos) {
-            alert('Faz uso de medicamentos inválido. Por favor, verifique e tente novamente.');
-            return;
-        }
-        var medicamentos = document.getElementById('medicamentos').value;
-
-        var faz_uso_de_medicamentos_controlados = document.getElementById('faz_uso_de_medicamentos_controlados').value;
-        // Se o faz_uso_de_medicamentos_controlados não for válido, exibe um alerta e retorna
-        if (!faz_uso_de_medicamentos_controlados) {
-            alert('Faz uso de medicamentos controlados inválido. Por favor, verifique e tente novamente.');
-            return;
-        }
-        var medicamentos_controlados = document.getElementById('medicamentos_controlados').value;
-        
-        var possui_trabalho = document.getElementById('possui_trabalho').value;
-        // Se o possui_trabalho não for válido, exibe um alerta e retorna
-        if (!possui_trabalho) {
-            alert('Possui trabalho inválido. Por favor, verifique e tente novamente.');
-            return;
-        }
-        var programas_sociais = document.getElementById('programas_sociais').value;
-        // Se o programas_sociais não for válido, exibe um alerta e retorna
-        if (!programas_sociais) {
-            alert('Programas sociais inválido. Por favor, verifique e tente novamente.');
-            return;
-        }
-        var possui_familia_em_servico = document.getElementById('possui_familia_em_servico').value;
-        // Se o possui_familia_em_servico não for válido, exibe um alerta e retorna
-        if (!possui_familia_em_servico) {
-            alert('Possui família em serviço inválido. Por favor, verifique e tente novamente.');
-            return;
-        }
-        var possui_filhos = document.getElementById('possui_filhos').value;
-        // Se o possui_filhos não for válido, exibe um alerta e retorna
-        if (!possui_filhos) {
-            alert('Possui filhos inválido. Por favor, verifique e tente novamente.');
-            return;
-        }
-        var responsavel_por_pcd = document.getElementById('responsavel_por_pcd').value;
-        // Se o responsavel_por_pcd não for válido, exibe um alerta e retorna
-        if (!responsavel_por_pcd) {
-            alert('Responsável por PCD inválido. Por favor, verifique e tente novamente.');
-            return;
-        }
-        var adolescente_com_trajetoria_de_acolhimento = document.getElementById('adolescente_com_trajetoria_de_acolhimento').value;
-        // Se o adolescente_com_trajetoria_de_acolhimento não for válido, exibe um alerta e retorna
-        if (!adolescente_com_trajetoria_de_acolhimento) {
-            alert('Adolescente com trajetória de acolhimento inválido. Por favor, verifique e tente novamente.');
-            return;
-        }
-        var alcool_ou_drogas = document.getElementById('alcool_ou_drogas').value;
-        // Se o alcool_ou_drogas não for válido, exibe um alerta e retorna
-        if (!alcool_ou_drogas) {
-            alert('Álcool ou drogas inválido. Por favor, verifique e tente novamente.');
-            return;
-        }
-        var caps = document.getElementById('caps').value;
-        if (!caps) {
-            alert('CAPS inválido. Por favor, verifique e tente novamente.');
-            event.preventDefault()
-            return;
-        }
-
-        var curso = document.getElementById('curso').value;
-        if (!curso) {
-            alert('Curso profissionalizante inválido. Por favor, verifique e tente novamente.');
-            event.preventDefault()
-            return;
-        }
-
-        var n_processo = document.getElementById('n_processo').value;
-        // Se o n_processo não for válido, exibe um alerta e retorna
-        if (!n_processo) {
-            alert('Número do processo inválido. Por favor, verifique e tente novamente.');
-            event.preventDefault()
-            return;
-        }
-        var n_processo_apuracao = document.getElementById('n_processo_apuracao').value;
-        // Se o n_processo_apuracao não for válido, exibe um alerta e retorna
-        if (!n_processo_apuracao) {
-            alert('Número do processo de apuração inválido. Por favor, verifique e tente novamente.');
-            event.preventDefault()
-            return;
-        }
-        var n_pt = document.getElementById('n_pt').value;//sem validação pois é campo opcional
-       
-        var vara_da_infancia = document.getElementById('vara_da_infancia').value; //sem validação pois é campo opcional
-        var dt_interpretacao_medida = formatarData(document.getElementById('dt_interpretacao_medida').value);
-        // Se o dt_interpretacao_medida não for válido, exibe um alerta e retorna
-        if (!dt_interpretacao_medida) {
-            alert('Data de interpretação da medida inválida. Por favor, verifique e tente novamente.');
-            return;
-        }
-        var dt_ultimo_relatorio_enviado = formatarData(document.getElementById('dt_ultimo_relatorio_enviado').value);
-        // Se o dt_ultimo_relatorio_enviado não for válido, exibe um alerta e retorna
-        if (!dt_ultimo_relatorio_enviado) {
-            alert('Data do último relatório enviado inválida. Por favor, verifique e tente novamente.');
-            return;
-        }
-        var resumo_do_caso = document.getElementById('resumo_do_caso').value;
-        // Se o resumo_do_caso não for válido, exibe um alerta e retorna
-        if (!resumo_do_caso) {
-            alert('Resumo do caso inválido. Por favor, verifique e tente novamente.');
-            return;
-        }
-        var listar_cursos = document.getElementById('listar_cursos').value;
-        var situacao_do_processo = document.getElementById('situacao_do_processo').value;
-        // Se o Situação do processo não for válido, exibe um alerta e retorna
-        if (!situacao_do_processo) {
-            alert('Situação do processo inválido. Por favor, verifique e tente novamente.');
-            return;
-        }
-
-        var distrito_pessoa = document.getElementById('distrito_pessoa').value;
-        // Se o distrito_pessoa não for válido, exibe um alerta e retorna
-        if (!distrito_pessoa) {
-            alert('Distrito da pessoa inválido. Por favor, verifique e tente novamente.');
-            return;
-        }
-        var ubs = document.getElementById('ubs').value;
-        /*var cep = validarCEP(document.getElementById('cep')).replace(/-/g, "");
-        if (!cep) {
-            // Se o cep não for válido, interrompe o processo de cadastro
-            alert('CEP inválido. Por favor, verifique e tente novamente.');
-            return;
-        }*/
-        var bairro = validarNome(document.getElementById('bairro'));
-        if (!bairro) {
-            // Se o bairro não for válido, interrompe o processo de cadastro
-            alert('Bairro inválido. Por favor, verifique e tente novamente.');
-            return;
-        }
-        var rua = validarNome(document.getElementById('rua'));
-        if (!rua) {
-            // Se o rua não for válido, interrompe o processo de cadastro
-            alert('Rua inválida. Por favor, verifique e tente novamente.');
-            return;
-        }
-        var numero = document.getElementById('numero').value;
-        // Se o numero não for válido, exibe um alerta e retorna
-        if (!numero) {
-            alert('Número inválido. Por favor, verifique e tente novamente.');
-            return;
-        }
-        var complemento = document.getElementById('complemento').value; //sem validação pois é campo opcional
-
-        var tipo_de_contato = document.getElementById('tipo_de_contato').value;
-        // Se o tipo_de_contato não for válido, exibe um alerta e retorna
-        if (!tipo_de_contato) {
-            alert('Tipo de contato inválido. Por favor, verifique e tente novamente.');
-            return;
-        }
-        var nome_do_contato = document.getElementById('nome_do_contato').value;
-        // Se o nome_do_contato não for válido, exibe um alerta e retorna
-        if (!nome_do_contato) {
-            alert('Nome do contato inválido. Por favor, verifique e tente novamente.');
-            return;
-        }
-        var telefone = validarTelefone(document.getElementById('telefone').value.replace(/\D/g, ''));
-        // Se o telefone não for válido, exibe um alerta e retorna
-        if (!telefone) {
-            alert('Telefone inválido. Por favor, verifique e tente novamente.');
-            return;
-        }
-        var email = validarEmail(document.getElementById('email').value);
-        // Se o e-mail não for válido, exibe um alerta e retorna
-        if (!email) {
-            alert('E-mail inválido. Por favor, verifique e tente novamente.');
-            return;
-        }
-
         const selects = document.querySelectorAll('select[name="programas_sociais[]"]');
         const programasSociaisSelecionados = [];
         
@@ -1191,102 +811,8 @@ $('cadastrar').addEventListener('click', function(event) {
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({				
-                //ID é autoincrement na inserção do banco
-				tipo_logradouro: tipo_logradouro,
-				logradouro_unidade: logradouro_unidade,
-				numero_unidade: numero_unidade,
-				bairro_unidade: bairro_unidade,
-				cep_unidade: cep_unidade,
-				telefone_unidade: telefone_unidade,
-				responsavel_unidade: responsavel_unidade,
-				horario_inicio_unidade: horario_inicio_unidade,
-				horario_fim_unidade: horario_fim_unidade,
-				dias_semana: dias_semana,
-				atividade_unidade: atividade_unidade,
-				horas_psc: horas_psc,				
-                ativo_inativo: ativo_inativo, 
-                dt_cadastro: dt_cadastro, 
-                dt_atualizacao: dt_atualizacao, 
-                creas_atual: creas_atual, 
-                mse: mse, 
-                tec_ref: tec_ref,
-                sas: sas, 
-                servico_familia: servico_familia,
-                distrito_servico: distrito_servico, 
-                creas_origem: creas_origem, 
-                nome: nome, 
-                nome_social: nome_social, 
-                dt_nasc: dt_nasc, 
-                cpf: cpfValue, 
-                nis: nisValue,
-                cartao_sus: cartao_susValue,
-                medidas_mse: medidas_mse, 
-                nome_da_mae: nome_da_mae, 
-                nome_do_pai: nome_do_pai,
-                nome_responsavel: nome_responsavel, 
-                sexo: sexo, 
-                gestante: gestante, 
-                parceira_gestante: parceira_gestante, 
-                lactante: lactante, 
-                raca: raca, 
-                nacionalidade: nacionalidade, 
-                genero: genero, 
-                orientacao_sexual: orientacao_sexual, 
-                estado_civil: estado_civil, 
-                matriculado: matriculado,
-                alfabetizado: alfabetizado, 
-                cicloEstudo: cicloEstudo, 
-                numeroRa: numeroRa,
-                tipoEscola: tipoEscola,
-                ensinoModalidade: ensinoModalidade,
-                frequenciaAula: frequenciaAula,
-                concluiuCurso: concluiuCurso,
-                paroudeEstudar: paroudeEstudar,
-                possui_deficiencia: possui_deficiencia,
-                deficiencia: deficiencia,
-                trabalho: trabalho, 
-                necessita_cuidados_terceiros: necessita_cuidados_terceiros, 
-                possui_demanda_saude: possui_demanda_saude,
-                saude: saude,
-                possui_demanda_saude_mental: possui_demanda_saude_mental,
-                saude_mental: saude_mental,
-                acompanhamento_saude: acompanhamento_saude,
-                faz_uso_de_medicamentos: faz_uso_de_medicamentos,
-                medicamentos: medicamentos, 
-                faz_uso_de_medicamentos_controlados: faz_uso_de_medicamentos_controlados,
-                medicamentos_controlados: medicamentos_controlados, 
-                possui_trabalho: possui_trabalho, 
-                programas_sociais: programasSociaisSelecionados, 
-                possui_familia_em_servico: possui_familia_em_servico, 
-                possui_filhos: possui_filhos, 
-                responsavel_por_pcd: responsavel_por_pcd, 
-                adolescente_com_trajetoria_de_acolhimento: adolescente_com_trajetoria_de_acolhimento, 
-                alcool_ou_drogas: alcool_ou_drogas, 
-                caps: caps,
-                curso: curso,
-                n_processo: n_processo, 
-                n_processo_apuracao: n_processo_apuracao, 
-                n_pt: n_pt, 
-                vara_da_infancia: vara_da_infancia, 
-                dt_interpretacao_medida: dt_interpretacao_medida, 
-                dt_ultimo_relatorio_enviado: dt_ultimo_relatorio_enviado, 
-                resumo_do_caso: resumo_do_caso, 
-                listar_cursos: listar_cursos,
-                situacao_do_processo: situacao_do_processo, 
-                distrito_pessoa: distrito_pessoa, 
-                ubs: ubs,
-                cep: cep, 
-                bairro: bairro, 
-                rua: rua, 
-                numero: numero, 
-                complemento: complemento, 
-                tipo_de_contato: tipo_de_contato, 
-                nome_do_contato: nome_do_contato, 
-                telefone: telefone, 
-                email: email,
-                dt_desligamento: dt_desligamento,
-            })
+            body: JSON.stringify(data)			
+                
         })
         .then(response => response.json())
         .then(data => {
@@ -1306,21 +832,30 @@ $('cadastrar').addEventListener('click', function(event) {
                 alert('O número de processo já existe.');
             }
         });
-        
-    }
-});
+
+    });
+}
+
 
 /*-----PREENCHIMENTO INICIAL DA PÁGINA--------------------------------------------------------------------------------------*/
+const paginaAtual = window.location.pathname;
+const isCadastro = paginaAtual.includes("Cadastra");
+const isEdicao = paginaAtual.includes("editar");
 
 //Ao carregar a página preenche com os dados padrão
-window.onload = function carregarDados() {
-    setTimeout(function() {
+if (isCadastro){
+    document.addEventListener("DOMContentLoaded", function(){
+        carregarDados();
+
+    });
+}
+function carregarDados(){
     // Busca as opções para o Creas atual
     fetch('/opcoesCreasAtual')
     .then(response => response.json())
     .then(opcoesCreas => {
         // Preenche o select com as opções Creas
-        var selectCreas = document.getElementById('creas_atual');
+        var selectCreas = $('creas_atual');
         opcoesCreas.forEach(opcao => {
             var option = document.createElement('option');
             option.text = opcao.descricao;
@@ -1336,7 +871,7 @@ window.onload = function carregarDados() {
     .then(response => response.json())
     .then(opcoesCreas => {
         // Preenche o select com as opções Creas
-        var selectCreas = document.getElementById('creas_origem');
+        var selectCreas = $('creas_origem');
         opcoesCreas.forEach(opcao => {
             var option = document.createElement('option');
             option.text = opcao.descricao;
@@ -1352,7 +887,7 @@ window.onload = function carregarDados() {
     .then(response => response.json())
     .then(opcoesDeficiencia => {
         // Preenche o select com as opções Deficiencia
-        var selectDeficiencia = document.getElementById('deficiencia');
+        var selectDeficiencia = $('deficiencia');
         opcoesDeficiencia.forEach(opcao => {
             var option = document.createElement('option');
             option.text = opcao.descricao;
@@ -1368,7 +903,7 @@ window.onload = function carregarDados() {
     .then(response => response.json())
     .then(opcoesDistrito => {
         // Preenche o select com as opções Distrito
-        var selectDistrito = document.getElementById('distrito_servico');
+        var selectDistrito = $('distrito_servico');
         opcoesDistrito.forEach(opcao => {
             var option = document.createElement('option');
             option.text = opcao.descricao;
@@ -1384,7 +919,7 @@ window.onload = function carregarDados() {
     .then(response => response.json())
     .then(opcoesDistrito => {
         // Preenche o select com as opções Distrito
-        var selectDistrito = document.getElementById('distrito_pessoa');
+        var selectDistrito = $('distrito_pessoa');
       
          // Adiciona a opção padrão ao novo <select>
          var defaultOption = document.createElement('option');
@@ -1407,7 +942,7 @@ window.onload = function carregarDados() {
     .then(response => response.json())
     .then(opcoesCicloEstudo => {
         // Preenche o select com as opções Ciclo Estudo
-        var selectCicloEstudo = document.getElementById('cicloEstudo');
+        var selectCicloEstudo = $('cicloEstudo');
         opcoesCicloEstudo.forEach(opcao => {
             var option = document.createElement('option');
             option.text = opcao.descricao;
@@ -1423,7 +958,7 @@ window.onload = function carregarDados() {
     .then(response => response.json())
     .then(opcoesTipoescola => {
         // Preenche o select com as opções Tipo Escola
-        var selectTipoescola = document.getElementById('tipoEscola');
+        var selectTipoescola = $('tipoEscola');
         opcoesTipoescola.forEach(opcao => {
             var option = document.createElement('option');
             option.text = opcao.descricao;
@@ -1439,7 +974,7 @@ window.onload = function carregarDados() {
     .then(response => response.json())
     .then(opcoesEnsinoModalidade => {
         // Preenche o select com as opções ensinoModalidade
-        var selectEnsinoModalidade = document.getElementById('ensinoModalidade');
+        var selectEnsinoModalidade = $('ensinoModalidade');
         opcoesEnsinoModalidade.forEach(opcao => {
             var option = document.createElement('option');
             option.text = opcao.descricao;
@@ -1455,7 +990,7 @@ window.onload = function carregarDados() {
      .then(response => response.json())
      .then(opcoesParoudeestudar => {
          // Preenche o select com as opções Conclusão de curso
-         var selectParoudeestudar= document.getElementById('paroudeEstudar');
+         var selectParoudeestudar= $('paroudeEstudar');
          opcoesParoudeestudar.forEach(opcao => {
              var option = document.createElement('option');
              option.text = opcao.descricao;
@@ -1471,7 +1006,7 @@ window.onload = function carregarDados() {
     .then(response => response.json())
     .then(opcoesEstadoCivil => {
         // Preenche o select com as opções EstadoCivil
-        var selectEstadoCivil = document.getElementById('estado_civil');
+        var selectEstadoCivil = $('estado_civil');
         opcoesEstadoCivil.forEach(opcao => {
             var option = document.createElement('option');
             option.text = opcao.descricao;
@@ -1487,7 +1022,7 @@ window.onload = function carregarDados() {
     .then(response => response.json())
     .then(opcoesGenero => {
         // Preenche o select com as opções Genero
-        var selectGenero = document.getElementById('genero');
+        var selectGenero = $('genero');
         opcoesGenero.forEach(opcao => {
             var option = document.createElement('option');
             option.text = opcao.descricao;
@@ -1503,7 +1038,7 @@ window.onload = function carregarDados() {
     .then(response => response.json())
     .then(opcoesMedidasMse => {
         // Preenche o select com as opções MedidasMse
-        var selectMedidasMse = document.getElementById('medidas_mse');
+        var selectMedidasMse = $('medidas_mse');
         opcoesMedidasMse.forEach(opcao => {
             var option = document.createElement('option');
             option.text = opcao.descricao;
@@ -1524,7 +1059,7 @@ window.onload = function carregarDados() {
         });
 
         // Preenche o select com as opções filtradas
-        var selectMSE = document.getElementById('mse');
+        var selectMSE = $('mse');
         opcoesMSE.forEach(opcao => {
             var option = document.createElement('option');
             option.text = opcao.descricao;
@@ -1539,7 +1074,7 @@ window.onload = function carregarDados() {
 	fetch('/opcoesTipoLocal')
 		.then(response => response.json())
 		.then(opcoes => {
-			const select = document.getElementById('tipo_local');
+			const select = $('tipo_local');
 			select.innerHTML = '<option value="">Selecione</option>'; // limpa e adiciona opção padrão
 			opcoes.forEach(opcao => {
 				const option = document.createElement('option');
@@ -1554,7 +1089,7 @@ window.onload = function carregarDados() {
 		fetch('/opcoesTipoLogradouro')
 			.then(response => response.json())
 			.then(opcoes => {
-				const select = document.getElementById('tipo_logradouro');
+				const select = $('tipo_logradouro');
 				select.innerHTML = '<option value="">Selecione</option>'; // limpa e adiciona opção padrão
 				opcoes.forEach(opcao => {
 					const option = document.createElement('option');
@@ -1569,7 +1104,7 @@ window.onload = function carregarDados() {
 		fetch('/opcoesAtividadeUnidade')
 			.then(response => response.json())
 			.then(opcoes => {
-				const select = document.getElementById('atividade_unidade');
+				const select = $('atividade_unidade');
 				select.innerHTML = '<option value="">Selecione</option>'; // limpa e adiciona opção padrão
 				opcoes.forEach(opcao => {
 					const option = document.createElement('option');
@@ -1586,7 +1121,7 @@ window.onload = function carregarDados() {
         fetch(`/opcoesTecRef?mse=${encodeURIComponent(mseSelecionado)}`)
             .then(response => response.json())
             .then(opcoesTecRef => {
-                var selectTecRef = document.getElementById('tec_ref');
+                var selectTecRef = $('tec_ref');
                 selectTecRef.innerHTML = ''; // Limpa as opções existentes
 
                 opcoesTecRef.forEach(opcao => {
@@ -1601,15 +1136,17 @@ window.onload = function carregarDados() {
     }
 
     // Adiciona um evento change ao select de MSE
-    document.getElementById('mse').addEventListener('change', function() {
-        var mseSelecionado = this.value; // Obtém o valor selecionado no select mse
-        buscarTecRefPorMse(mseSelecionado); // Chama a função para buscar TecRef com base no mse
-    });
+    const mseSelect = $('mse');
+    if (mseSelect){
+        mseSelect.addEventListener('change', function() {
+            var mseSelecionado = this.value; // Obtém o valor selecionado no select mse
+            buscarTecRefPorMse(mseSelecionado); // Chama a função para buscar TecRef com base no mse
+        });
+    }
+
 
 // Buscar CEP
-
-
-const btnBuscarCep = document.getElementById("buscar_cep");
+const btnBuscarCep = $("buscar_cep");
 
 if (btnBuscarCep) {
 
@@ -1617,7 +1154,7 @@ if (btnBuscarCep) {
         e.preventDefault();
         
 
-        const inputCep = document.getElementById("cep_unidade");
+        const inputCep = $("cep_unidade");
         console.log("Botão clicado", btnBuscarCep);
 
         if (!inputCep) return;
@@ -1645,9 +1182,9 @@ if (btnBuscarCep) {
 
                     alert("Este CEP não pertence à cidade de São Paulo.");
 
-                    const tipo = document.getElementById("tipo_logradouro");
-                    const logradouro = document.getElementById("logradouro_unidade");
-                    const bairro = document.getElementById("bairro_unidade");
+                    const tipo = $("tipo_logradouro");
+                    const logradouro = $("logradouro_unidade");
+                    const bairro = $("bairro_unidade");
 
                     if (tipo) tipo.value = "";
                     if (logradouro) logradouro.value = "";
@@ -1659,15 +1196,15 @@ if (btnBuscarCep) {
 
                 let resultado = { tipo: "", nome: "" };
 
-                const selectTipo = document.getElementById("tipo_logradouro");
+                const selectTipo = $("tipo_logradouro");
 
                 if (selectTipo && data.logradouro?.trim()) {
                     resultado = extrairTipoLogradouro(data.logradouro);
                 }
 
-                const campoTipo = document.getElementById("tipo_logradouro");
-                const campoLogradouro = document.getElementById("logradouro_unidade");
-                const campoBairro = document.getElementById("bairro_unidade");
+                const campoTipo = $("tipo_logradouro");
+                const campoLogradouro = $("logradouro_unidade");
+                const campoBairro = $("bairro_unidade");
 
                 if (campoTipo) campoTipo.value = resultado.tipo || "";
                 if (campoLogradouro) campoLogradouro.value = resultado.nome || "";
@@ -1691,9 +1228,9 @@ if (btnBuscarCep) {
 fetch('/opcoesUbs')
 .then(response => response.json())
 .then(opcoesUbs => {
-    const datalist = document.getElementById('ubs-list');
-    const input = document.getElementById('ubs-input');
-    const hiddenInput = document.getElementById('ubs');
+    const datalist = $('ubs-list');
+    const input = $('ubs-input');
+    const hiddenInput = $('ubs');
     
     // Preenche o datalist com todas as opções
     opcoesUbs.forEach(opcao => {
@@ -1735,7 +1272,7 @@ fetch('/opcoesUbs')
     .then(response => response.json())
     .then(opcoesNacionalidade => {
         // Preenche o select com as opções Nacionalidade
-        var selectNacionalidade = document.getElementById('nacionalidade');
+        var selectNacionalidade = $('nacionalidade');
         opcoesNacionalidade.forEach(opcao => {
             var option = document.createElement('option');
             option.text = opcao.descricao;
@@ -1751,7 +1288,7 @@ fetch('/opcoesUbs')
     .then(response => response.json())
     .then(opcoesOrientacaoSexual => {
         // Preenche o select com as opções OrientacaoSexual
-        var selectOrientacaoSexual = document.getElementById('orientacao_sexual');
+        var selectOrientacaoSexual = $('orientacao_sexual');
         opcoesOrientacaoSexual.forEach(opcao => {
             var option = document.createElement('option');
             option.text = opcao.descricao;
@@ -1766,9 +1303,9 @@ fetch('/opcoesUbs')
 fetch('/opcoesProgramasSociais')
     .then(response => response.json())
     .then(opcoesProgramasSociais => {
-        var divContainer = document.getElementById('programas_sociais_container');
-        var addButton = document.getElementById('add_programa_social');
-        var removeButton = document.getElementById('remove_programa_social');
+        var divContainer = $('programas_sociais_container');
+        var addButton = $('add_programa_social');
+        var removeButton = $('remove_programa_social');
 
         // Função para criar um novo select
         function criarSelect() {
@@ -1880,7 +1417,7 @@ fetch('/opcoesProgramasSociais')
     .then(response => response.json())
     .then(opcoesRaca => {
         // Preenche o select com as opções Raca
-        var selectRaca = document.getElementById('raca');
+        var selectRaca = $('raca');
         opcoesRaca.forEach(opcao => {
             var option = document.createElement('option');
             option.text = opcao.descricao;
@@ -1896,7 +1433,7 @@ fetch('/opcoesProgramasSociais')
     .then(response => response.json())
     .then(opcoesTrabalho => {
         // Preenche o select com as opções trabalho
-        var selectTrabalho = document.getElementById('trabalho');
+        var selectTrabalho = $('trabalho');
         opcoesTrabalho.forEach(opcao => {
             var option = document.createElement('option');
             option.text = opcao.descricao;
@@ -1912,7 +1449,7 @@ fetch('/opcoesProgramasSociais')
     .then(response => response.json())
     .then(opcoesAlcoolDrogas => {
         // Preenche o select com as opções alcool_drogas
-        var selectAlcoolDrogas = document.getElementById('alcool_ou_drogas');
+        var selectAlcoolDrogas = $('alcool_ou_drogas');
         opcoesAlcoolDrogas.forEach(opcao => {
             var option = document.createElement('option');
             option.text = opcao.descricao;
@@ -1928,7 +1465,7 @@ fetch('/opcoesProgramasSociais')
     .then(response => response.json())
     .then(opcoesSas => {
         // Preenche o select com as opções Sas
-        var selectSas = document.getElementById('sas');
+        var selectSas = $('sas');
         opcoesSas.forEach(opcao => {
             var option = document.createElement('option');
             option.text = opcao.descricao;
@@ -1944,7 +1481,7 @@ fetch('/opcoesProgramasSociais')
     .then(response => response.json())
     .then(opcoesServicoFamilia => {
         // Preenche o select com as opções servico_familia
-        var selectServicoFamilia = document.getElementById('servico_familia');
+        var selectServicoFamilia = $('servico_familia');
         opcoesServicoFamilia.forEach(opcao => {
             var option = document.createElement('option');
             option.text = opcao.descricao;
@@ -1960,7 +1497,7 @@ fetch('/opcoesProgramasSociais')
     .then(response => response.json())
     .then(opcoesSituacaoDoProcesso => {
         // Preenche o select com as opções SituacaoDoProcesso
-        var selectSituacaoDoProcesso = document.getElementById('situacao_do_processo');
+        var selectSituacaoDoProcesso = $('situacao_do_processo');
      
          // Adiciona a opção padrão ao novo <select>
          var defaultOption = document.createElement('option');
@@ -1985,7 +1522,7 @@ fetch('/opcoesProgramasSociais')
         
 
         // Preenche o select com as opções VaraDaInfancia
-        var selectVaraDaInfancia = document.getElementById('vara_da_infancia');
+        var selectVaraDaInfancia = $('vara_da_infancia');
 
          var defaultOption = document.createElement('option');
          defaultOption.value = '';
@@ -2007,7 +1544,7 @@ fetch('/opcoesProgramasSociais')
     .then(response => response.json())
     .then(opcoesContatos => {
         // Preenche o select com as opções MSE
-        var selectContatos = document.getElementById('tipo_de_contato');
+        var selectContatos = $('tipo_de_contato');
 
          /*-----gambiarra para arrumar depois---------*/
          // Adiciona a opção padrão ao novo <select>
@@ -2028,61 +1565,29 @@ fetch('/opcoesProgramasSociais')
     .catch(error => {
         console.error('Erro ao buscar opções vulnerabilidades:', error);
     });
-        
-}, 2000);
 }
-// Espera até que o DOM esteja completamente s
-document.addEventListener('DOMContentLoaded', function() {
-    // Define os valores dos campos de seleção como nenhum item selecionado
-    resetSelectField('creas_atual');
-    resetSelectField('mse');
-    resetSelectField('tec_ref');
-    resetSelectField('sas');
-    resetSelectField('servico_familia');
-    resetSelectField('distrito_servico');
-    resetSelectField('creas_origem');
-    resetSelectField('medidas_mse');
-    resetSelectField('raca');
-    resetSelectField('nacionalidade');
-    resetSelectField('genero');
-    resetSelectField('orientacao_sexual');
-    resetSelectField('estado_civil');
-    resetSelectField('cicloEstudo');
-    resetSelectField('tipoEscola');
-    resetSelectField('ensinoModalidade');
-    resetSelectField('paroudeEstudar');
-    resetSelectField('deficiencia');
-    resetSelectField('trabalho');
-    resetSelectField('alcool_ou_drogas');
-    resetSelectField('programas_sociais_container');
-    resetSelectField('situacao_do_processo');
-    resetSelectField('distrito_pessoa');
-    resetSelectField('vara_da_infancia');
-    resetSelectField('tipo_de_contato');
-    resetSelectField('ubs');
-});
 
 // Validação de obrigatoriedade – Unidade Acolhedora
 document.addEventListener('DOMContentLoaded', function () {
 
     const camposUnidade = [
-        document.getElementById("tipo_local"),
-        document.getElementById("nome_unidade"),
-        document.getElementById("responsavel_unidade"),
-        document.getElementById("telefone_unidade"),
-        document.getElementById("cep_unidade"),
-        document.getElementById("tipo_logradouro"),
-        document.getElementById("logradouro_unidade"),
-        document.getElementById("numero_unidade"),
-        document.getElementById("bairro_unidade"),
-        document.getElementById("atividade_unidade"),
-        document.getElementById("horario_inicio_unidade"),
-        document.getElementById("horario_fim_unidade"),
-        document.getElementById("horas_psc")
+        $("tipo_local"),
+        $("nome_unidade"),
+        $("responsavel_unidade"),
+        $("telefone_unidade"),
+        $("cep_unidade"),
+        $("tipo_logradouro"),
+        $("logradouro_unidade"),
+        $("numero_unidade"),
+        $("bairro_unidade"),
+        $("atividade_unidade"),
+        $("horario_inicio_unidade"),
+        $("horario_fim_unidade"),
+        $("horas_psc")
     ].filter(Boolean);
 
 
-    const complemento = document.getElementById("complemento_unidade");
+    const complemento = $("complemento_unidade");
     const checkboxesDias = document.querySelectorAll('#dias_semana input[type="checkbox"]');
 
     function existeAlgumCampoPreenchido() {
@@ -2127,19 +1632,19 @@ function validarDiasUnidadeAcolhedora() {
     const algumMarcado = Array.from(checkboxes).some(chk => chk.checked);
 
     const camposUnidade = [
-        document.getElementById("tipo_local"),
-        document.getElementById("nome_unidade"),
-        document.getElementById("responsavel_unidade"),
-        document.getElementById("telefone_unidade"),
-        document.getElementById("cep_unidade"),
-        document.getElementById("tipo_logradouro"),
-        document.getElementById("logradouro_unidade"),
-        document.getElementById("numero_unidade"),
-        document.getElementById("bairro_unidade"),
-        document.getElementById("atividade_unidade"),
-        document.getElementById("horario_inicio_unidade"),
-        document.getElementById("horario_fim_unidade"),
-        document.getElementById("horas_psc")
+        $("tipo_local"),
+        $("nome_unidade"),
+        $("responsavel_unidade"),
+        $("telefone_unidade"),
+        $("cep_unidade"),
+        $("tipo_logradouro"),
+        $("logradouro_unidade"),
+        $("numero_unidade"),
+        $("bairro_unidade"),
+        $("atividade_unidade"),
+        $("horario_inicio_unidade"),
+        $("horario_fim_unidade"),
+        $("horas_psc")
     ].filter(Boolean);
 
     const algumCampoPreenchido = camposUnidade.some(c => c.value && c.value.trim() !== "");
@@ -2153,11 +1658,13 @@ function validarDiasUnidadeAcolhedora() {
 }
 
 /*-----CANCELAR----------------------------------------------------------------------------------------------------------*/
-
-document.getElementById('cancelar').addEventListener('click', function() {
-    window.location.href = '/verPessoas'; // Redireciona para a página de consulta ao clicar em Cancelar
-});
-
+const btnCancelar = $('cancelar');
+if(btnCancelar){
+    btnCancelar.addEventListener('click', function() {
+        window.location.href = '/verPessoas'; // Redireciona para a página de consulta ao clicar em Cancelar
+    });
+}
+    
 /*-----CONFIRMAÇÃO DE LOGOUT----------------------------------------------------------------------------------------------------------*/
 
 // Função para confirmar logout
@@ -2174,12 +1681,12 @@ function confirmLogout() {
 
 document.addEventListener("DOMContentLoaded", function () {
 
-    const btnTeste = document.getElementById("btnPreencherTeste");
+    const btnTeste = $("btnPreencherTeste");
     if (!btnTeste) return;
 
     btnTeste.addEventListener("click", function () {
 
-        const form = document.getElementById("editar-form");
+        const form = $("editar-form");
         if (!form) {
             alert("Formulário não encontrado");
             return;
@@ -2189,7 +1696,7 @@ document.addEventListener("DOMContentLoaded", function () {
            FUNÇÃO AUXILIAR PARA SETAR VALOR + EVENTOS
         ===================================================== */
         function setValor(id, valor) {
-            const campo = document.getElementById(id);
+            const campo = $(id);
             if (!campo) return;
 
             campo.value = valor;
@@ -2238,7 +1745,7 @@ document.addEventListener("DOMContentLoaded", function () {
         /* =====================================================
            SELECT FIXO DO SMSE-MA
         ===================================================== */
-        const mseSelect = document.getElementById("mse");
+        const mseSelect = $("mse");
         if (mseSelect) {
             mseSelect.value = "SMSE-MA CIAP LAJEADO";
             mseSelect.dispatchEvent(new Event("change"));

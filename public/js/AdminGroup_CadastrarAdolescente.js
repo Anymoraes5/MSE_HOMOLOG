@@ -1,4 +1,4 @@
-import {$, $$, on} from "./helpers.js"
+import { on } from "../admin/helpers";
 
 console.log("JS CARREGADO");
 
