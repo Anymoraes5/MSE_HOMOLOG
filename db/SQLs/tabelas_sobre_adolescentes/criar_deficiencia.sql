@@ -6,10 +6,10 @@ CREATE TABLE IF NOT EXISTS `deficiencia` (
 );
 
 INSERT IGNORE INTO `deficiencia` (`descricao`, `ativo_inativo`) VALUES
-	('AUDITIVA', 1),
-	('FÍSICA', 1),
-	('INTELECTUAL', 1),
-	('MÚLTIPLA', 1),
-	('OUTRA', 1),
-	('PSICOSSOCIAL/MENTAL', 1),
-	('VISUAL', 1);
+	('Auditiva', 1),
+	('Física', 1),
+	('Intelectual', 1),
+	('Multípla', 1),
+	('Outra', 1),
+	('Psicossocial/Mental', 1),
+	('Visual', 1);

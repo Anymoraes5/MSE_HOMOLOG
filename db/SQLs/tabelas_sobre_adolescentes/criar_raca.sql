@@ -6,9 +6,9 @@ CREATE TABLE IF NOT EXISTS `raca` (
 );
 
 INSERT IGNORE INTO `raca` (`ID`, `descricao`, `ativo_inativo`) VALUES
-	(1, 'BRANCA', 1),
-	(2, 'PRETA', 1),
-	(3, 'PARDA', 1),
-	(4, 'AMARELA', 1),
-	(5, 'INDÍGENA', 1),
-	(6, 'NÃO DECLARADA', 1)
+	(1, 'Branca', 1),
+	(2, 'Preta', 1),
+	(3, 'Parda', 1),
+	(4, 'Amarela', 1),
+	(5, 'Indígina', 1),
+	(6, 'Não declarada', 1)

@@ -6,11 +6,11 @@ CREATE TABLE IF NOT EXISTS `estado_civil` (
 );
 
 INSERT IGNORE INTO `estado_civil` (`ID`, `descricao`, `ativo_inativo`) VALUES
-	(1, 'CASADO', 1),
-	(2, 'SOLTEIRO', 1),
-	(3, 'SEPARADO', 1),
-	(4, 'DIVORCIADO', 1),
-	(5, 'VIÚVO', 1),
-	(6, 'UNIÃO ESTÁVEL', 1),
-	(7, 'CONVIVE COM UM(A) PARCEIRO(A)', 1),
-	(8, 'NÃO INFORMADO', 1);
+	(1, 'Casado', 1),
+	(2, 'Solteiro', 1),
+	(3, 'Separado', 1),
+	(4, 'Divorciado', 1),
+	(5, 'Viúvo', 1),
+	(6, 'União Estável', 1),
+	(7, 'Convive com um(a) parceiro(a)', 1),
+	(8, 'Não informado', 1);
