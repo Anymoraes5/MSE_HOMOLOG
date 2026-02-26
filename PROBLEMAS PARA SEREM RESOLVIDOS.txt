@@ -11,12 +11,6 @@ EDITAR - Esta permitindo gravar campos vazios em campos obrigatórios (unidade a
 
 Esta permitindo gravar processos duplicados? Pode isso? (Número do processo de execução: e Número do processo de apuração: e Número da Pasta Técnica (Fundação Casa):)
 
-<<<<<<< Updated upstream
-===========================================organização do css=========================
-1 criar o componentes
-2 criar os override se houver 
-3 chamar somente a pasta do override
-=======
 
  Sobre as demandas MSE que estamos implementando temos as seguintes tarefas:
 
@@ -116,7 +110,8 @@ Esta permitindo gravar processos duplicados? Pode isso? (Número do processo de 
      26º Esse item precisa aparecer em todas as paginas -ok
 
     
->>>>>>> Stashed changes
+
+
 
 
 

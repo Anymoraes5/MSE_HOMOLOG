@@ -54,16 +54,12 @@
 
             <label for="cartao_sus" class="form-label">Número do cartão SUS:</label>
             <input type="text" id="cartao_sus" name="cartao_sus" class="form-control" placeholder="Formato: XXXXXXXXXXXXXXX" maxlength="15" minlength="15">
-<<<<<<< Updated upstream
-=======
-
-            <label for="cad_unico" class="form-label">Adolescente ou família possui cadastro no CadÚnico?</label>
-            <select name="cad_unico" id="cad_unico" class="form-select" required>
                 <option value=""></option>
                 <option value="0">Não</option>
                 <option value="1">Sim</option>
             </select>
->>>>>>> Stashed changes
+
+
             
             <!-- <label for="nis" class="form-label">NIS:</label>
             <input type="text" id="nis" name="nis" class="form-control" placeholder="Formato: XXXXXXXXXXX" maxlength="11" minlength="11"> -->
@@ -126,7 +122,11 @@
             <input type="text" id="bairro" name="bairro" class="form-control" required minlength="3" maxlength="100">
 
             <label for="cep" class="form-label">CEP:<span class="red-asterisk">*</span></label>
-            <input type="text" id="cep" name="cep" class="form-control" required minlength="9" maxlength="9">
+            <div>
+                <input type="text" id="cep" name="cep" class="form-control" required minlength="9" maxlength="9" placeholder="00000-000">
+                <!-- <button type="button" id="buscar_cep_pessoa" class="btn btn-primary">Buscar CEP</button> -->
+            </div>
+            
 
             <label for="distrito_pessoa">Distrito de residência:<span class="red-asterisk">*</span></label>
             <select id="distrito_pessoa" name="distrito_pessoa" class="form-control" required></select>
@@ -330,13 +330,11 @@
 
             <h3>TRABALHO E RENDA</h3>
 
-<<<<<<< Updated upstream
             <label for="possui_trabalho">Possui trabalho?<span class="red-asterisk">*</span></label>
             <select id="possui_trabalho" name="possui_trabalho" class="form-select" required onchange="checkTrabalho()">
-=======
+
             <label for="possui_trabalho">Está trabalhando?<span class="red-asterisk">*</span></label>
             <select id="possui_trabalho" name="possui_trabalho" class="form-select"  >
->>>>>>> Stashed changes
                 <option value=""></option>
                 <option value="0">Não</option>
                 <option value="1">Sim</option>
@@ -348,7 +346,7 @@
             </select>
 
             <div class="mb-3">
-                <label for="programas_sociais_container" class="form-label">Programas sociais:</label>
+                <label for="programas_sociais_container" class="form-label">Programas sociais que está inserido:</label>
                 <div id="programas_sociais_container"></div>
             </div>
             
