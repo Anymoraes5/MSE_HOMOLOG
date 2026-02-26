@@ -6,10 +6,10 @@ CREATE TABLE IF NOT EXISTS `genero` (
 );
 
 INSERT IGNORE INTO `genero` (`ID`, `descricao`, `ativo_inativo`) VALUES
-	(1, 'TRAVESTI', 1),
-	(2, 'MULHER TRANSEXUAL', 1),
-	(3, 'INTERSEXUAL', 1),
-	(4, 'TRANSGÊNERO', 1),
-	(5, 'CISGÊNERO', 1),
-	(6, 'HOMEM TRANSEXUAL', 1),
-	(7, 'OUTRAS IDENTIDADES DE GÊNERO', 1);
+	(1, 'Travesti', 1),
+	(2, 'Mulher transexual', 1),
+	(3, 'Intersexual ', 1),
+	(4, 'Transgênero', 1),
+	(5, 'Cisgenêro', 1),
+	(6, 'Homem transexual', 1),
+	(7, 'Outras identidades de genêro', 1);

@@ -65,6 +65,53 @@ Esta permitindo gravar processos duplicados? Pode isso? (Número do processo de 
 
 
 
+  16º A data do relatório só pode ser posterior a data da interpretação.
+
+    
+
+
+    17º Outros deve aparecer no final da lista se possível e ao seleciona-lo deve aparecer um campo descritivo para preenchimento chamado "Outras atividades"  (No mínimo 3 caracteres)
+
+    
+
+    18º Em tipo de contato temos dois espaços em branco e além disso quando selecionar o campo "OUTROS" deve-se abrir um campo descritivo chamado "Outros contatos". Seria interessante manter uma padronização com a primeira letra maiúscula e as demais minúsculas como é feito nos campos do item 17. (No mínimo 3 caracteres)
+
+    
+
+    19º O item 2 que eu enviei no email anterior na verdade será "PSC- Unidade Acolhedora" - ok
+
+
+    20º Horário de inicio e fim não podem superar 08 horas 
+    
+
+    21º Campo de resumo do caso deve ter no mínimo 20 caracteres -ok 
+
+       
+
+    22º logo abaixo do campo "dia da semana que presta a medida" deve ter uma mensagem em azul informando que caso tenha mais de um horário essa informação deve ser preenchida no campo de resumo do caso (item 21). Abaixo envio um exemplo de como é feito no campo de UBS
+
+    
+
+    23º Quando se cola um texto nos campos de consulta o texto é duplicado 
+    
+    
+
+    
+    
+
+    24º o asterisco indicativo de obrigatoriedade não deve ocorrer quando o item de curso profissionalizante for igual a "Não". Verificar o mesmo para todos os outros casos do formulário que tem itens "Sim/Não"
+
+    
+
+    25º Número de processo de execução não pode permitir duplicação na base de dados
+
+    
+
+     26º Esse item precisa aparecer em todas as paginas -ok
+
+    
+
+
 
 
 

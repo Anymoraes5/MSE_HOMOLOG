@@ -3,26 +3,38 @@
             <hr><h2 id="dados-do-servico">DADOS DO SERVIÇO</h2><hr>
             <BR>
             <label for="mse">SMSE-MA:<span class="red-asterisk">*</span></label>
-            <select id="mse" name="mse" class="form-control" required onchange="checkTecRef()"></select>
+            <select id="mse" name="mse" class="form-control" required >
+                <option value=""></option>
+            </select>
 
             <label for="creas_atual">CREAS atual:<span class="red-asterisk">*</span></label>
-            <select id="creas_atual" name="creas_atual" class="form-control" required></select>
+            <select id="creas_atual" name="creas_atual" class="form-control" required>
+                <option value=""></option>
+            </select>
 
             <label for="sas">SAS:<span class="red-asterisk">*</span></label>
-            <select id="sas" name="sas" class="form-control" required></select>
+            <select id="sas" name="sas" class="form-control" required>
+                <option value=""></option>
+            </select>
 
             <label for="distrito_servico">Distrito:<span class="red-asterisk">*</span></label>
-            <select id="distrito_servico" name="distrito_servico" class="form-control" required></select>
+            <select id="distrito_servico" name="distrito_servico" class="form-control" required>
+                <option value=""></option>
+            </select>
 
             <label for="tec_ref">Técnico de referência do adolescente:<span class="red-asterisk">*</span></label>
-            <select id="tec_ref" name="tec_ref" class="form-control" required></select>
+            <select id="tec_ref" name="tec_ref" class="form-control" required>
+                <option value=""></option>
+            </select>
 
             <br>
             <hr><h2 id="dados-da-pessoa">DADOS PESSOAIS DO(A) ADOLESCENTE/JOVEM</h2><hr>
             <br>
 
             <label for="creas_origem">CREAS de origem:</label>
-            <select id="creas_origem" name="creas_origem" class="form-control"></select>
+            <select id="creas_origem" name="creas_origem" class="form-control">
+                <option value=""></option>
+            </select>
 
             <label for="nome" class="form-label">Nome completo:<span class="red-asterisk">*</span></label>
             <input type="text" id="nome" name="nome" class="form-control" required minlength="3" maxlength="100">
@@ -42,13 +54,12 @@
 
             <label for="cartao_sus" class="form-label">Número do cartão SUS:</label>
             <input type="text" id="cartao_sus" name="cartao_sus" class="form-control" placeholder="Formato: XXXXXXXXXXXXXXX" maxlength="15" minlength="15">
-
-            <label for="cad_unico" class="form-label">Adolescente ou família possui cadastro no CadÚnico?</label>
-            <select name="cad_unico" id="cad_unico" class="form-select" required onchange="checkCadUnico">
                 <option value=""></option>
                 <option value="0">Não</option>
                 <option value="1">Sim</option>
             </select>
+
+
             
             <!-- <label for="nis" class="form-label">NIS:</label>
             <input type="text" id="nis" name="nis" class="form-control" placeholder="Formato: XXXXXXXXXXX" maxlength="11" minlength="11"> -->
@@ -63,26 +74,36 @@
             <input type="text" id="nome_responsavel" name="nome_responsavel" class="form-control" required minlength="3" maxlength="100">
 
             <label for="raca">Raça/Cor:<span class="red-asterisk">*</span></label>
-            <select id="raca" name="raca" class="form-control" required></select>
+            <select id="raca" name="raca" class="form-control" required>
+                <option value=""></option>
+            </select>
 
             <label for="nacionalidade">Nacionalidade:<span class="red-asterisk">*</span></label>
-            <select id="nacionalidade" name="nacionalidade" class="form-control" required></select>
+            <select id="nacionalidade" name="nacionalidade" class="form-control" required>
+                <option value=""></option>
+            </select>
 
             <label for="estado_civil">Estado civil:<span class="red-asterisk">*</span></label>
-            <select id="estado_civil" name="estado_civil" class="form-control" required></select>   
+            <select id="estado_civil" name="estado_civil" class="form-control" required>
+                <option value=""></option>
+            </select>   
 
             <label for="sexo" class="form-label">Sexo biológico:<span class="red-asterisk">*</span></label> 
-            <select id="sexo" name="sexo" class="form-select" required onchange="checkSexo()">
+            <select id="sexo" name="sexo" class="form-select" required >
                 <option value=""></option>
                 <option value="F">Feminino</option>
                 <option value="M">Masculino</option>
             </select>
 
             <label for="genero">Identidade de gênero:</label>
-            <select id="genero" name="genero" class="form-control" ></select>
+            <select id="genero" name="genero" class="form-control" >
+                <option value=""></option>
+            </select>
 
             <label for="orientacao_sexual">Orientação sexual:</label>
-            <select id="orientacao_sexual" name="orientacao_sexual" class="form-control"></select> 
+            <select id="orientacao_sexual" name="orientacao_sexual" class="form-control">
+                <option value=""></option>
+            </select> 
 
             <br>
             <hr><h2 id="informacoes-do-endereco">INFORMAÇÕES DO ENDEREÇO DE RESIDÊNCIA DA PESSOA</h2><hr>
@@ -124,7 +145,7 @@
             </select> 
              
             <label for="matriculado">Está matriculado?<span class="red-asterisk">*</span></label>
-            <select id="matriculado" name="matriculado" class="form-control" required onchange="checkMatriculado()">
+            <select id="matriculado" name="matriculado" class="form-control" required>
                 <option value=""></option>
                 <option value="0">Não</option>
                 <option value="1">Sim</option>
@@ -132,6 +153,7 @@
 
             <label for="paroudeEstudar">Há quanto tempo parou de estudar?<span class="red-asterisk">*</span></label>
             <select id="paroudeEstudar" name="paroudeEstudar" class="form-control" required>
+                <option value=""></option>
             </select>  
 
             <label for="numeroRa" class="form-label">Número do RA (Registro do Aluno):</label>
@@ -145,13 +167,19 @@
             </select>  
 
             <label for="cicloEstudo">Ciclo  que concluiu, está estudando ou parou de estudar:<span class="red-asterisk">*</span></label>
-            <select id="cicloEstudo" name="cicloEstudo" class="form-control" required></select>  
+            <select id="cicloEstudo" name="cicloEstudo" class="form-control" required>
+                <option value=""></option>
+            </select>  
 
             <label for="tipoEscola">Tipo de escola:<span class="red-asterisk">*</span></label>
-            <select id="tipoEscola" name="tipoEscola" class="form-control" required></select>  
+            <select id="tipoEscola" name="tipoEscola" class="form-control" required>
+                <option value=""></option>
+            </select>  
 
             <label for="ensinoModalidade">Modalidade de ensino:<span class="red-asterisk">*</span></label>
-            <select id="ensinoModalidade" name="ensinoModalidade" class="form-control" required></select>
+            <select id="ensinoModalidade" name="ensinoModalidade" class="form-control" required>
+                <option value=""></option>
+            </select>
 
             <label for="frequenciaAula">É frequente na aula?<span class="red-asterisk">*</span></label>
             <select id="frequenciaAula" name="frequenciaAula" class="form-control" required>
@@ -161,7 +189,7 @@
             </select>  
 
             <label for="curso">Faz curso profissionalizante?<span class="red-asterisk">*</span></label>
-            <select id="curso" name="curso" class="form-select" required onchange="checkCurso()">
+            <select id="curso" name="curso" class="form-select" required >
                 <option value=""></option>
                 <option value="0">Não</option>
                 <option value="1">Sim</option>
@@ -173,21 +201,21 @@
             <h3>PLANEJAMENTO FAMILIAR</h3>
 
             <label for="gestante">É gestante?<span class="red-asterisk">*</span></label>
-            <select id="gestante" name="gestante" class="form-select" required>
+            <select id="gestante" name="gestante" class="form-select" >
                 <option value=""></option>
                 <option value="0">Não</option>
                 <option value="1">Sim</option>
             </select>
 
             <label for="parceira_gestante">Possui parceira(o) gestante?<span class="red-asterisk">*</span></label>
-            <select id="parceira_gestante" name="parceira_gestante" class="form-select" required>
+            <select id="parceira_gestante" name="parceira_gestante" class="form-select" >
                 <option value=""></option>
                 <option value="0">Não</option>
                 <option value="1">Sim</option>
             </select>
 
             <label for="lactante">É lactante?<span class="red-asterisk">*</span></label>
-            <select id="lactante" name="lactante" class="form-select" required>
+            <select id="lactante" name="lactante" class="form-select" >
                 <option value=""></option>
                 <option value="0">Não</option>
                 <option value="1">Sim</option>
@@ -203,14 +231,16 @@
             <h3>DADOS DE SAÚDE</h3>
 
             <label for="possui_deficiencia">É pessoa com deficiência?<span class="red-asterisk">*</span></label>
-            <select id="possui_deficiencia" name="possui_deficiencia" class="form-select" onchange="checkDeficiencia()" required>
+            <select id="possui_deficiencia" name="possui_deficiencia" class="form-select"  required>
                 <option value=""></option>
                 <option value="0">Não</option>
                 <option value="1">Sim</option>
             </select>
 
             <label for="deficiencia">Informe o tipo de deficiência:<span class="red-asterisk">*</span></label>
-            <select id="deficiencia" name="deficiencia" class="form-control" required></select>
+            <select id="deficiencia" name="deficiencia" class="form-control" >
+                <option value=""></option>
+            </select>
 
             <label for="necessita_cuidados_terceiros">Necessita de cuidados de terceiros?<span class="red-asterisk">*</span></label>
             <select id="necessita_cuidados_terceiros" name="necessita_cuidados_terceiros" class="form-select" required>
@@ -247,7 +277,7 @@
             <br>
             
             <label for="possui_demanda_saude">Possui demanda de saúde?<span class="red-asterisk">*</span></label>
-            <select id="possui_demanda_saude" name="possui_demanda_saude" class="form-select"  required onchange="checkDemandaSaude()">
+            <select id="possui_demanda_saude" name="possui_demanda_saude" class="form-select"  required>
                 <option value=""></option>
                 <option value="0">Não</option>
                 <option value="1">Sim</option>
@@ -257,7 +287,7 @@
             <input type="text" id="saude" name="saude" class="form-control" maxlength="100">
 
             <label for="possui_demanda_saude_mental">Possui demanda específica de saúde mental?<span class="red-asterisk">*</span></label>
-            <select id="possui_demanda_saude_mental" name="possui_demanda_saude_mental" class="form-select"  required onchange="checkDemandaSaudeMental()">
+            <select id="possui_demanda_saude_mental" name="possui_demanda_saude_mental" class="form-select"  required >
                 <option value=""></option>
                 <option value="0">Não</option>
                 <option value="1">Sim</option>
@@ -267,17 +297,17 @@
             <input type="text" id="saude_mental" name="saude_mental" class="form-control" maxlength="100">
 
             <label for="faz_uso_de_medicamentos">Faz uso de medicação contínua?<span class="red-asterisk">*</span></label>
-            <select id="faz_uso_de_medicamentos" name="faz_uso_de_medicamentos" class="form-select" required onchange="checkMedicamentos()">
+            <select id="faz_uso_de_medicamentos" name="faz_uso_de_medicamentos" class="form-select" required >
                 <option value=""></option>
                 <option value="0">Não</option>
                 <option value="1">Sim</option>
             </select>
 
             <label for="medicamentos">Qual o nome da medicação utilizada?:<span class="red-asterisk">*</span></label>
-            <input type="text" id="medicamentos" name="medicamentos" class="form-control" maxlength="100" required>
+            <input type="text" id="medicamentos" name="medicamentos" class="form-control" maxlength="100" >
 
             <label for="faz_uso_de_medicamentos_controlados">Faz uso de medicação controlada?<span class="red-asterisk">*</span></label>
-            <select id="faz_uso_de_medicamentos_controlados" name="faz_uso_de_medicamentos_controlados" class="form-select" required onchange="checkMedicamentosControlados()">
+            <select id="faz_uso_de_medicamentos_controlados" name="faz_uso_de_medicamentos_controlados" class="form-select" >
                 <option value=""></option>
                 <option value="0">Não</option>
                 <option value="1">Sim</option>
@@ -287,7 +317,9 @@
             <input type="text" id="medicamentos_controlados" name="medicamentos_controlados" class="form-control" maxlength="100" required>
 
             <label for="alcool_ou_drogas">Faz uso de álcool ou drogas?<span class="red-asterisk">*</span></label>
-            <select id="alcool_ou_drogas" name="alcool_ou_drogas" class="form-control" required onchange="checkDrogas()"></select>
+            <select id="alcool_ou_drogas" name="alcool_ou_drogas" class="form-control" required >
+                <option value=""></option>
+            </select>
 
             <label for="caps">Está em acompanhamento pelo Centro de Atenção Psicossocial (CAPS)?<span class="red-asterisk">*</span></label>
             <select id="caps" name="caps" class="form-select" required>
@@ -298,15 +330,20 @@
 
             <h3>TRABALHO E RENDA</h3>
 
-            <label for="possui_trabalho">Está trabalhando?<span class="red-asterisk">*</span></label>
+            <label for="possui_trabalho">Possui trabalho?<span class="red-asterisk">*</span></label>
             <select id="possui_trabalho" name="possui_trabalho" class="form-select" required onchange="checkTrabalho()">
+
+            <label for="possui_trabalho">Está trabalhando?<span class="red-asterisk">*</span></label>
+            <select id="possui_trabalho" name="possui_trabalho" class="form-select"  >
                 <option value=""></option>
                 <option value="0">Não</option>
                 <option value="1">Sim</option>
             </select>
 
             <label for="trabalho">Qual o tipo de vínculo empregatício?</label>
-            <select id="trabalho" name="trabalho" class="form-control" ></select>
+            <select id="trabalho" name="trabalho" class="form-control" >
+                <option value=""></option>
+            </select>
 
             <div class="mb-3">
                 <label for="programas_sociais_container" class="form-label">Programas sociais que está inserido:</label>
@@ -323,14 +360,16 @@
             <h3>DADOS SOCIOASSISTENCIAIS</h3>
 
             <label for="possui_familia_em_servico">Possui familiar em serviço socioassistencial?<span class="red-asterisk">*</span></label>
-            <select id="possui_familia_em_servico" name="possui_familia_em_servico" class="form-select" required onchange="checkFamiliar()">
+            <select id="possui_familia_em_servico" name="possui_familia_em_servico" class="form-select" required >
                 <option value=""></option>
                 <option value="0">Não</option>
                 <option value="1">Sim</option>
             </select>
 
             <label for="servico_familia">Qual a tipologia do serviço na qual o familiar se encontra?</label>
-            <select id="servico_familia" name="servico_familia" class="form-control" ></select>
+            <select id="servico_familia" name="servico_familia" class="form-control" >
+                <option value=""></option>
+            </select>
 
             <label for="responsavel_por_pcd">Reponsável por PCD (Pessoa com deficiência)?<span class="red-asterisk">*</span></label>
             <select id="responsavel_por_pcd" name="responsavel_por_pcd" class="form-select" required>
@@ -370,10 +409,12 @@
             <input type="date" id="dt_ultimo_relatorio_enviado" name="dt_ultimo_relatorio_enviado" class="form-control" required min="1900-01-01" max="">
 
             <label for="resumo_do_caso" class="form-label">Resumo do caso:<span class="red-asterisk">*</span></label>
-            <textarea id="resumo_do_caso" name="resumo_do_caso" class="form-control" required minlength="3" maxlength="2000" rows="5"></textarea>
+            <textarea id="resumo_do_caso" name="resumo_do_caso" class="form-control" required minlength="20" maxlength="2000" rows="5"></textarea>
 
             <label for="medidas_mse">Tipo de medida socioeducativa:<span class="red-asterisk">*</span></label>
-            <select id="medidas_mse" name="medidas_mse" class="form-control" required></select>
+            <select id="medidas_mse" name="medidas_mse" class="form-control" required>
+                <option value=""></option>
+            </select>
 
             <label for="situacao_do_processo">Situação da medida socioeducativa:<span class="red-asterisk">*</span></label>
             <select id="situacao_do_processo" name="situacao_do_processo" class="form-control" required></select>

@@ -1,4 +1,16 @@
 import { $,$$, on, somenteLetras, somenteNumeros, upperTrim, validarObrigatoriosAutomatico, limparCampos, validarDocumento } from "../../admin/helpers.js";
+import { toggleCampo } from "../../admin/formRules.js";
+import { aplicarMascaraCEP, aplicarMascaraProcesso } from "../../admin/mascaras.js";
+import { 
+    validarCPF, 
+    validaCartao_sus, 
+    validaNis, 
+    validarNome, 
+    validarEmail, 
+    validarData, 
+    validarTelefone,
+    verificarComprimentoNProcesso,
+} from "../../admin/validacoes.js";
 
 
 console.log("JS CARREGADO");
@@ -13,19 +25,6 @@ function validarObrigatorio(id, mensagem) {
     }  
     return true;  
 }
-//==========================validar data===================================
-// function validarDataCampo(id, mensagem) {
-//     const el = $(id);
-//     const data = validarData(formatarData(el.value));
-//     if (!data) {
-//         alert(mensagem);
-//         el.focus();
-//         return false;
-//     }
-//     return true;
-// }
-
-
 
 /*-----AUTENTICAÇÃO---------------------------------------------------------------------------------------------------------*/
 
@@ -80,7 +79,64 @@ function bloquearCamposEndereco(bloquear = true) {
     $("logradouro_unidade").readOnly = bloquear;
     $("bairro_unidade").readOnly = bloquear;
 }
+document.addEventListener('DOMContentLoaded', function() {
+    //chama os validar 
+    const cpfInput = $("cpf");
+    cpfInput.addEventListener("blur", function () {
+        if (!validarCPF(this.value)) {
+            alert("CPF inválido");
+            this.focus();
+        }
+    });
 
+    const emailInput = $("email");
+    emailInput.addEventListener("blur", function () {
+        if (!validarEmail(this.value)) {
+            alert("Email inválido");
+            this.focus();
+        }
+    });
+
+    const nisInput = $("nis");
+    nisInput.addEventListener("blur", function () {
+        if (!validarNis(this.value)) {
+            alert("nis inválido");
+            this.focus();
+        }
+    });
+
+    const cartaoSusInput = $("cartao_sus");
+    cartaoSusInput.addEventListener("blur", function () {
+        if (!validarCartaosus(this.value)) {
+            alert("Cartão SUS inválido");
+            this.focus();
+        }
+    });
+    const telefoneInput = $("email");
+    telefoneInput.addEventListener("blur", function () {
+        if (!validarEmail(this.value)) {
+            alert("Email inválido");
+            this.focus();
+        }
+    });
+
+    const nomeInput = $("email");
+    telefoneInput.addEventListener("blur", function () {
+        if (!validarEmail(this.value)) {
+            alert("Email inválido");
+            this.focus();
+        }
+    });
+
+
+
+
+
+
+
+
+
+});
 //converte letras para maisusculo e impede espaços extras
 document.addEventListener('DOMContentLoaded', function() {
     const nome = $('nome');
@@ -97,20 +153,8 @@ document.addEventListener('DOMContentLoaded', function() {
 		aplicarMascaraCEP("cep_unidade");
 		aplicarMascaraCEP("cep");
 
-		function aplicarMascaraCEP(idCampo) {
-		const campo = $(idCampo);
-		if (!campo) return;
-
-		campo.addEventListener("input", function () {
-			let v = this.value.replace(/\D/g, '');
-
-			if (v.length > 5) {
-				v = v.replace(/^(\d{5})(\d)/, "$1-$2");
-			}
-
-			this.value = v.slice(0, 9);
-		});
-	}
+		
+	
 	
     function formatarNome(inputElement) {
         if (!inputElement) return; // ← proteção
@@ -144,39 +188,7 @@ document.addEventListener('DOMContentLoaded', function() {
 //função para padronizar numero do processo
 document.addEventListener('DOMContentLoaded', function() {
     const nProcessoInput = $('n_processo');
-    const formato = '0000000-00.0000.0.00.0000';
-
-    if(!nProcessoInput) return;
-
-    nProcessoInput.addEventListener('input', function() {
-        let valorDigitado = this.value.replace(/[^\d]/g, ''); // Remove tudo que não é dígito
-        let valorFormatado = '';
-        let indiceFormato = 0;
-        let indiceDigitado = 0;
-
-        while (indiceDigitado < valorDigitado.length && indiceFormato < formato.length) {
-            const caractereFormato = formato[indiceFormato];
-            const caractereDigitado = valorDigitado[indiceDigitado];
-
-            if (/[0-9]/.test(caractereFormato)) {
-                if (caractereDigitado) {
-                    valorFormatado += caractereDigitado;
-                    indiceDigitado++;
-                }
-                indiceFormato++;
-            } else {
-                valorFormatado += caractereFormato;
-                indiceFormato++;
-            }
-        }
-
-        this.value = valorFormatado;
-
-        // Trunca o valor se exceder o tamanho da máscara
-        if (this.value.length > formato.length) {
-            this.value = this.value.slice(0, formato.length);
-        }
-    });
+    aplicarMascaraProcesso(nProcessoInput);
 });
 
 // função para resetar os campos do tipo select
@@ -232,19 +244,7 @@ function formatarData(data) {
     return `${ano}-${mes}-${dia}`;
 }
 
-// Função para validar os campos de nomes
-function validarNome(inputNome) {
-    // Obter o valor do input, remover espaços em branco extras e converter para maiúsculas
-    var nome = inputNome.value.trim().toUpperCase();
-    // Verificar se o nome contém apenas letras, espaços, apóstrofos, hifens e parênteses, e tem entre 2 e 100 caracteres
-    if (/^[A-ZÀ-ÿ\s'()-]{2,100}$/.test(nome)) {
-        // Se o nome for válido, retorná-lo
-        return nome;
-    } else {
-        // Se o nome não for válido, retornar false
-        return false;
-    }
-}
+
 
 document.addEventListener('DOMContentLoaded', function() {
     var errorMessage = $('error-message');
@@ -292,58 +292,9 @@ function checkDrogas() {
     }
 }
 
-function validarCPF(cpf) {
-    // Remover caracteres não numéricos do CPF
-    cpf = cpf.replace(/[^\d]/g, '');
 
-    if(cpf.length == '') return true
-    // Verificar se o CPF tem 11 dígitos ou se é uma sequência de dígitos repetidos
-    if (cpf.length !== 11 || /^(\d)\1{10}$/.test(cpf)) return false;
 
-    var soma = 0;
-    var r;
-    var i;
 
-    // Verificar o primeiro dígito verificador
-    for (i = 0; i < 9; i++) {
-        soma += parseInt(cpf.charAt(i)) * (10 - i);
-    }
-    r = (soma * 10) % 11;
-    if (r === 10 || r === 11) r = 0;
-
-    if (r !== parseInt(cpf.charAt(9))) return false;
-
-    // Verificar o segundo dígito verificador
-    soma = 0;
-    for (i = 0; i < 10; i++) {
-        soma += parseInt(cpf.charAt(i)) * (11 - i);
-    }
-    r = (soma * 10) % 11;
-    if (r === 10 || r === 11) r = 0;
-
-    if (r !== parseInt(cpf.charAt(10))) return false;
-
-    return true;
-}
-
-function verificarComprimentoNProcesso() {
-    const nProcessoInput = $('n_processo');
-
-    // Verifica se o elemento existe antes de tentar acessar seu valor
-    if (nProcessoInput) {
-        const valorCampo = nProcessoInput.value;
-        const comprimentoEsperado = 25; // O número exato de caracteres esperados
-
-        if (valorCampo.length === comprimentoEsperado) {
-            return true; // O campo tem exatamente 25 caracteres
-        } else {
-            return false; // O campo NÃO tem 25 caracteres
-        }
-    } else {
-        console.warn("Elemento com ID 'n_processo' não encontrado no DOM.");
-        return false; // Retorna false se o elemento não for encontrado
-    }
-}
 
 document.addEventListener('DOMContentLoaded', function() {
     var errorMessage = $('error-message-processo');
@@ -368,99 +319,9 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 
-// Função para validar o campo de NIS
-function validaNis(nis) {
-    // Verificar se o NIS é nulo ou uma string vazia
-    if (!nis) return true;
-    // Remover caracteres não numéricos do NIS
-    nis = nis.replace(/[^\d]/g, '');
-    // Verificar se o NIS tem 11 dígitos ou se é uma sequência de dígitos repetidos
-    if (nis.length !== 11 || /^(\d)\1{10}$/.test(nis)) return false;
-    // Verificar se o NIS tem 11 dígitos após a remoção de caracteres não numéricos
-    if (nis.length !== 11 || !/^\d+$/.test(nis)) return false;
-    // Inicializar resultado como verdadeiro
-    var result = true;
-    
-    var regex = /[.*+?^${}()|[\]\\]/g;
-    if (regex.test(result)) {
-        alert("Caracteres inválidos detectados!");
-        return false;
-    }
-    // Retornar o resultado da validação
-    return result;
-}
 
-// Função para validar o campo de N° cartão SUS
-function validaCartao_sus(cartao_sus) {
-    // Verificar se o N° cartão SUS é nulo ou uma string vazia
-    if (!cartao_sus) return true;
-    // Remover caracteres não numéricos do N° cartão SUS
-    cartao_sus = cartao_sus.replace(/[^\d]/g, '');
-    // Verificar se o  tem 15 dígitos ou se é uma sequência de dígitos repetidos
-    if (cartao_sus.length !== 15 || /^(\d)\1{10}$/.test(cartao_sus)) return false;
-    // Verificar se o N° cartão SUS tem 15 dígitos após a remoção de caracteres não numéricos
-    if (cartao_sus.length !== 15 || !/^\d+$/.test(cartao_sus)) return false;
-    // Inicializar resultado como verdadeiro
-    var result = true;
-    
-    var regex = /[.*+?^${}()|[\]\\]/g;
-    if (regex.test(result)) {
-        alert("Caracteres inválidos detectados!");
-        return false;
-    }
-    // Retornar o resultado da validação
-    return result;
-}
 
-// Função para validar datas (ela usa a função de formatar)
-function validarData(data) {
-    // Verificar se a data é vazia
-    if (!data) {
-        // Se for vazia, retornar false
-        return false;
-    }
-    // Obter a data atual
-    var dataAtual = new Date();
-    // Converter a data selecionada para o formato de data
-    var dataSelecionada = new Date(data);
-    // Verificar se a data selecionada é posterior à data atual
-    var dataMinima = new Date('1900-01-01');
-    if (dataSelecionada < dataMinima) {
-        alert('Por favor, selecione uma data posterior a 01 de janeiro de 1900.');
-        return false;
-    }
-    if (dataSelecionada > dataAtual) {
-        // Se for, exibir uma mensagem de alerta e retornar false
-        alert('Por favor, selecione uma data igual ou anterior à data atual.');
-        return false;
-    } else {
-        // Se não for, retornar a data formatada
-        return formatarData(data);
-    }
-}
 
-//Função para validar o email utilizado no login
-function validarEmail(email) {
-    // Verifica se o e-mail está vazio
-    if (!email.trim()) {
-        alert('E-mail não pode ser vazio');
-        return false; // Se estiver vazio, retorna falso
-    }
-    // Expressão regular para validar o formato do e-mail
-    var regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    // Verifica se o e-mail corresponde ao formato esperado
-    if (!regex.test(email)) {
-        alert('Formato de e-mail inválido');
-        return false; // Se não corresponder ao formato, retorna falso
-    }
-    // Se passar por todas as verificações acima, retorna verdadeiro
-    return email.trim();
-}
-
-function validarTelefone(telefone) {
-    // Remove todos os caracteres que não são números
-    return telefone.replace(/\D/g, '');
-}
 
 // Função genérica para validação de caracteres permitidos em campos de entrada
 function validarCaracteresPermitidos(elementId, allowedCharacters) {
@@ -569,7 +430,20 @@ const numeros = "0123456789";
 ].forEach(id => validarCaracteresPermitidos(id, numeros));
 
 /*----as funções de check são chamadas dentro da tag html com o evento que verifica mudanças no campo---*/
+document.addEventListener("DOMContentLoaded", function () {
+
+    $("sexo")?.addEventListener("change", checkSexo);
+    $("cad_unico")?.addEventListener("change", checkCadUnico);
+    $("possui_deficiencia")?.addEventListener("change", checkDeficiencia);
+    $("matriculado")?.addEventListener("change", checkMatriculado);
+    $("curso")?.addEventListener("change", checkCurso);
+    $("possui_trabalho")?.addEventListener("change", checkTrabalho);
+    $("possui_familia_em_servico")?.addEventListener("change", checkFamiliar);
+
+});
+
 function checkSexo() {
+    // toggleCampo("sexo",)
     var sexo = $("sexo").value;
     var gestante = $("gestante");
     var lactante = $("lactante");
@@ -586,75 +460,23 @@ function checkSexo() {
 }
 
 function checkDeficiencia() {
-    var possui_deficiencia = $("possui_deficiencia").value;
-    var deficiencia = $("deficiencia");
-
-    if (possui_deficiencia === "0") { // Não
-        deficiencia.value = "";
-        deficiencia.disabled = true;
-    } else if (possui_deficiencia === "1") { //  Sim
-        deficiencia.disabled = false;
-    }
+    toggleCampo("possui_deficiencia", "deficiencia", "1", true);
 }
 
 function checkMedicamentos() {
-    var faz_uso_de_medicamentos = $("faz_uso_de_medicamentos").value;
-    var medicamentos = $("medicamentos");
-
-    if (faz_uso_de_medicamentos === "0") { // Não
-        medicamentos.value = "";
-        medicamentos.disabled = true;
-        medicamentos.removeAttribute("required"); // Remove o atributo required
-    } else if (faz_uso_de_medicamentos === "1") { //  Sim
-        medicamentos.disabled = false;
-        medicamentos.setAttribute("required", "required"); // Adiciona novamente o atributo required, se necessário
-    }
+    toggleCampo("faz_uso_de_medicamento", "medicamentos", "1", true);
 }
 
 function checkMedicamentosControlados() {
-    var faz_uso_de_medicamentos_controlados = $("faz_uso_de_medicamentos_controlados").value;
-    var medicamentos_controlados = $("medicamentos_controlados");
-
-    if (faz_uso_de_medicamentos_controlados === "0") { // Não
-        medicamentos_controlados.value = "";
-        medicamentos_controlados.disabled = true;
-        medicamentos_controlados.removeAttribute("required"); // Remove o atributo required
-    } else if (faz_uso_de_medicamentos_controlados === "1") { //  Sim
-        medicamentos_controlados.disabled = false;
-        medicamentos_controlados.setAttribute("required", "required"); // Adiciona novamente o atributo required, se necessário
-    }
+    toggleCampo("faz_uso_de_medicamentos_controlados", "edicamentos_controlado", "1", true)
 }
 
 function checkDemandaSaude() {
-    var possui_demanda_saude = $("possui_demanda_saude").value;
-    var saude = $("saude");
-    //var acompanhamento_saude = $("acompanhamento_saude");
-
-    if (possui_demanda_saude === "0") { // Não
-        saude.value = "";
-        saude.disabled = true;
-        //acompanhamento_saude.value = "";
-        //acompanhamento_saude.disabled = true;
-    } else if (possui_demanda_saude === "1") { //  Sim
-        saude.disabled = false;
-        //acompanhamento_saude.disabled = false;
-    }
+    toggleCampo("possui_demanda_saude", "saude", "1", true);
 }
 
 function checkDemandaSaudeMental() {
-    var possui_demanda_saude_mental = $("possui_demanda_saude_mental").value;
-    var saude_mental = $("saude_mental");
-    //var acompanhamento_saude = $("acompanhamento_saude");
-
-    if (possui_demanda_saude_mental === "0") { // Não
-        saude_mental.value = "";
-        saude_mental.disabled = true;
-        //acompanhamento_saude.value = "";
-        //acompanhamento_saude.disabled = true;
-    } else if (possui_demanda_saude_mental === "1") { //  Sim
-        saude_mental.disabled = false;
-        //acompanhamento_saude.disabled = false;
-    }
+    toggleCampo("possui_demanda_saude_mental", "saude_mental", "1", true);
 }
 
 function checkMatriculado() {
@@ -705,39 +527,15 @@ function checkTecRef() {
 }
 
 function checkTrabalho() {
-    var possui_trabalho = $("possui_trabalho").value;
-    var trabalho = $("trabalho");
-
-    if (possui_trabalho == "1") {
-        trabalho.disabled = false;
-    } else {
-        trabalho.disabled = true;
-        trabalho.value = null
-    }
+    toggleCampo("possui_trabalho", "trabalho", "1", true)
 }
 
 function checkFamiliar() {
-    var possui_familia_em_servico = $("possui_familia_em_servico").value;
-    var servico_familia = $("servico_familia");
-
-    if (possui_familia_em_servico == "1") {
-        servico_familia.disabled = false;
-    } else {
-        servico_familia.disabled = true;
-        servico_familia.value = null
-    }
+    toggleCampo("possui_familia_em_servico", "servico_familia", "1", true)
 }
 
 function checkCurso() {
-    var curso = $("curso").value;
-    var listar_cursos = $("listar_cursos");
-
-    if (curso == "1") {
-        listar_cursos.disabled = false;
-    } else {
-        listar_cursos.disabled = true;
-        listar_cursos.value = null
-    }
+    toggleCampo("curso", "listar_cursos", "1", true);
 }
 
 /*--------------------------calcular idade----------------------------*/
@@ -1105,17 +903,41 @@ function carregarDados(){
 			.then(response => response.json())
 			.then(opcoes => {
 				const select = $('atividade_unidade');
-				select.innerHTML = '<option value="">Selecione</option>'; // limpa e adiciona opção padrão
-				opcoes.forEach(opcao => {
-					const option = document.createElement('option');
-					option.value = opcao.descricao; // ou opcao.id se quiser guardar o ID
-					option.text = opcao.descricao;
-					select.appendChild(option);
-				});
 
-			})
-			.catch(error => console.error('Erro ao carregar atividades da unidade:', error));
+                select.innerHTML = '';
 
+                 // adiciona opção padrão
+                var defaultOption = document.createElement('option');
+                defaultOption.value = '';
+                defaultOption.text = '';
+                select.appendChild(defaultOption);
+
+                let outros = null;
+
+                opcoes.forEach(opcao=> {
+                    if(opcao.descricao.toUpperCase() === 'OUTROS'){
+                        outros = opcao;
+                    }else{
+                        adicionarOpcao(select, opcao);
+                    }
+                });
+                 // adiciona "Outros" por último
+                if (outros) {
+                    adicionarOpcao(select, outros);
+                }
+
+            })
+            .catch(error => console.error('Erro ao carregar atividades da unidade:', error));
+
+
+            function adicionarOpcao(select, opcao) {
+                    var option = document.createElement('option');
+                    option.value = opcao.id || opcao.descricao;
+                    option.text = opcao.descricao;
+                    select.appendChild(option);
+            }
+
+			
     // Função para buscar as opções TecRef com base no mse selecionado
     function buscarTecRefPorMse(mseSelecionado) {
         fetch(`/opcoesTecRef?mse=${encodeURIComponent(mseSelecionado)}`)
@@ -1545,8 +1367,9 @@ fetch('/opcoesProgramasSociais')
     .then(opcoesContatos => {
         // Preenche o select com as opções MSE
         var selectContatos = $('tipo_de_contato');
+        selectContatos.innerHTML = '';
 
-         /*-----gambiarra para arrumar depois---------*/
+        /*-----gambiarra para arrumar depois---------*/
          // Adiciona a opção padrão ao novo <select>
          var defaultOption = document.createElement('option');
          defaultOption.value = '';
@@ -1555,12 +1378,24 @@ fetch('/opcoesProgramasSociais')
         /*-----gambiarra para arrumar depois---------*/
         /*dica: fazer uma função e passar o select como parametro, fazer em todas e excluir o resect*/
 
-        opcoesContatos.forEach(opcao => {
-            var option = document.createElement('option');
-            option.text = opcao.descricao;
-            selectContatos.appendChild(option);
-            
+        let outros = null;
+
+        opcoesContatos.forEach(opcao=> {
+            if(opcao.descricao.toUpperCase() === 'OUTROS'){
+                outros = opcao;
+            }else{
+                adicionarOpcao(selectContatos, opcao)
+            }
         });
+        if(outros){
+            adicionarOpcao(selectContatos, outros)
+        }
+        function adicionarOpcao(select, opcao) {
+            var option = document.createElement('option');
+            option.value = opcao.id || opcao.descricao;
+            option.text = opcao.descricao;
+            select.appendChild(option);
+        }
     })
     .catch(error => {
         console.error('Erro ao buscar opções vulnerabilidades:', error);
@@ -1625,6 +1460,35 @@ document.addEventListener('DOMContentLoaded', function () {
 
     atualizarObrigatoriedadeUnidade();
 });
+const inicio = $('horario_inicio_unidade');
+const fim = $('horario_fim_unidade');
+
+function validarHoras() {
+
+    if (!inicio.value || !fim.value) return;
+
+    const [horaInicio, minInicio] = inicio.value.split(":").map(Number);
+    const [horaFim, minFim] = fim.value.split(":").map(Number);
+
+    const totalInicio = horaInicio * 60 + minInicio;
+    const totalFim = horaFim * 60 + minFim;
+
+    const diferenca = totalFim - totalInicio;
+
+    if (diferenca > 480) { // 8h = 480 minutos
+        alert("O intervalo não pode ultrapassar 8 horas.");
+        fim.value = "";
+    }
+
+    if (diferenca < 0) {
+        alert("Horário final não pode ser menor que o inicial.");
+        fim.value = "";
+    }
+}
+if (inicio && fim) {
+    inicio.addEventListener("change", validarHoras);
+    fim.addEventListener("change", validarHoras);
+}
 
 function validarDiasUnidadeAcolhedora() {
     const checkboxes = document.querySelectorAll('#dias_semana input[type="checkbox"]');
@@ -1821,3 +1685,4 @@ document.addEventListener("DOMContentLoaded", function () {
         alert("Formulário preenchido automaticamente para teste ✅");
     });
 });  
+
