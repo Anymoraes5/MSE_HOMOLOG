@@ -4,7 +4,6 @@ import { aplicarMascaraCEP, aplicarMascaraProcesso } from "../../admin/mascaras.
 import { 
     validarCPF, 
     validaCartao_sus, 
-    validaNis, 
     validarNome, 
     validarEmail, 
     validarData, 
@@ -12,8 +11,13 @@ import {
     verificarComprimentoNProcesso,
 } from "../../admin/validacoes.js";
 
+import { buscarCep } from "../../admin/formRules.js";
+import { popularSelect } from "../../admin/fetchSelects.js";
+
+
 
 console.log("JS CARREGADO");
+console.log("sexo existe no load?", document.getElementById("sexo"));
 
 //=======================função para validar se está nulo============================
 function validarObrigatorio(id, mensagem) {  
@@ -97,44 +101,36 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    const nisInput = $("nis");
-    nisInput.addEventListener("blur", function () {
-        if (!validarNis(this.value)) {
-            alert("nis inválido");
-            this.focus();
-        }
-    });
+    // const nisInput = $("nis");
+    // nisInput.addEventListener("blur", function () {
+    //     if (!validarNis(this.value)) {
+    //         alert("nis inválido");
+    //         this.focus();
+    //     }
+    // });
 
     const cartaoSusInput = $("cartao_sus");
     cartaoSusInput.addEventListener("blur", function () {
-        if (!validarCartaosus(this.value)) {
+        if (!validaCartao_sus(this.value)) {
             alert("Cartão SUS inválido");
             this.focus();
         }
     });
-    const telefoneInput = $("email");
+    const telefoneInput = $("telefone");
     telefoneInput.addEventListener("blur", function () {
-        if (!validarEmail(this.value)) {
-            alert("Email inválido");
+        if (!validarTelefone(this.value)) {
+            alert("Telefone inválido");
             this.focus();
         }
     });
 
-    const nomeInput = $("email");
-    telefoneInput.addEventListener("blur", function () {
-        if (!validarEmail(this.value)) {
-            alert("Email inválido");
+    const nomeInput = $("nome");
+    nomeInput.addEventListener("blur", function () {
+        if (!validarNome(this.value)) {
+            alert("Nome inválido");
             this.focus();
         }
     });
-
-
-
-
-
-
-
-
 
 });
 //converte letras para maisusculo e impede espaços extras
@@ -421,7 +417,7 @@ const numeros = "0123456789";
     "telefone_unidade",
     "numero_unidade",
     "cep_unidade",
-    "horas_ps",
+    "horas_psc",
     "numeroRa",
     "n_processo",
     "n_processo_apuracao",
@@ -439,24 +435,45 @@ document.addEventListener("DOMContentLoaded", function () {
     $("curso")?.addEventListener("change", checkCurso);
     $("possui_trabalho")?.addEventListener("change", checkTrabalho);
     $("possui_familia_em_servico")?.addEventListener("change", checkFamiliar);
+    $("medicamentos_controlados")?.addEventListener("change", checkMedicamentosControlados);
+    $("faz_uso_de_medicamentos")?.addEventListener("change", checkMedicamentos);
+    $("possui_demanda_saude")?.addEventListener("change", checkDemandaSaude);
+    $("possui_demanda_saude_mental")?.addEventListener("change", checkDemandaSaudeMental);
+    $("tec_ref")?.addEventListener("change", checkTecRef);
+
+    checkSexo();
+    checkDeficiencia();
+    checkMedicamentos();
+    checkMedicamentosControlados();
+    checkCurso();
 
 });
 
 function checkSexo() {
-    // toggleCampo("sexo",)
-    var sexo = $("sexo").value;
-    var gestante = $("gestante");
-    var lactante = $("lactante");
+    const sexo = $("sexo");
+    const gestante = $("gestante");
 
-    if (sexo === "M") { // Masculino
-        gestante.value = "0";
-        lactante.value = "0";
-        gestante.disabled = true;
-        lactante.disabled = true;
-    } else if (sexo === "F") { // Feminino
-        gestante.disabled = false;
-        lactante.disabled = false;
-    }
+    console.log("sexo valor:", sexo?.value);
+    console.log("gestante antes:", gestante?.disabled);
+
+    toggleCampo("sexo", "gestante", "F", true);
+
+    console.log("gestante depois:", gestante?.disabled);
+    // toggleCampo("sexo", "gestante", "F", true);
+    // toggleCampo("sexo", "lactante", "F", true);
+    // var sexo = $("sexo").value;
+    // var gestante = $("gestante");
+    // var lactante = $("lactante");
+
+    // if (sexo === "M") { // Masculino
+    //     gestante.value = "0";
+    //     lactante.value = "0";
+    //     gestante.disabled = true;
+    //     lactante.disabled = true;
+    // } else if (sexo === "F") { // Feminino
+    //     gestante.disabled = false;
+    //     lactante.disabled = false;
+    // }
 }
 
 function checkDeficiencia() {
@@ -464,11 +481,11 @@ function checkDeficiencia() {
 }
 
 function checkMedicamentos() {
-    toggleCampo("faz_uso_de_medicamento", "medicamentos", "1", true);
+    toggleCampo("faz_uso_de_medicamentos", "medicamentos", "1", true);
 }
 
 function checkMedicamentosControlados() {
-    toggleCampo("faz_uso_de_medicamentos_controlados", "edicamentos_controlado", "1", true)
+    toggleCampo("medicamentos_controlados", "medicamentos_controlado", "1", true)
 }
 
 function checkDemandaSaude() {
@@ -478,7 +495,9 @@ function checkDemandaSaude() {
 function checkDemandaSaudeMental() {
     toggleCampo("possui_demanda_saude_mental", "saude_mental", "1", true);
 }
-
+// function checkCadUnico() {
+//     toggleCampo("cad_unico", "cad_unico", "1", true);
+// }
 function checkMatriculado() {
     // Obtendo os elementos
     var matriculado = $("matriculado").value;
@@ -573,7 +592,6 @@ if(form){
         //======================validar documento==============================
         const validacoes = [
             { id: 'cpf', func: validarCPF, msg: 'CPF inválido.' },
-            { id: 'nis', func: validaNis, msg: 'NIS inválido.' },
             { id: 'cartao_sus', func: validaCartao_sus, msg: 'Cartão SUS inválido.' }
         ];
 
@@ -649,141 +667,59 @@ if (isCadastro){
 }
 function carregarDados(){
     // Busca as opções para o Creas atual
-    fetch('/opcoesCreasAtual')
-    .then(response => response.json())
-    .then(opcoesCreas => {
-        // Preenche o select com as opções Creas
-        var selectCreas = $('creas_atual');
-        opcoesCreas.forEach(opcao => {
-            var option = document.createElement('option');
-            option.text = opcao.descricao;
-            selectCreas.appendChild(option);
-        });
-    })
-    .catch(error => {
-        console.error('Erro ao buscar opções Creas:', error);
+    popularSelect({
+        url: "/opcoesCreasAtual",
+        selectId: "opcoesCreasAtual",
     });
 
     // Busca as opções para o Creas de origem
-    fetch('/opcoesCreas')
-    .then(response => response.json())
-    .then(opcoesCreas => {
-        // Preenche o select com as opções Creas
-        var selectCreas = $('creas_origem');
-        opcoesCreas.forEach(opcao => {
-            var option = document.createElement('option');
-            option.text = opcao.descricao;
-            selectCreas.appendChild(option);
-        });
-    })
-    .catch(error => {
-        console.error('Erro ao buscar opções Creas:', error);
+    popularSelect({
+        url: "/opcoesCreas",
+        selectId: "opcoesCreas",
     });
 
     // Busca as opções deficiência
-    fetch('/opcoesDeficiencia')
-    .then(response => response.json())
-    .then(opcoesDeficiencia => {
-        // Preenche o select com as opções Deficiencia
-        var selectDeficiencia = $('deficiencia');
-        opcoesDeficiencia.forEach(opcao => {
-            var option = document.createElement('option');
-            option.text = opcao.descricao;
-            selectDeficiencia.appendChild(option);
-        });
-    })
-    .catch(error => {
-        console.error('Erro ao buscar opções deficiencia:', error);
+    popularSelect({
+        url: "/opcoesDeficiencia",
+        selectId: "deficiencia",
     });
 
     // Busca as opções de Distrito para o serviço
-    fetch('/opcoesDistrito')
-    .then(response => response.json())
-    .then(opcoesDistrito => {
-        // Preenche o select com as opções Distrito
-        var selectDistrito = $('distrito_servico');
-        opcoesDistrito.forEach(opcao => {
-            var option = document.createElement('option');
-            option.text = opcao.descricao;
-            selectDistrito.appendChild(option);
-        });
-    })
-    .catch(error => {
-        console.error('Erro ao buscar opções distrito:', error);
+    popularSelect({
+        url: "/opcoesDistrito",
+        selectId: "distrito_servico",
     });
-
+    
     // Busca as opções de Distrito para a pessoa
-    fetch('/opcoesDistrito')
-    .then(response => response.json())
-    .then(opcoesDistrito => {
-        // Preenche o select com as opções Distrito
-        var selectDistrito = $('distrito_pessoa');
-      
-         // Adiciona a opção padrão ao novo <select>
-         var defaultOption = document.createElement('option');
-         defaultOption.value = '';
-         defaultOption.text = '';
-         selectDistrito.appendChild(defaultOption);
-
-        opcoesDistrito.forEach(opcao => {
-            var option = document.createElement('option');
-            option.text = opcao.descricao;
-            selectDistrito.appendChild(option);
-        });
-    })
-    .catch(error => {
-        console.error('Erro ao buscar opções distrito:', error);
+    popularSelect({
+        url: "/opcoesDistrito",
+        selectId: "distrito_pessoa",
     });
 
     // Busca as opções Ciclo Estudo 
-    fetch('/opcoesCicloEstudo')
-    .then(response => response.json())
-    .then(opcoesCicloEstudo => {
-        // Preenche o select com as opções Ciclo Estudo
-        var selectCicloEstudo = $('cicloEstudo');
-        opcoesCicloEstudo.forEach(opcao => {
-            var option = document.createElement('option');
-            option.text = opcao.descricao;
-            selectCicloEstudo.appendChild(option);
-        });
-    })
-    .catch(error => {
-        console.error('Erro ao buscar opções Ciclo Estudo:', error);
+    popularSelect({
+        url: "/opcoesCicloEstudo",
+        selectId: "cicloEstudo",
     });
-
+    
     // Busca as opções Tipo Escola
-    fetch('/opcoesTipoescola')
-    .then(response => response.json())
-    .then(opcoesTipoescola => {
-        // Preenche o select com as opções Tipo Escola
-        var selectTipoescola = $('tipoEscola');
-        opcoesTipoescola.forEach(opcao => {
-            var option = document.createElement('option');
-            option.text = opcao.descricao;
-            selectTipoescola.appendChild(option);
-        });
-    })
-    .catch(error => {
-        console.error('Erro ao buscar opções Tipo Escola:', error);
+    popularSelect({
+        url: "/opcoesTipoescola",
+        selectId: "tipoEscola",
     });
 
     // Busca as opções ensinoModalidade
-    fetch('/opcoesEnsinoModalidade')
-    .then(response => response.json())
-    .then(opcoesEnsinoModalidade => {
-        // Preenche o select com as opções ensinoModalidade
-        var selectEnsinoModalidade = $('ensinoModalidade');
-        opcoesEnsinoModalidade.forEach(opcao => {
-            var option = document.createElement('option');
-            option.text = opcao.descricao;
-            selectEnsinoModalidade.appendChild(option);
-        });
-    })
-    .catch(error => {
-        console.error('Erro ao buscar opções ensinoModalidade:', error);
+    popularSelect({
+        url: "/opcoesEnsinoModalidade",
+        selectId: "ensinoModalidade",
     });
 
      // Busca as opções de Parou de estudar
+     popularSelect({
+        url: "/opcoesParoudeestudar",
+        selectId: "paroudeEstudar",
+    });
+
      fetch('/opcoesParoudeestudar')
      .then(response => response.json())
      .then(opcoesParoudeestudar => {
@@ -848,95 +784,48 @@ function carregarDados(){
     });
 
    // Busca as opções MSE
-    fetch('/opcoesMse')
-    .then(response => response.json())
-    .then(opcoesMSE => {
-        // Filtra as opções para remover o item com ID específico (assumindo que o ID está presente no objeto)
-        var opcoesMSE = opcoesMSE.filter(opcao => {
-            return opcao.descricao !== 'ADMINISTRADORES DO SISTEMA'; // Remova a opção com este ID
-        });
-
-        // Preenche o select com as opções filtradas
-        var selectMSE = $('mse');
-        opcoesMSE.forEach(opcao => {
-            var option = document.createElement('option');
-            option.text = opcao.descricao;
-            selectMSE.appendChild(option);
-        });
-    })
-    .catch(error => {
-        console.error('Erro ao buscar opções mse:', error);
+   popularSelect({
+        url: "/opcoesMse",
+        selectId: "mse",
+        textKey: "descricao",
+        valueKey: "descricao", // mantém como antes
+        filterFn: opcao => 
+            opcao.descricao !== "ADMINISTRADORES DO SISTEMA"
     });
 	
 	// Carrega os tipos de local
-	fetch('/opcoesTipoLocal')
-		.then(response => response.json())
-		.then(opcoes => {
-			const select = $('tipo_local');
-			select.innerHTML = '<option value="">Selecione</option>'; // limpa e adiciona opção padrão
-			opcoes.forEach(opcao => {
-				const option = document.createElement('option');
-				option.value = opcao.descricao; // ou opcao.id se quiser guardar o ID
-				option.text = opcao.descricao;
-				select.appendChild(option);
-			});
-		})
-		.catch(error => console.error('Erro ao carregar tipo de local:', error));
+    popularSelect({
+        url: "/opcoesTipoLocal",
+        selectId: "tipo_local",
+        addDefault: true,
+        defaultText: "Selecione",
+        valueKey: "descricao",
+        textKey: "descricao"
+    });
 
 	 // Carrega os tipos de logradouro
-		fetch('/opcoesTipoLogradouro')
-			.then(response => response.json())
-			.then(opcoes => {
-				const select = $('tipo_logradouro');
-				select.innerHTML = '<option value="">Selecione</option>'; // limpa e adiciona opção padrão
-				opcoes.forEach(opcao => {
-					const option = document.createElement('option');
-					option.value = opcao.descricao;
-					option.text = opcao.descricao;
-					select.appendChild(option);
-				});
-			})
-			.catch(error => console.error('Erro ao carregar tipo de logradouro:', error));
+     popularSelect({
+        url: "/opcoesTipoLogradouro",
+        selectId: "tipo_logradouro",
+        addDefault: true,
+        defaultText: "Selecione",
+        valueKey: "descricao",
+        textKey: "descricao"
+    });
 
-		// Carrega as atividades da unidade
-		fetch('/opcoesAtividadeUnidade')
-			.then(response => response.json())
-			.then(opcoes => {
-				const select = $('atividade_unidade');
-
-                select.innerHTML = '';
-
-                 // adiciona opção padrão
-                var defaultOption = document.createElement('option');
-                defaultOption.value = '';
-                defaultOption.text = '';
-                select.appendChild(defaultOption);
-
-                let outros = null;
-
-                opcoes.forEach(opcao=> {
-                    if(opcao.descricao.toUpperCase() === 'OUTROS'){
-                        outros = opcao;
-                    }else{
-                        adicionarOpcao(select, opcao);
-                    }
-                });
-                 // adiciona "Outros" por último
-                if (outros) {
-                    adicionarOpcao(select, outros);
-                }
-
-            })
-            .catch(error => console.error('Erro ao carregar atividades da unidade:', error));
-
-
-            function adicionarOpcao(select, opcao) {
-                    var option = document.createElement('option');
-                    option.value = opcao.id || opcao.descricao;
-                    option.text = opcao.descricao;
-                    select.appendChild(option);
-            }
-
+	// Carrega as atividades da unidade
+	popularSelect({
+        url: "/opcoesAtividadeUnidade",
+        selectId: "atividade_unidade",
+        addDefault: true,        // adiciona option vazia
+        valueKey: "id",          // usa id como value
+        textKey: "descricao",
+        sortFn: (a, b) => {
+            if (a.descricao.toUpperCase() === "OUTROS") return 1;
+            if (b.descricao.toUpperCase() === "OUTROS") return -1;
+            return a.descricao.localeCompare(b.descricao);
+        }
+    });
 			
     // Função para buscar as opções TecRef com base no mse selecionado
     function buscarTecRefPorMse(mseSelecionado) {
@@ -965,19 +854,16 @@ function carregarDados(){
             buscarTecRefPorMse(mseSelecionado); // Chama a função para buscar TecRef com base no mse
         });
     }
+const btnBuscarCepPessoa = $("buscar_cep_pessoa");
 
+if (btnBuscarCepPessoa) {
 
-// Buscar CEP
-const btnBuscarCep = $("buscar_cep");
-
-if (btnBuscarCep) {
-
-    btnBuscarCep.addEventListener("click", function (e) {
+    btnBuscarCepPessoa.addEventListener("click", function (e) {
         e.preventDefault();
         
 
-        const inputCep = $("cep_unidade");
-        console.log("Botão clicado", btnBuscarCep);
+        const inputCep = $("cep");
+        console.log("Botão clicado", btnBuscarCepPessoa);
 
         if (!inputCep) return;
 
@@ -1004,36 +890,26 @@ if (btnBuscarCep) {
 
                     alert("Este CEP não pertence à cidade de São Paulo.");
 
-                    const tipo = $("tipo_logradouro");
-                    const logradouro = $("logradouro_unidade");
-                    const bairro = $("bairro_unidade");
+                    const rua = $("rua");
+                    const bairro_pessoa = $("bairro");
 
-                    if (tipo) tipo.value = "";
-                    if (logradouro) logradouro.value = "";
-                    if (bairro) bairro.value = "";
+                    if (rua) rua.value = "";
+                    if (bairro_pessoa) bairro_pessoa.value = "";
 
                     bloquearCamposEndereco(false);
                     return;
                 }
 
-                let resultado = { tipo: "", nome: "" };
+                
 
-                const selectTipo = $("tipo_logradouro");
+                const campoRua = $("rua");
+                const campoBairroPessoa = $("bairro");
 
-                if (selectTipo && data.logradouro?.trim()) {
-                    resultado = extrairTipoLogradouro(data.logradouro);
-                }
+                if (campoRua) campoRua.value = data.logradouro || "";
+                if (campoBairroPessoa) campoBairroPessoa.value = data.bairro || "";
 
-                const campoTipo = $("tipo_logradouro");
-                const campoLogradouro = $("logradouro_unidade");
-                const campoBairro = $("bairro_unidade");
-
-                if (campoTipo) campoTipo.value = resultado.tipo || "";
-                if (campoLogradouro) campoLogradouro.value = resultado.nome || "";
-                if (campoBairro) campoBairro.value = data.bairro || "";
-
-                if (campoLogradouro) campoLogradouro.dispatchEvent(new Event("input"));
-                if (campoBairro) campoBairro.dispatchEvent(new Event("input"));
+                if (campoRua) campoRua.dispatchEvent(new Event("input"));
+                if (campoBairroPessoa) campoBairroPessoa.dispatchEvent(new Event("input"));
 
                 bloquearCamposEndereco(true);
             })
@@ -1045,6 +921,54 @@ if (btnBuscarCep) {
 
 }
 
+// Buscar CEP
+const btnBuscarCep = $("buscar_cep");
+
+if (btnBuscarCep) {
+    btnBuscarCep.addEventListener("click", async function (e) {
+        e.preventDefault();
+
+        const inputCep = document.getElementById("cep_unidade");
+        if (!inputCep) return;
+
+        const cepValido = validarCep(inputCep.value);
+
+        if (!cepValido) {
+            alert("CEP inválido. Digite 8 números.");
+            return;
+        }
+
+        try {
+            const data = await buscarCep(cepValido);
+
+            // 🔹 Validação São Paulo
+            if (data.localidade !== "São Paulo" || data.uf !== "SP") {
+                alert("Este CEP não pertence à cidade de São Paulo.");
+
+                $("tipo_logradouro").value = "";
+                $("logradouro_unidade").value = "";
+                $("bairro_unidade").value = "";
+
+                bloquearCamposEndereco(false);
+                return;
+            }
+
+            // 🔹 Preenchimento
+            const campoTipo = $("tipo_logradouro");
+            const campoLogradouro = $("logradouro_unidade");
+            const campoBairro = $("bairro_unidade");
+
+            if (campoTipo) campoTipo.value = data.tipo_logradouro || "";
+            if (campoLogradouro) campoLogradouro.value = data.logradouro || "";
+            if (campoBairro) campoBairro.value = data.bairro || "";
+
+            bloquearCamposEndereco(true);
+
+        } catch (error) {
+            alert(error.message || "Erro ao buscar CEP.");
+        }
+    });
+}
 
     // Busca as opções UBS
 fetch('/opcoesUbs')
@@ -1235,67 +1159,25 @@ fetch('/opcoesProgramasSociais')
     });
 
     // Busca as opções Raca
-    fetch('/opcoesRaca')
-    .then(response => response.json())
-    .then(opcoesRaca => {
-        // Preenche o select com as opções Raca
-        var selectRaca = $('raca');
-        opcoesRaca.forEach(opcao => {
-            var option = document.createElement('option');
-            option.text = opcao.descricao;
-            selectRaca.appendChild(option);
-        });
-    })
-    .catch(error => {
-        console.error('Erro ao buscar opções raca:', error);
+    popularSelect({
+        url: "/opcoesraca", selectId: "raca"
     });
 
     // Busca as opções trabalho
-    fetch('/opcoesTrabalho')
-    .then(response => response.json())
-    .then(opcoesTrabalho => {
-        // Preenche o select com as opções trabalho
-        var selectTrabalho = $('trabalho');
-        opcoesTrabalho.forEach(opcao => {
-            var option = document.createElement('option');
-            option.text = opcao.descricao;
-            selectTrabalho.appendChild(option);
-        });
-    })
-    .catch(error => {
-        console.error('Erro ao buscar opções trabalho:', error);
+    popularSelect({
+        url: "/opcoesTrabalho",
+        selectId: "trabalho"
     });
 
     // Busca as opções alcool_drogas
-    fetch('/opcoesAlcoolDrogas')
-    .then(response => response.json())
-    .then(opcoesAlcoolDrogas => {
-        // Preenche o select com as opções alcool_drogas
-        var selectAlcoolDrogas = $('alcool_ou_drogas');
-        opcoesAlcoolDrogas.forEach(opcao => {
-            var option = document.createElement('option');
-            option.text = opcao.descricao;
-            selectAlcoolDrogas.appendChild(option);
-        });
-    })
-    .catch(error => {
-        console.error('Erro ao buscar opções alcool_drogas:', error);
+    popularSelect({
+        url: "/opcoesAlcoolDrogas",
+        selectId: "alcool_ou_drogas"
     });
 
     // Busca as opções Sas
-    fetch('/opcoesSas')
-    .then(response => response.json())
-    .then(opcoesSas => {
-        // Preenche o select com as opções Sas
-        var selectSas = $('sas');
-        opcoesSas.forEach(opcao => {
-            var option = document.createElement('option');
-            option.text = opcao.descricao;
-            selectSas.appendChild(option);
-        });
-    })
-    .catch(error => {
-        console.error('Erro ao buscar opções sas:', error);
+    popularSelect({
+        url: "/opcoesSas", selectId: "sas"
     });
 
     // Busca as opções servico_familia
@@ -1315,90 +1197,32 @@ fetch('/opcoesProgramasSociais')
     });
 
     // Busca as opções SituacaoDoProcesso
-    fetch('/opcoesSituacaoDoProcesso')
-    .then(response => response.json())
-    .then(opcoesSituacaoDoProcesso => {
-        // Preenche o select com as opções SituacaoDoProcesso
-        var selectSituacaoDoProcesso = $('situacao_do_processo');
-     
-         // Adiciona a opção padrão ao novo <select>
-         var defaultOption = document.createElement('option');
-         defaultOption.value = '';
-         defaultOption.text = '';
-         selectSituacaoDoProcesso.appendChild(defaultOption);
-        
-        opcoesSituacaoDoProcesso.forEach(opcao => {
-            var option = document.createElement('option');
-            option.text = opcao.descricao;
-            selectSituacaoDoProcesso.appendChild(option);
-        });
-    })
-    .catch(error => {
-        console.error('Erro ao buscar opções situacao_do_processo:', error);
+    popularSelect({
+        url: "/opcoesSituacaoDoProcesso",
+        selectId: "situacao_do_processo",
+        addDefault: true
     });
 
     // Busca as opções VaraDaInfancia
-    fetch('/opcoesVaraDaInfancia')
-    .then(response => response.json())
-    .then(opcoesVaraDaInfancia => {
-        
-
-        // Preenche o select com as opções VaraDaInfancia
-        var selectVaraDaInfancia = $('vara_da_infancia');
-
-         var defaultOption = document.createElement('option');
-         defaultOption.value = '';
-         defaultOption.text = '';
-         selectVaraDaInfancia.appendChild(defaultOption);
-
-        opcoesVaraDaInfancia.forEach(opcao => {
-            var option = document.createElement('option');
-            option.text = opcao.descricao;
-            selectVaraDaInfancia.appendChild(option);
-
-        });
-    })
-    .catch(error => {
-        console.error('Erro ao buscar opções vara_da_infancia:', error);
+    popularSelect({
+        url: "/opcoesVaraDaInfancia",
+        selectId: "vara_da_infancia",
+        addDefault: true
     });
 
-    fetch('/opcoesContatos')
-    .then(response => response.json())
-    .then(opcoesContatos => {
-        // Preenche o select com as opções MSE
-        var selectContatos = $('tipo_de_contato');
-        selectContatos.innerHTML = '';
-
-        /*-----gambiarra para arrumar depois---------*/
-         // Adiciona a opção padrão ao novo <select>
-         var defaultOption = document.createElement('option');
-         defaultOption.value = '';
-         defaultOption.text = '';
-         selectContatos.appendChild(defaultOption);
-        /*-----gambiarra para arrumar depois---------*/
-        /*dica: fazer uma função e passar o select como parametro, fazer em todas e excluir o resect*/
-
-        let outros = null;
-
-        opcoesContatos.forEach(opcao=> {
-            if(opcao.descricao.toUpperCase() === 'OUTROS'){
-                outros = opcao;
-            }else{
-                adicionarOpcao(selectContatos, opcao)
-            }
-        });
-        if(outros){
-            adicionarOpcao(selectContatos, outros)
+    //opções de contatos
+    popularSelect({
+        url: "/opcoesContatos",
+        selectId: "tipo_de_contato",
+        valueKey: "id",              // usa id como value
+        textKey: "descricao",
+        addDefault: true,            // adiciona option vazia
+        sortFn: (a, b) => {
+            // força OUTROS para o final
+            if (a.descricao.toUpperCase() === "OUTROS") return 1;
+            if (b.descricao.toUpperCase() === "OUTROS") return -1;
+            return a.descricao.localeCompare(b.descricao);
         }
-        function adicionarOpcao(select, opcao) {
-            var option = document.createElement('option');
-            option.value = opcao.id || opcao.descricao;
-            option.text = opcao.descricao;
-            select.appendChild(option);
-        }
-    })
-    .catch(error => {
-        console.error('Erro ao buscar opções vulnerabilidades:', error);
     });
 }
 

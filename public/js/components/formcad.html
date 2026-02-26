@@ -54,11 +54,9 @@
 
             <label for="cartao_sus" class="form-label">Número do cartão SUS:</label>
             <input type="text" id="cartao_sus" name="cartao_sus" class="form-control" placeholder="Formato: XXXXXXXXXXXXXXX" maxlength="15" minlength="15">
-                <option value=""></option>
-                <option value="0">Não</option>
-                <option value="1">Sim</option>
-            </select>
 
+            <label for="cad_unico" class="form-label">Adolescente ou família possui cadastro no CadÚnico?<span class="red-asterisk">*</span></label>           
+            <input type="text" id="cad_unico" name="cad_unico" class="form-control" required minlength="3" maxlength="100">
 
             
             <!-- <label for="nis" class="form-label">NIS:</label>
@@ -71,7 +69,11 @@
             <input type="text" id="nome_do_pai" name="nome_do_pai" class="form-control" minlength="3" maxlength="100"> 
 
             <label for="nome_responsavel" class="form-label">Nome do responsável pelo(a) adolescente/jovem:<span class="red-asterisk">*</span></label>
-            <input type="text" id="nome_responsavel" name="nome_responsavel" class="form-control" required minlength="3" maxlength="100">
+            <select id="sexo" name="cad_unico" class="form-select" required >
+                <option value=""></option>
+                <option value="0">Não</option>
+                <option value="1">Sim</option>
+            </select>
 
             <label for="raca">Raça/Cor:<span class="red-asterisk">*</span></label>
             <select id="raca" name="raca" class="form-control" required>
@@ -108,6 +110,11 @@
             <br>
             <hr><h2 id="informacoes-do-endereco">INFORMAÇÕES DO ENDEREÇO DE RESIDÊNCIA DA PESSOA</h2><hr>
             <br>
+            <label for="cep" class="form-label">CEP:<span class="red-asterisk">*</span></label>
+            <div>
+                <input type="text" id="cep" name="cep" class="form-control" required minlength="9" maxlength="9" placeholder="00000-000">
+                <button type="button" id="buscar_cep_pessoa" class="btn btn-primary">Buscar CEP</button> 
+            </div>
 
             <label for="rua" class="form-label">Rua:<span class="red-asterisk">*</span></label>
             <input type="text" id="rua" name="rua" class="form-control" required minlength="3" maxlength="100">
@@ -121,11 +128,7 @@
             <label for="bairro" class="form-label">Bairro:<span class="red-asterisk">*</span></label>
             <input type="text" id="bairro" name="bairro" class="form-control" required minlength="3" maxlength="100">
 
-            <label for="cep" class="form-label">CEP:<span class="red-asterisk">*</span></label>
-            <div>
-                <input type="text" id="cep" name="cep" class="form-control" required minlength="9" maxlength="9" placeholder="00000-000">
-                <!-- <button type="button" id="buscar_cep_pessoa" class="btn btn-primary">Buscar CEP</button> -->
-            </div>
+            
             
 
             <label for="distrito_pessoa">Distrito de residência:<span class="red-asterisk">*</span></label>
@@ -330,9 +333,6 @@
 
             <h3>TRABALHO E RENDA</h3>
 
-            <label for="possui_trabalho">Possui trabalho?<span class="red-asterisk">*</span></label>
-            <select id="possui_trabalho" name="possui_trabalho" class="form-select" required onchange="checkTrabalho()">
-
             <label for="possui_trabalho">Está trabalhando?<span class="red-asterisk">*</span></label>
             <select id="possui_trabalho" name="possui_trabalho" class="form-select"  >
                 <option value=""></option>
@@ -438,7 +438,7 @@
 			<!-- CEP com botão para buscar endereço -->
 			<label for="cep_unidade">CEP do local:<span class="red-asterisk unidade-obrigatorio">*</span></label>
 			<div class="input-group">
-				<input type="text" id="cep_unidade" name="cep_unidade" class="form-control" placeholder="00000-000">
+				<input type="text" id="cep_unidade" name="cep_unidade" class="form-control" placeholder="00000-000" required minlength="9" maxlength="9">
 				<button type="button" id="buscar_cep" class="btn btn-primary">Buscar CEP</button>
 			</div>
 

@@ -1,5 +1,7 @@
 //=====================atalhos DOM================
-export const $ = (id) => document.getElementById(id);
+export function $(id) {
+    return document.getElementById(id);
+}
 
 export const $$ = (selector) => document.querySelectorAll(selector);
 

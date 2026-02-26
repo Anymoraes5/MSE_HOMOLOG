@@ -1,3 +1,5 @@
+import { $ } from "./helpers.js";
+
 export function aplicarMascaraCEP(idCampo) {
 		const campo = $(idCampo);
 		if (!campo) return;

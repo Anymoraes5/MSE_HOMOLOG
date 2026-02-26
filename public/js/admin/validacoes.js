@@ -99,15 +99,15 @@ export function validarCPF(cpf) {
     return true;
 }
 // Função para validar o campo de NIS
-export function validaNis(nis) {
-    if (!nis) return true;
+// export function validaNis(nis) {
+//     if (!nis) return true;
    
-    nis = nis.replace(/[^\d]/g, '');
-    if (nis.length !== 11 || /^(\d)\1{10}$/.test(nis)) return false;
-    if (nis.length !== 11 || !/^\d+$/.test(nis)) return false;
-    return true;
+//     nis = nis.replace(/[^\d]/g, '');
+//     if (nis.length !== 11 || /^(\d)\1{10}$/.test(nis)) return false;
+//     if (nis.length !== 11 || !/^\d+$/.test(nis)) return false;
+//     return true;
     
-}
+// }
 
 // Função para validar o campo de N° cartão SUS
 export function validaCartao_sus(cartao_sus) {
