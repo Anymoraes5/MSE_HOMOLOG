@@ -1,3 +1,5 @@
+import { $ } from "./helpers.js";
+
 export async function popularSelect({
     url,
     selectId,
@@ -8,35 +10,40 @@ export async function popularSelect({
     filterFn = null,
     sortFn = null
 }) {
-    const select = $(selectId);
-    if (!select) return;
+
 
     try {
         const response = await fetch(url);
-        const dados = await response.json();
 
-        let opcoes = [...dados];
+        let dados = await response.json();
 
-        if (filterFn) opcoes = opcoes.filter(filterFn);
-        if (sortFn) opcoes.sort(sortFn);
+        if (filterFn) dados = dados.filter(filterFn);
+        if (sortFn) dados.sort(sortFn);
+
+        const select = document.getElementById(selectId);
+
+        if (!select) {
+            console.warn("Select não encontrado:", selectId);
+            return;
+        }
 
         select.innerHTML = "";
 
         if (addDefault) {
             const option = document.createElement("option");
             option.value = "";
-            option.text = defaultText;
+            option.textContent = defaultText;
             select.appendChild(option);
         }
 
-        opcoes.forEach(item => {
+        dados.forEach(item => {
             const option = document.createElement("option");
-            option.value = item[valueKey];
-            option.text = item[textKey];
+            option.value = item[valueKey] ?? "";
+            option.textContent = item[textKey] ?? "";
             select.appendChild(option);
         });
 
     } catch (error) {
-        console.error(`Erro ao carregar ${url}`, error);
+        console.error("Erro ao carregar:", url, error);
     }
 }

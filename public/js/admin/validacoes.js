@@ -1,3 +1,4 @@
+import { $ } from "./helpers.js";
 //Validação do campo de telefone
 
 

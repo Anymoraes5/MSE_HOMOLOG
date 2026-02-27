@@ -19,6 +19,8 @@ export function aplicarMascaraCEP(idCampo) {
 export function aplicarMascaraProcesso(input){
     const formato = '0000000-00.0000.0.00.0000';
 
+    if (!input) return;
+
     input.addEventListener('input', function(){
         let valorDigitado = this.value.replace(/[^\d]/g, ''); // Remove tudo que não é dígito
         let valorFormatado = '';

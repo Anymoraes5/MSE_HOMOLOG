@@ -17,7 +17,8 @@ import { popularSelect } from "../../admin/fetchSelects.js";
 
 
 console.log("JS CARREGADO");
-console.log("sexo existe no load?", document.getElementById("sexo"));
+console.log("carregarDados vai rodar?");
+console.log("popularSelect:", popularSelect);
 
 //=======================função para validar se está nulo============================
 function validarObrigatorio(id, mensagem) {  
@@ -86,20 +87,24 @@ function bloquearCamposEndereco(bloquear = true) {
 document.addEventListener('DOMContentLoaded', function() {
     //chama os validar 
     const cpfInput = $("cpf");
-    cpfInput.addEventListener("blur", function () {
+    if(cpfInput){
+        cpfInput.addEventListener("blur", function () {
         if (!validarCPF(this.value)) {
             alert("CPF inválido");
             this.focus();
-        }
-    });
-
+            }
+        });
+    }
+    
     const emailInput = $("email");
-    emailInput.addEventListener("blur", function () {
-        if (!validarEmail(this.value)) {
-            alert("Email inválido");
-            this.focus();
-        }
-    });
+    if(emailInput){
+        emailInput.addEventListener("blur", function () {
+            if (!validarEmail(this.value)) {
+                alert("Email inválido");
+                this.focus();
+            }
+        });
+    }
 
     // const nisInput = $("nis");
     // nisInput.addEventListener("blur", function () {
@@ -110,27 +115,34 @@ document.addEventListener('DOMContentLoaded', function() {
     // });
 
     const cartaoSusInput = $("cartao_sus");
-    cartaoSusInput.addEventListener("blur", function () {
-        if (!validaCartao_sus(this.value)) {
-            alert("Cartão SUS inválido");
-            this.focus();
-        }
-    });
+    if(cartaoSusInput){
+        cartaoSusInput.addEventListener("blur", function () {
+            if (!validaCartao_sus(this.value)) {
+                alert("Cartão SUS inválido");
+                this.focus();
+            }
+        });
+    }
+
     const telefoneInput = $("telefone");
-    telefoneInput.addEventListener("blur", function () {
-        if (!validarTelefone(this.value)) {
-            alert("Telefone inválido");
-            this.focus();
-        }
-    });
+    if(telefoneInput){
+        telefoneInput.addEventListener("blur", function () {
+            if (!validarTelefone(this.value)) {
+                alert("Telefone inválido");
+                this.focus();
+            }
+        });
+    }
 
     const nomeInput = $("nome");
+    if(nomeInput){
     nomeInput.addEventListener("blur", function () {
         if (!validarNome(this.value)) {
             alert("Nome inválido");
             this.focus();
         }
-    });
+        });
+    }
 
 });
 //converte letras para maisusculo e impede espaços extras
@@ -182,10 +194,10 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 //função para padronizar numero do processo
-document.addEventListener('DOMContentLoaded', function() {
-    const nProcessoInput = $('n_processo');
-    aplicarMascaraProcesso(nProcessoInput);
-});
+const nProcessoInput = $('n_processo');
+console.log("nProcessoInput:", nProcessoInput);
+aplicarMascaraProcesso(nProcessoInput);
+
 
 // função para resetar os campos do tipo select
 function resetSelectField(selectId) {
@@ -659,136 +671,60 @@ const isCadastro = paginaAtual.includes("Cadastra");
 const isEdicao = paginaAtual.includes("editar");
 
 //Ao carregar a página preenche com os dados padrão
-if (isCadastro){
-    document.addEventListener("DOMContentLoaded", function(){
-        carregarDados();
 
-    });
-}
+document.addEventListener("DOMContentLoaded", () => {
+    carregarDados();
+
+});
+
 function carregarDados(){
+    console.log("CARREGAR DADOS EXECUTOU");
     // Busca as opções para o Creas atual
-    popularSelect({
-        url: "/opcoesCreasAtual",
-        selectId: "opcoesCreasAtual",
-    });
-
+    popularSelect({ url: "/opcoesCreasAtual", selectId: "creas_atual", addDefault: true, defaultText: "Selecione" });
     // Busca as opções para o Creas de origem
-    popularSelect({
-        url: "/opcoesCreas",
-        selectId: "opcoesCreas",
-    });
-
+    popularSelect({ url: "/opcoesCreas", selectId: "creas_origem", addDefault: true, defaultText: "Selecione" });
     // Busca as opções deficiência
-    popularSelect({
-        url: "/opcoesDeficiencia",
-        selectId: "deficiencia",
-    });
-
+    popularSelect({ url: "/opcoesDeficiencia", selectId: "deficiencia", addDefault: true, defaultText: "Selecione" });
     // Busca as opções de Distrito para o serviço
-    popularSelect({
-        url: "/opcoesDistrito",
-        selectId: "distrito_servico",
-    });
-    
+    popularSelect({ url: "/opcoesDistrito", selectId: "distrito_servico", addDefault: true, defaultText: "Selecione" });
     // Busca as opções de Distrito para a pessoa
-    popularSelect({
-        url: "/opcoesDistrito",
-        selectId: "distrito_pessoa",
-    });
-
+    popularSelect({ url: "/opcoesDistrito", selectId: "distrito_pessoa", addDefault: true, defaultText: "Selecione"});
     // Busca as opções Ciclo Estudo 
-    popularSelect({
-        url: "/opcoesCicloEstudo",
-        selectId: "cicloEstudo",
-    });
-    
+    popularSelect({ url: "/opcoesCicloEstudo", selectId: "cicloEstudo", addDefault: true, defaultText: "Selecione" });
     // Busca as opções Tipo Escola
-    popularSelect({
-        url: "/opcoesTipoescola",
-        selectId: "tipoEscola",
-    });
-
+    popularSelect({ url: "/opcoesTipoescola", selectId: "tipoEscola", addDefault: true, defaultText: "Selecione" });
     // Busca as opções ensinoModalidade
-    popularSelect({
-        url: "/opcoesEnsinoModalidade",
-        selectId: "ensinoModalidade",
-    });
-
-     // Busca as opções de Parou de estudar
-     popularSelect({
-        url: "/opcoesParoudeestudar",
-        selectId: "paroudeEstudar",
-    });
-
-     fetch('/opcoesParoudeestudar')
-     .then(response => response.json())
-     .then(opcoesParoudeestudar => {
-         // Preenche o select com as opções Conclusão de curso
-         var selectParoudeestudar= $('paroudeEstudar');
-         opcoesParoudeestudar.forEach(opcao => {
-             var option = document.createElement('option');
-             option.text = opcao.descricao;
-             selectParoudeestudar.appendChild(option);
-         });
-     })
-     .catch(error => {
-         console.error('Erro ao buscar opções Parou de estudar:', error);
-     });
-
+    popularSelect({ url: "/opcoesEnsinoModalidade", selectId: "ensinoModalidade", addDefault: true, defaultText: "Selecione" });
+    // Busca as opções de Parou de estudar
+     popularSelect({ url: "/opcoesParoudeestudar", selectId: "paroudeEstudar", addDefault: true, defaultText: "Selecione" });
     // Busca as opções EstadoCivil
-    fetch('/opcoesEstadoCivil')
-    .then(response => response.json())
-    .then(opcoesEstadoCivil => {
-        // Preenche o select com as opções EstadoCivil
-        var selectEstadoCivil = $('estado_civil');
-        opcoesEstadoCivil.forEach(opcao => {
-            var option = document.createElement('option');
-            option.text = opcao.descricao;
-            selectEstadoCivil.appendChild(option);
-        });
-    })
-    .catch(error => {
-        console.error('Erro ao buscar opções estado civil:', error);
-    });
-
+    popularSelect({ url: "/opcoesEstadoCivil", selectId: "estado_civil", addDefault: true, defaultText: "Selecione"});
     // Busca as opções Genero
-    fetch('/opcoesGenero')
-    .then(response => response.json())
-    .then(opcoesGenero => {
-        // Preenche o select com as opções Genero
-        var selectGenero = $('genero');
-        opcoesGenero.forEach(opcao => {
-            var option = document.createElement('option');
-            option.text = opcao.descricao;
-            selectGenero.appendChild(option);
-        });
-    })
-    .catch(error => {
-        console.error('Erro ao buscar opções genero:', error);
-    });
-
+    popularSelect({ url: "/opcoesGenero", selectId: "genero", addDefault: true, defaultText: "Selecione"});
     // Busca as opções MedidasMse
-    fetch('/opcoesMedidasMse')
-    .then(response => response.json())
-    .then(opcoesMedidasMse => {
-        // Preenche o select com as opções MedidasMse
-        var selectMedidasMse = $('medidas_mse');
-        opcoesMedidasMse.forEach(opcao => {
-            var option = document.createElement('option');
-            option.text = opcao.descricao;
-            selectMedidasMse.appendChild(option);
-        });
-    })
-    .catch(error => {
-        console.error('Erro ao buscar opções MedidasMse:', error);
-    });
+    popularSelect({ url: "/opcoesMedidasMse", selectId: "medidas_mse", addDefault: true, defaultText: "Selecione"});
+    // Busca as opções Raca
+    popularSelect({url: "/opcoesraca", selectId: "raca", addDefault: true, defaultText: "Selecione"});
+    // Busca as opções trabalho
+    popularSelect({ url: "/opcoesTrabalho", selectId: "trabalho", addDefault: true, defaultText: "Selecione"});
+    // Busca as opções alcool_drogas
+    popularSelect({ url: "/opcoesAlcoolDrogas", selectId: "alcool_ou_drogas", addDefault: true, defaultText: "Selecione" });
+    // Busca as opções Nacionalidade
+    popularSelect({url: "/opcoesNacionalidade", selectId: "nacionalidade", addDefault: true, defaultText: "Selecione" });
 
+    // Busca as opções OrientacaoSexual
+    popularSelect({url: "/opcoesOrientacaoSexual", selectId: "orientacao_sexual", addDefault: true, defaultText: "Selecione" });
+
+    // Busca as opções Sas
+    popularSelect({ url: "/opcoesSas", selectId: "sas",  addDefault: true, defaultText: "Selecione" });
    // Busca as opções MSE
    popularSelect({
         url: "/opcoesMse",
         selectId: "mse",
         textKey: "descricao",
         valueKey: "descricao", // mantém como antes
+        addDefault: true,
+        defaultText: "Selecione",
         filterFn: opcao => 
             opcao.descricao !== "ADMINISTRADORES DO SISTEMA"
     });
@@ -820,6 +756,7 @@ function carregarDados(){
         addDefault: true,        // adiciona option vazia
         valueKey: "id",          // usa id como value
         textKey: "descricao",
+        defaultText: "Selecione",
         sortFn: (a, b) => {
             if (a.descricao.toUpperCase() === "OUTROS") return 1;
             if (b.descricao.toUpperCase() === "OUTROS") return -1;
@@ -1013,39 +950,10 @@ fetch('/opcoesUbs')
     console.error('Erro ao buscar opções UBS:', error);
 });
 
-    // Busca as opções Nacionalidade
-    fetch('/opcoesNacionalidade')
-    .then(response => response.json())
-    .then(opcoesNacionalidade => {
-        // Preenche o select com as opções Nacionalidade
-        var selectNacionalidade = $('nacionalidade');
-        opcoesNacionalidade.forEach(opcao => {
-            var option = document.createElement('option');
-            option.text = opcao.descricao;
-            selectNacionalidade.appendChild(option);
-        });
-    })
-    .catch(error => {
-        console.error('Erro ao buscar opções Nacionalidade:', error);
-    });
+    
 
-    // Busca as opções OrientacaoSexual
-    fetch('/opcoesOrientacaoSexual')
-    .then(response => response.json())
-    .then(opcoesOrientacaoSexual => {
-        // Preenche o select com as opções OrientacaoSexual
-        var selectOrientacaoSexual = $('orientacao_sexual');
-        opcoesOrientacaoSexual.forEach(opcao => {
-            var option = document.createElement('option');
-            option.text = opcao.descricao;
-            selectOrientacaoSexual.appendChild(option);
-        });
-    })
-    .catch(error => {
-        console.error('Erro ao buscar opções OrientacaoSexual:', error);
-    });
-
-// Busca as opções de Programas Sociais
+    // Busca as opções de Programas Sociais
+    
 fetch('/opcoesProgramasSociais')
     .then(response => response.json())
     .then(opcoesProgramasSociais => {
@@ -1158,27 +1066,7 @@ fetch('/opcoesProgramasSociais')
         console.error('Erro ao buscar opções programas_sociais:', error);
     });
 
-    // Busca as opções Raca
-    popularSelect({
-        url: "/opcoesraca", selectId: "raca"
-    });
-
-    // Busca as opções trabalho
-    popularSelect({
-        url: "/opcoesTrabalho",
-        selectId: "trabalho"
-    });
-
-    // Busca as opções alcool_drogas
-    popularSelect({
-        url: "/opcoesAlcoolDrogas",
-        selectId: "alcool_ou_drogas"
-    });
-
-    // Busca as opções Sas
-    popularSelect({
-        url: "/opcoesSas", selectId: "sas"
-    });
+    
 
     // Busca as opções servico_familia
     fetch('/opcoesServicoFamilia')
@@ -1365,148 +1253,6 @@ function confirmLogout() {
     }
 }
 
-//Preenchimento para teste
 
-document.addEventListener("DOMContentLoaded", function () {
 
-    const btnTeste = $("btnPreencherTeste");
-    if (!btnTeste) return;
-
-    btnTeste.addEventListener("click", function () {
-
-        const form = $("editar-form");
-        if (!form) {
-            alert("Formulário não encontrado");
-            return;
-        }
-
-        /* =====================================================
-           FUNÇÃO AUXILIAR PARA SETAR VALOR + EVENTOS
-        ===================================================== */
-        function setValor(id, valor) {
-            const campo = $(id);
-            if (!campo) return;
-
-            campo.value = valor;
-            campo.dispatchEvent(new Event("input"));
-            campo.dispatchEvent(new Event("change"));
-            campo.dispatchEvent(new Event("blur"));
-        }
-
-        /* =====================================================
-           CAMPOS ESPECÍFICOS (COM MÁSCARA / REGRA)
-        ===================================================== */
-
-        // CPF → 905.354.450-08
-        setValor("cpf", "90535445008");
-
-        // Cartão SUS
-        setValor("cartao_sus", "254354343483434");
-
-        // NIS
-        setValor("nis", "15435445416");
-
-        // Processo de execução (com máscara automática)
-        setValor("n_processo", "34534834534535434834");
-
-        // Processo de apuração
-        setValor("n_processo_apuracao", "4533435354387338353463393");
-
-        // Pasta técnica
-        setValor("n_pt", "25434");
-
-        // Número do endereço
-        setValor("numero", "25");
-
-        // CEP principal
-        setValor("cep", "05143320");
-
-        // RA
-        setValor("numeroRa", "52482348384");
-
-        // Horas PSC
-        setValor("horas_psc", "3");
-
-        // Unidade acolhedora
-        setValor("numero_unidade", "45");
-
-        /* =====================================================
-           SELECT FIXO DO SMSE-MA
-        ===================================================== */
-        const mseSelect = $("mse");
-        if (mseSelect) {
-            mseSelect.value = "SMSE-MA CIAP LAJEADO";
-            mseSelect.dispatchEvent(new Event("change"));
-        }
-
-        /* =====================================================
-           TELEFONES (usa sua validação existente)
-        ===================================================== */
-        document.querySelectorAll(".telefone-br").forEach(tel => {
-            tel.value = "(11) 91234-5678";
-            tel.dispatchEvent(new Event("input"));
-            tel.dispatchEvent(new Event("blur"));
-        });
-
-        /* =====================================================
-           PREENCHIMENTO GENÉRICO (SÓ O QUE ESTIVER VAZIO)
-        ===================================================== */
-        form.querySelectorAll("input").forEach(input => {
-
-            if (input.type === "hidden") return;
-            if (input.readOnly) return;
-            if (input.value && input.value.trim() !== "") return;
-
-            switch (input.type) {
-                case "text":
-                    input.value = "Teste";
-                    break;
-                case "email":
-                    input.value = "teste@teste.com";
-                    break;
-                case "date":
-                    input.value = "2008-05-10";
-                    break;
-                case "time":
-                    input.value = "08:00";
-                    break;
-                case "number":
-                    input.value = "1";
-                    break;
-            }
-
-            input.dispatchEvent(new Event("input"));
-            input.dispatchEvent(new Event("change"));
-        });
-
-        /* =====================================================
-           TEXTAREAS
-        ===================================================== */
-        form.querySelectorAll("textarea").forEach(textarea => {
-            if (textarea.value && textarea.value.trim() !== "") return;
-            textarea.value = "Texto de teste automático";
-            textarea.dispatchEvent(new Event("input"));
-        });
-
-        /* =====================================================
-           SELECTS (IGNORA OS VAZIOS / FETCH)
-        ===================================================== */
-        form.querySelectorAll("select").forEach(select => {
-
-            if (select.options.length <= 1) return;
-            if (select.value && select.value !== "") return;
-
-            for (let option of select.options) {
-                if (option.value !== "") {
-                    select.value = option.value;
-                    break;
-                }
-            }
-
-            select.dispatchEvent(new Event("change"));
-        });
-
-        alert("Formulário preenchido automaticamente para teste ✅");
-    });
-});  
 
