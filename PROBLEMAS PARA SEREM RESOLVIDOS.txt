@@ -15,7 +15,8 @@ EDITAR - Esta permitindo gravar campos vazios em campos obrigatórios (unidade a
 11º "Possui trabalho?" será "Está trabalhando?" ok
 17º Outros deve aparecer no final da lista se possível e ao seleciona-lo deve aparecer um campo descritivo para preenchimento chamado "Outras atividades"  (No mínimo 3 caracteres)ok
 18º Em tipo de contato temos dois espaços em branco e além disso quando selecionar o campo "OUTROS" deve-se abrir um campo descritivo chamado "Outros contatos". Seria interessante manter uma padronização com a primeira letra maiúscula e as demais minúsculas como é feito nos campos do item 17. (No mínimo 3 caracteres)ok
-
+15º Remover CDMC e renomear NPJ para CREAS (Dados Socioassistencias) ok
+14º Necessário incluir o padrão de botão de busca de CEP para o cep de "residência da pessoa" ok
 
 ----------------------------------------------------------------------
 
@@ -27,27 +28,15 @@ Esta permitindo gravar processos duplicados? Pode isso? (Número do processo de 
 
  Sobre as demandas MSE que estamos implementando temos as seguintes tarefas:
 
-    1º Precisamos confirmar que as mudanças abaixo estão funcionando nos dois perfis, tanto de administrador quanto de técnicos, além de verificar em ambos se estão corretamente aplicados tanto em "Cadastrar" quanto em "Editar"
-    4º A data de nascimento não deve permitir que a pessoa tenha menos que 12 anos e mais do que 21 anos na data do cadastramento
-    7º Quando se coloca a opção "gestante" a opção de sexo masculino automaticamente é bloqueada, porém quando ocorre um erro de preenchimento essa opção se torna liberável e isso não pode acontecer.
-    8º O campo distrito deve ser limitado a SAS selecionada. Precisa criar uma coluna na base de dados indicando que aquele distrito corresponde a aquela SAS (seria uma chave estrangeira na tabela distrito com o código da SAS). Posteriormente o sistema precisa identificar essas relações e só carregar o distrito corresponde.
-    No painel do perfil de acolhidos e vinculados você consegue verificar qual distrito pertence a qual SAS
-
-    https://app.powerbi.com/view?r=eyJrIjoiMmRhYzFlOTItYWNmMS00NGE1LTg4Y2ItZmU5OTZmNTM0MTljIiwidCI6ImYzOThkZjljLWZkMGMtNDgyOS1hMDAzLWM3NzBhMWM0YTA2MyJ9
-
-    
-    
-    9º O CAPS só pode ser "SIM" se "Possui demanda especifica de saúde mental" for "SIM" E/OU "Faz uso de álcool ou drogas" for "SIM"
-    12º "Auxilio Reencontro" não pode ser selecionado em conjunto com "Auxílio Reencontro Família" 
-    13º Os itens da lista abaixo não podem ser selecionados em conjunto com "Bolsa de Trabalho" mas podem ser selecionados em conjunto entre si
-
-   
-
-14º Necessário incluir o padrão de botão de busca de CEP para o cep de "residência da pessoa" ok
-
-
-
-15º Remover CDMC e renomear NPJ para CREAS (Dados Socioassistencias) ok
+1º Precisamos confirmar que as mudanças abaixo estão funcionando nos dois perfis, tanto de administrador quanto de técnicos, além de verificar em ambos se estão corretamente aplicados tanto em "Cadastrar" quanto em "Editar"
+4º A data de nascimento não deve permitir que a pessoa tenha menos que 12 anos e mais do que 21 anos na data do cadastramento
+7º Quando se coloca a opção "gestante" a opção de sexo masculino automaticamente é bloqueada, porém quando ocorre um erro de preenchimento essa opção se torna liberável e isso não pode acontecer.
+8º O campo distrito deve ser limitado a SAS selecionada. Precisa criar uma coluna na base de dados indicando que aquele distrito corresponde a aquela SAS (seria uma chave estrangeira na tabela distrito com o código da SAS). Posteriormente o sistema precisa identificar essas relações e só carregar o distrito corresponde.
+No painel do perfil de acolhidos e vinculados você consegue verificar qual distrito pertence a qual SAS
+https://app.powerbi.com/view?r=eyJrIjoiMmRhYzFlOTItYWNmMS00NGE1LTg4Y2ItZmU5OTZmNTM0MTljIiwidCI6ImYzOThkZjljLWZkMGMtNDgyOS1hMDAzLWM3NzBhMWM0YTA2MyJ9
+9º O CAPS só pode ser "SIM" se "Possui demanda especifica de saúde mental" for "SIM" E/OU "Faz uso de álcool ou drogas" for "SIM"
+12º "Auxilio Reencontro" não pode ser selecionado em conjunto com "Auxílio Reencontro Família" 
+13º Os itens da lista abaixo não podem ser selecionados em conjunto com "Bolsa de Trabalho" mas podem ser selecionados em conjunto entre si
 16º A data do relatório só pode ser posterior a data da interpretação.
 20º Horário de inicio e fim não podem superar 08 horas 
 21º Campo de resumo do caso deve ter no mínimo 20 caracteres -ok 

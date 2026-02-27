@@ -462,30 +462,33 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 function checkSexo() {
-    const sexo = $("sexo");
-    const gestante = $("gestante");
+    const sexo = document.getElementById("sexo")?.value;
+    console.log("valor sexo:", sexo);
 
-    console.log("sexo valor:", sexo?.value);
-    console.log("gestante antes:", gestante?.disabled);
+    if (!sexo) return;
 
-    toggleCampo("sexo", "gestante", "F", true);
+    if (sexo === "F") {
+        toggleCampo("sexo", "gestante", "F", true);
+        toggleCampo("sexo", "lactante", "F", true);
 
-    console.log("gestante depois:", gestante?.disabled);
-    // toggleCampo("sexo", "gestante", "F", true);
-    // toggleCampo("sexo", "lactante", "F", true);
-    // var sexo = $("sexo").value;
-    // var gestante = $("gestante");
-    // var lactante = $("lactante");
+        // desativa parceiro gestante
+        const parceiro = $("parceira_gestante");
+        parceiro.value = "";
+        parceiro.disabled = true;
+        parceiro.required = false;
 
-    // if (sexo === "M") { // Masculino
-    //     gestante.value = "0";
-    //     lactante.value = "0";
-    //     gestante.disabled = true;
-    //     lactante.disabled = true;
-    // } else if (sexo === "F") { // Feminino
-    //     gestante.disabled = false;
-    //     lactante.disabled = false;
-    // }
+    } else if (sexo === "M") {
+        toggleCampo("sexo", "parceira_gestante", "M", true);
+
+        // desativa gestante/lactante
+        ["gestante", "lactante"].forEach(id => {
+            const campo = $(id);
+            campo.value = "";
+            campo.disabled = true;
+            campo.required = false;
+        });
+    }
+
 }
 
 function checkDeficiencia() {
