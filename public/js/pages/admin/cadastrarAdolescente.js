@@ -1,5 +1,5 @@
-import { $,$$, on, somenteLetras, somenteNumeros, upperTrim, validarObrigatoriosAutomatico, limparCampos, validarDocumento } from "../../admin/helpers.js";
-import { toggleCampo } from "../../admin/formRules.js";
+import { $, $$, on, somenteLetras, somenteNumeros, upperTrim, validarObrigatoriosAutomatico, limparCampos, validarDocumento } from "../../admin/helpers.js";
+import { toggleCampo, toggleCampoPorMultiplos } from "../../admin/formRules.js";
 import { aplicarMascaraCEP, aplicarMascaraProcesso } from "../../admin/mascaras.js";
 import { 
     validarCPF, 
@@ -17,8 +17,6 @@ import { popularSelect } from "../../admin/fetchSelects.js";
 
 
 console.log("JS CARREGADO");
-console.log("carregarDados vai rodar?");
-console.log("popularSelect:", popularSelect);
 
 //=======================função para validar se está nulo============================
 function validarObrigatorio(id, mensagem) {  
@@ -195,8 +193,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
 //função para padronizar numero do processo
 const nProcessoInput = $('n_processo');
-console.log("nProcessoInput:", nProcessoInput);
-aplicarMascaraProcesso(nProcessoInput);
 
 
 // função para resetar os campos do tipo select
@@ -438,10 +434,10 @@ const numeros = "0123456789";
 ].forEach(id => validarCaracteresPermitidos(id, numeros));
 
 /*----as funções de check são chamadas dentro da tag html com o evento que verifica mudanças no campo---*/
-document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener("formReady", () => {
 
     $("sexo")?.addEventListener("change", checkSexo);
-    $("cad_unico")?.addEventListener("change", checkCadUnico);
+    // $("cad_unico")?.addEventListener("change", checkCadUnico);
     $("possui_deficiencia")?.addEventListener("change", checkDeficiencia);
     $("matriculado")?.addEventListener("change", checkMatriculado);
     $("curso")?.addEventListener("change", checkCurso);
@@ -452,43 +448,26 @@ document.addEventListener("DOMContentLoaded", function () {
     $("possui_demanda_saude")?.addEventListener("change", checkDemandaSaude);
     $("possui_demanda_saude_mental")?.addEventListener("change", checkDemandaSaudeMental);
     $("tec_ref")?.addEventListener("change", checkTecRef);
+    $("alcool_ou_drogas")?.addEventListener("change", checkCaps);
 
     checkSexo();
     checkDeficiencia();
     checkMedicamentos();
     checkMedicamentosControlados();
+    checkDemandaSaude();
     checkCurso();
+    checkCaps();
 
 });
 
 function checkSexo() {
-    const sexo = document.getElementById("sexo")?.value;
-    console.log("valor sexo:", sexo);
+    toggleCampo("sexo", "gestante", "F", true);
+    toggleCampo("sexo", "lactante", "F", true);
+    toggleCampo("sexo", "parceira_gestante", "M", true);
+}
 
-    if (!sexo) return;
-
-    if (sexo === "F") {
-        toggleCampo("sexo", "gestante", "F", true);
-        toggleCampo("sexo", "lactante", "F", true);
-
-        // desativa parceiro gestante
-        const parceiro = $("parceira_gestante");
-        parceiro.value = "";
-        parceiro.disabled = true;
-        parceiro.required = false;
-
-    } else if (sexo === "M") {
-        toggleCampo("sexo", "parceira_gestante", "M", true);
-
-        // desativa gestante/lactante
-        ["gestante", "lactante"].forEach(id => {
-            const campo = $(id);
-            campo.value = "";
-            campo.disabled = true;
-            campo.required = false;
-        });
-    }
-
+function checkDemandaSaude() {
+    toggleCampo("possui_demanda_saude", "saude", "1", true);
 }
 
 function checkDeficiencia() {
@@ -503,12 +482,34 @@ function checkMedicamentosControlados() {
     toggleCampo("medicamentos_controlados", "medicamentos_controlado", "1", true)
 }
 
-function checkDemandaSaude() {
-    toggleCampo("possui_demanda_saude", "saude", "1", true);
-}
-
 function checkDemandaSaudeMental() {
     toggleCampo("possui_demanda_saude_mental", "saude_mental", "1", true);
+    checkCaps();
+}
+
+function checkCaps(){
+    const saudeMental = $("possui_demanda_saude_mental")?.value;
+    const alcool = $("alcool_ou_drogas")?.value;
+    const caps = $("caps");
+
+    if (!caps) return;
+
+    const ativar = 
+    saudeMental === "1" || (alcool && alcool != "Não") ;
+
+    if (ativar) {
+        caps.disabled = false;
+        caps.required = true;
+    } else {
+        caps.value = "";
+        caps.disabled = true;
+        caps.required = false;
+    }
+    console.log({
+    saudeMental,
+    alcool,
+    ativar
+    });
 }
 // function checkCadUnico() {
 //     toggleCampo("cad_unico", "cad_unico", "1", true);
