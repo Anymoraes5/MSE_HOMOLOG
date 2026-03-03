@@ -15,7 +15,7 @@ function rota_index(app) {
 
     // Rota para a página inicial
     app.get('/', (req, res) => {
-        const filePath = path.join(__dirname, '..', 'views', 'login.html');
+        const filePath = path.join(__dirname, '..', 'views', 'auth', 'login.html');
         res.sendFile(filePath);
         // Remove o cookie de autenticação
         res.clearCookie('userAuthenticated');

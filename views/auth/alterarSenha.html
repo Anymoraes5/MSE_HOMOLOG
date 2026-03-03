@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="PT-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alterar Senha</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        .form-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        fieldset {
+            border: 2px solid #ccc;
+            padding: 20px;
+            width: 400px;
+            text-align: center;
+        }
+        .btn-secondary {
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container login-container" style="display: flex; align-items: center; justify-content: center; flex-direction: column;">
+        <br><br><br>
+        <div>
+            <img src="/images/MSE.png" alt="logo-mse" width="100vw" height="100vh">
+        </div>
+        <fieldset>
+            <legend>Alterar Senha</legend>
+            <form action="/alterarSenha" method="post">
+                <div class="form-group">
+                    <label for="email">E-mail:</label>
+                    <input type="email" id="email" name="email" class="form-control" required>
+                </div>
+                <label for="senhaAtual">Senha Atual:</label>
+                <div class="input-group">
+                    <input type="password" id="senhaAtual" name="senhaAtual" class="form-control" required minlength="6">
+                    <div class="input-group-append">
+                        <button type="button" class="btn btn-outline-secondary" onclick="togglePasswordVisibility('senhaAtual', 'eyeIconAtual')">
+                            <i id="eyeIconAtual" class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+                <label for="novaSenha">Nova Senha:</label>
+                <div class="input-group">
+                    <input type="password" id="novaSenha" name="novaSenha" class="form-control" required minlength="6">
+                    <div class="input-group-append">
+                        <button type="button" class="btn btn-outline-secondary" onclick="togglePasswordVisibility('novaSenha', 'eyeIconNova')">
+                            <i id="eyeIconNova" class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+                <label for="confirmarSenha">Confirmar Nova Senha:</label>
+                <div class="input-group">
+                    <input type="password" id="confirmarSenha" name="confirmarSenha" class="form-control" required minlength="6">
+                    <div class="input-group-append">
+                        <button type="button" class="btn btn-outline-secondary" onclick="togglePasswordVisibility('confirmarSenha', 'eyeIconConfirmar')">
+                            <i id="eyeIconConfirmar" class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+                <br>
+                <div>
+                    <button type="submit" class="btn btn-primary">Atualizar Senha</button>
+                </div>
+                <div>
+                    <a href="/" class="btn btn-secondary">Voltar para Login</a>
+                </div>
+            </form>
+        </fieldset>
+    </div>
+    <script>
+        // Função para alternar a visibilidade da senha
+        function togglePasswordVisibility(inputId, iconId) {
+            var senhaInput = document.getElementById(inputId);
+            var eyeIcon = document.getElementById(iconId);
+            if (senhaInput.type === "password") {
+                senhaInput.type = "text";
+                eyeIcon.classList.remove('fa-eye');
+                eyeIcon.classList.add('fa-eye-slash');
+            } else {
+                senhaInput.type = "password";
+                eyeIcon.classList.remove('fa-eye-slash');
+                eyeIcon.classList.add('fa-eye');
+            }
+        }
+    </script>
+</body>
+</html>

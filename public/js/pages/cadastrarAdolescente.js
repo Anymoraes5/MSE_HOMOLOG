@@ -1,18 +1,19 @@
-import { $, $$, on, somenteLetras, somenteNumeros, upperTrim, validarObrigatoriosAutomatico, limparCampos, validarDocumento } from "../../admin/helpers.js";
-import { toggleCampo, toggleCampoPorMultiplos } from "../../admin/formRules.js";
-import { aplicarMascaraCEP, aplicarMascaraProcesso } from "../../admin/mascaras.js";
+import { $, $$, on, somenteLetras, somenteNumeros, upperTrim, validarObrigatoriosAutomatico, limparCampos, validarDocumento } from "../admin/helpers.js";
+import { toggleCampo, toggleCampoPorMultiplos } from "../admin/formRules.js";
+import { aplicarMascaraCEP, aplicarMascaraProcesso } from "../admin/mascaras.js";
 import { 
     validarCPF, 
     validaCartao_sus, 
     validarNome, 
     validarEmail, 
-    validarData, 
+    validarData,
+    validarCep,
     validarTelefone,
     verificarComprimentoNProcesso,
-} from "../../admin/validacoes.js";
+} from "../admin/validacoes.js";
 
-import { buscarCep } from "../../admin/formRules.js";
-import { popularSelect } from "../../admin/fetchSelects.js";
+import { buscarCep } from "../admin/formRules.js";
+import { popularSelect } from "../admin/fetchSelects.js";
 
 
 
@@ -770,6 +771,8 @@ function carregarDados(){
 			
     // Função para buscar as opções TecRef com base no mse selecionado
     function buscarTecRefPorMse(mseSelecionado) {
+        console.log("FUNÇÃO CHAMADA", mseSelecionado);
+
         fetch(`/opcoesTecRef?mse=${encodeURIComponent(mseSelecionado)}`)
             .then(response => response.json())
             .then(opcoesTecRef => {
@@ -788,18 +791,17 @@ function carregarDados(){
     }
 
     // Adiciona um evento change ao select de MSE
-    const mseSelect = $('mse');
-    if (mseSelect){
-        mseSelect.addEventListener('change', function() {
-            var mseSelecionado = this.value; // Obtém o valor selecionado no select mse
-            buscarTecRefPorMse(mseSelecionado); // Chama a função para buscar TecRef com base no mse
-        });
+    document.addEventListener("change", function (e) {
+    if (e.target && e.target.id === "mse") {
+        buscarTecRefPorMse(e.target.value);
     }
+});
 const btnBuscarCepPessoa = $("buscar_cep_pessoa");
 
 if (btnBuscarCepPessoa) {
 
     btnBuscarCepPessoa.addEventListener("click", function (e) {
+         console.log("CLICOU buscar cep1");
         e.preventDefault();
         
 
@@ -867,6 +869,7 @@ const btnBuscarCep = $("buscar_cep");
 
 if (btnBuscarCep) {
     btnBuscarCep.addEventListener("click", async function (e) {
+         console.log("CLICOU buscar cep 2");
         e.preventDefault();
 
         const inputCep = document.getElementById("cep_unidade");
@@ -965,6 +968,21 @@ fetch('/opcoesProgramasSociais')
         var addButton = $('add_programa_social');
         var removeButton = $('remove_programa_social');
 
+        const reencontro_block = "AUXÍLIO REENCONTRO";
+        const reencontro_block1 = "AUXÍLIO REENCONTRO FAMÍLIA";
+
+        const BOLSA_TRABALHO = "BOLSA TRABALHO";
+
+        const BLOQUEADOS_COM_BOLSA = [
+            "PRIMEIRO EMPREGO",
+            "PROGRAMA JOVEM APRENDIZ",
+            "PROGRAMA OPERAÇÃO TRABALHO",
+            "PROGRAMA TEM SAÍDA - PORTARIA SMTE 25/2018",
+            "PROGRAMA TRANSCIDADANIA",
+            "RENDA MÍNIMA",
+            "TRABALHO NOVO"
+        ];
+
         // Função para criar um novo select
         function criarSelect() {
             var container = document.createElement('div');
@@ -992,12 +1010,38 @@ fetch('/opcoesProgramasSociais')
 
             // Adiciona evento para verificar duplicatas após a seleção
             newSelect.addEventListener('change', function() {
-                var selectedValues = Array.from(divContainer.querySelectorAll('select')).map(select => select.value);
+                
+                const selectedValues = Array
+                    .from(divContainer.querySelectorAll('select'))
+                    .map(select => select.value)
+                    .filter(v => v !== "");
 
-                // Verifica se a opção já foi selecionada
-                if (selectedValues.filter(value => value === newSelect.value).length > 1) {
+                const valorAtual = newSelect.value;
+
+                // 🚫 REGRA 12
+                if (
+                    selectedValues.includes(reencontro_block) &&
+                    selectedValues.includes(reencontro_block1)
+                ) {
+                    alert('Auxílio Reencontro não pode ser selecionado com Auxílio Reencontro Família.');
+                    newSelect.value = '';
+                    return;
+                }
+
+                // 🚫 REGRA 13
+                const temBolsa = selectedValues.includes(BOLSA_TRABALHO);
+                const temBloqueado = selectedValues.some(v => BLOQUEADOS_COM_BOLSA.includes(v));
+
+                if (temBolsa && temBloqueado) {
+                    alert('Bolsa de Trabalho não pode ser selecionado com o(s) programa(s) adicionado');
+                    newSelect.value = '';
+                    return;
+                }
+
+                // 🚫 DUPLICIDADE (sua regra original)
+                if (selectedValues.filter(value => value === valorAtual).length > 1) {
                     alert('Este programa social já foi selecionado.');
-                    newSelect.value = '';  // Reseta o valor para a opção padrão
+                    newSelect.value = '';
                 }
             });
 
@@ -1242,6 +1286,7 @@ const btnCancelar = $('cancelar');
 if(btnCancelar){
     btnCancelar.addEventListener('click', function() {
         window.location.href = '/verPessoas'; // Redireciona para a página de consulta ao clicar em Cancelar
+        console.log("CLICOU cancelar");
     });
 }
     
@@ -1256,6 +1301,151 @@ function confirmLogout() {
         // Você pode adicionar algum feedback aqui se preferir
     }
 }
+//Preenchimento para teste
+
+document.addEventListener("DOMContentLoaded", function () {
+
+    const btnTeste = document.getElementById("btnPreencherTeste");
+    if (!btnTeste) return;
+
+    btnTeste.addEventListener("click", function () {
+
+        const form = document.getElementById("editar-form");
+        if (!form) {
+            alert("Formulário não encontrado");
+            return;
+        }
+
+        /* =====================================================
+           FUNÇÃO AUXILIAR PARA SETAR VALOR + EVENTOS
+        ===================================================== */
+        function setValor(id, valor) {
+            const campo = document.getElementById(id);
+            if (!campo) return;
+
+            campo.value = valor;
+            campo.dispatchEvent(new Event("input"));
+            campo.dispatchEvent(new Event("change"));
+            campo.dispatchEvent(new Event("blur"));
+        }
+
+        /* =====================================================
+           CAMPOS ESPECÍFICOS (COM MÁSCARA / REGRA)
+        ===================================================== */
+
+        // CPF → 905.354.450-08
+        setValor("cpf", "90535445008");
+
+        // Cartão SUS
+        setValor("cartao_sus", "254354343483434");
+
+        // NIS
+        setValor("nis", "15435445416");
+
+        // Processo de execução (com máscara automática)
+        setValor("n_processo", "34534834534535434834");
+
+        // Processo de apuração
+        setValor("n_processo_apuracao", "4533435354387338353463393");
+
+        // Pasta técnica
+        setValor("n_pt", "25434");
+
+        // Número do endereço
+        setValor("numero", "25");
+
+        // CEP principal
+        setValor("cep", "05143320");
+
+        // RA
+        setValor("numeroRa", "52482348384");
+
+        // Horas PSC
+        setValor("horas_psc", "3");
+
+        // Unidade acolhedora
+        setValor("numero_unidade", "45");
+
+        /* =====================================================
+           SELECT FIXO DO SMSE-MA
+        ===================================================== */
+        const mseSelect = document.getElementById("mse");
+        if (mseSelect) {
+            mseSelect.value = "SMSE-MA CIAP LAJEADO";
+            mseSelect.dispatchEvent(new Event("change"));
+        }
+
+        /* =====================================================
+           TELEFONES (usa sua validação existente)
+        ===================================================== */
+        document.querySelectorAll(".telefone-br").forEach(tel => {
+            tel.value = "(11) 91234-5678";
+            tel.dispatchEvent(new Event("input"));
+            tel.dispatchEvent(new Event("blur"));
+        });
+
+        /* =====================================================
+           PREENCHIMENTO GENÉRICO (SÓ O QUE ESTIVER VAZIO)
+        ===================================================== */
+        form.querySelectorAll("input").forEach(input => {
+
+            if (input.type === "hidden") return;
+            if (input.readOnly) return;
+            if (input.value && input.value.trim() !== "") return;
+
+            switch (input.type) {
+                case "text":
+                    input.value = "Teste";
+                    break;
+                case "email":
+                    input.value = "teste@teste.com";
+                    break;
+                case "date":
+                    input.value = "2008-05-10";
+                    break;
+                case "time":
+                    input.value = "08:00";
+                    break;
+                case "number":
+                    input.value = "1";
+                    break;
+            }
+
+            input.dispatchEvent(new Event("input"));
+            input.dispatchEvent(new Event("change"));
+        });
+
+        /* =====================================================
+           TEXTAREAS
+        ===================================================== */
+        form.querySelectorAll("textarea").forEach(textarea => {
+            if (textarea.value && textarea.value.trim() !== "") return;
+            textarea.value = "Texto de teste automático";
+            textarea.dispatchEvent(new Event("input"));
+        });
+
+        /* =====================================================
+           SELECTS (IGNORA OS VAZIOS / FETCH)
+        ===================================================== */
+        form.querySelectorAll("select").forEach(select => {
+
+            if (select.options.length <= 1) return;
+            if (select.value && select.value !== "") return;
+
+            for (let option of select.options) {
+                if (option.value !== "") {
+                    select.value = option.value;
+                    break;
+                }
+            }
+
+            select.dispatchEvent(new Event("change"));
+        });
+
+        alert("Formulário preenchido automaticamente para teste ✅");
+    });
+});
+
 
 
 

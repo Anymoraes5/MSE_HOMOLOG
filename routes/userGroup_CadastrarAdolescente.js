@@ -15,7 +15,7 @@ function rota_cadastroPessoas(app) {
  /*-----user Cadastrando pessoa-------------------------------------------------------------------------------------*/
 
    // Rota para a página de edição
-   app.get('/cadastroPessoas', (req, res) => {
+   app.get('/cadastroAdolescente', (req, res) => {
     console.log('Recebendo requisição de atualização de dados de pessoa:', req.body);
     // Verifica se o usuário está autenticado
     if (req.session.userAuthenticated) {

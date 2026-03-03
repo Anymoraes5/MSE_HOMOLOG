@@ -18,7 +18,10 @@ EDITAR - Esta permitindo gravar campos vazios em campos obrigatórios (unidade a
 15º Remover CDMC e renomear NPJ para CREAS (Dados Socioassistencias) ok
 14º Necessário incluir o padrão de botão de busca de CEP para o cep de "residência da pessoa" ok
 7º Quando se coloca a opção "gestante" a opção de sexo masculino automaticamente é bloqueada, porém quando ocorre um erro de preenchimento essa opção se torna liberável e isso não pode acontecer.
-
+9º O CAPS só pode ser "SIM" se "Possui demanda especifica de saúde mental" for "SIM" E/OU "Faz uso de álcool ou drogas" for "SIM"
+22º logo abaixo do campo "dia da semana que presta a medida" deve ter uma mensagem em azul informando que caso tenha mais de um horário essa informação deve ser preenchida no campo de resumo do caso (item 21). Abaixo envio um exemplo de como é feito no campo de UBS
+12º "Auxilio Reencontro" não pode ser selecionado em conjunto com "Auxílio Reencontro Família" 
+13º Os itens da lista abaixo não podem ser selecionados em conjunto com "Bolsa de Trabalho" mas podem ser selecionados em conjunto entre si
 ----------------------------------------------------------------------
 
 
@@ -34,13 +37,9 @@ Esta permitindo gravar processos duplicados? Pode isso? (Número do processo de 
 8º O campo distrito deve ser limitado a SAS selecionada. Precisa criar uma coluna na base de dados indicando que aquele distrito corresponde a aquela SAS (seria uma chave estrangeira na tabela distrito com o código da SAS). Posteriormente o sistema precisa identificar essas relações e só carregar o distrito corresponde.
 No painel do perfil de acolhidos e vinculados você consegue verificar qual distrito pertence a qual SAS
 https://app.powerbi.com/view?r=eyJrIjoiMmRhYzFlOTItYWNmMS00NGE1LTg4Y2ItZmU5OTZmNTM0MTljIiwidCI6ImYzOThkZjljLWZkMGMtNDgyOS1hMDAzLWM3NzBhMWM0YTA2MyJ9
-9º O CAPS só pode ser "SIM" se "Possui demanda especifica de saúde mental" for "SIM" E/OU "Faz uso de álcool ou drogas" for "SIM"
-12º "Auxilio Reencontro" não pode ser selecionado em conjunto com "Auxílio Reencontro Família" 
-13º Os itens da lista abaixo não podem ser selecionados em conjunto com "Bolsa de Trabalho" mas podem ser selecionados em conjunto entre si
 16º A data do relatório só pode ser posterior a data da interpretação.
 20º Horário de inicio e fim não podem superar 08 horas 
 21º Campo de resumo do caso deve ter no mínimo 20 caracteres -ok 
-22º logo abaixo do campo "dia da semana que presta a medida" deve ter uma mensagem em azul informando que caso tenha mais de um horário essa informação deve ser preenchida no campo de resumo do caso (item 21). Abaixo envio um exemplo de como é feito no campo de UBS
 23º Quando se cola um texto nos campos de consulta o texto é duplicado 
 24º o asterisco indicativo de obrigatoriedade não deve ocorrer quando o item de curso profissionalizante for igual a "Não". Verificar o mesmo para todos os outros casos do formulário que tem itens "Sim/Não"
 25º Número de processo de execução não pode permitir duplicação na base de dados"

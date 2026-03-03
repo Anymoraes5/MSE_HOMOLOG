@@ -1402,7 +1402,7 @@ window.onload = function carregarDados() {
             var option = document.createElement('option');
             option.text = opcao.descricao;
             selectCreas.appendChild(option);
-        });
+        })
     })
     .catch(error => {
         console.error('Erro ao buscar opções Creas:', error);

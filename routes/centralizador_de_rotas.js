@@ -8,6 +8,7 @@ const path = require('path');
 const { connection } = require('../db/db');
 
 /*importa os arquivos individuais de rotas para centralizar na função setupRoutes*/
+// const rota_adolescente = require('./adolescente')
 const rota_adminCadastraPessoa = require('./AdminGroup_CadastrarAdolescente');
 const rota_adminEditaPessoa = require('./adminGroup_EditarAdolescente');
 const rota_cadastro = require('./adminGroup_Usuario');
@@ -26,6 +27,7 @@ function setupRoutes(app) {
      rota_verPessoas(app);
      rota_home(app);
      rota_consulta(app);
+     // rota_adolescente(app);
      rota_adminCadastraPessoa(app);
      rota_adminEditaPessoa(app);
      rota_cadastro(app);
