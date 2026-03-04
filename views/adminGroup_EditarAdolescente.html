@@ -61,9 +61,18 @@
 
             <label for="cartao_sus" class="form-label">Número do cartão SUS:</label>
             <input type="text" id="cartao_sus" name="cartao_sus" class="form-control" placeholder="Formato: XXXXXXXXXXXXXXX" maxlength="15" minlength="15">
+
             
-            <label for="nis" class="form-label">NIS:</label>
-            <input type="text" id="nis" name="nis" class="form-control" placeholder="Formato: XXXXXXXXXXX" maxlength="11" minlength="11">
+            <label for="cad_unico" class="form-label">Adolescente ou família possui cadastro no CadÚnico?<span class="red-asterisk">*</span></label>           
+            <select id="cad_unico" name="cad_unico" class="form-control" required>
+                <option value=""></option>
+                <option value="0">Não</option>
+                <option value="1">Sim</option>
+            </select>
+           
+            
+            <!-- <label for="nis" class="form-label">NIS:</label>
+            <input type="text" id="nis" name="nis" class="form-control" placeholder="Formato: XXXXXXXXXXX" maxlength="11" minlength="11"> -->
             
             <label for="nome_da_mae" class="form-label">Nome da mãe:<span class="red-asterisk">*</span></label>           
             <input type="text" id="nome_da_mae" name="nome_da_mae" class="form-control" required minlength="3" maxlength="100">

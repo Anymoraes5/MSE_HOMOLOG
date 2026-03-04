@@ -187,13 +187,10 @@ export function validarNome(nome) {
 export function validarCep(cep) {
     if (!cep) return false;
 
-    // Remove tudo que não for número
     const cepLimpo = cep.replace(/\D/g, '');
 
-    // Verifica se tem 8 dígitos
     if (cepLimpo.length !== 8) return false;
 
-    // Bloqueia CEP com todos números iguais (ex: 00000000)
     if (/^(\d)\1+$/.test(cepLimpo)) return false;
 
     return true;

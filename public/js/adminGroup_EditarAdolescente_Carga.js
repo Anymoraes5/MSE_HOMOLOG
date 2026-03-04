@@ -852,6 +852,7 @@ async function carregarDadosDoUsuario(ID) {
 }
 }
 
+
 // Chama a função para carregar os dados do usuário com base no ID fornecido
 carregarDadosDoUsuario(ID);
 

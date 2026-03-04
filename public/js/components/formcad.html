@@ -56,7 +56,12 @@
             <input type="text" id="cartao_sus" name="cartao_sus" class="form-control" placeholder="Formato: XXXXXXXXXXXXXXX" maxlength="15" minlength="15">
 
             <label for="cad_unico" class="form-label">Adolescente ou família possui cadastro no CadÚnico?<span class="red-asterisk">*</span></label>           
-            <input type="text" id="cad_unico" name="cad_unico" class="form-control" required minlength="3" maxlength="100">
+            <select id="cad_unico" name="cad_unico" class="form-control" required>
+                <option value=""></option>
+                <option value="0">Não</option>
+                <option value="1">Sim</option>
+            </select>
+           
 
             
             <!-- <label for="nis" class="form-label">NIS:</label>

@@ -51,7 +51,7 @@ function rota_adminCadastraPessoa(app) {
             cpf = cpfValido.cpf;
         }
 
-        let nis = req.body.nis.replace(/[.-]/g, '');
+        
         let cartao_sus = req.body.cartao_sus.replace(/[.-]/g, '');
         let cep = req.body.cep.replace(/-/g, "");
         let telefone = req.body.telefone.replace(/\D/g, '');
@@ -751,9 +751,7 @@ function rota_adminCadastraPessoa(app) {
         if (utils.verificar_campos(nome_social) == null) {
             nome_social = null
         }
-        if (utils.verificar_campos(nis) == null) {
-            nis = null
-        }
+        
         if (utils.verificar_campos(cartao_sus) == null) {
             cartao_sus = null
         }
@@ -846,7 +844,6 @@ function rota_adminCadastraPessoa(app) {
                     nome_social, 
                     dt_nasc,
                     cpf,
-                    nis,
                     cartao_sus,
                     nome_da_mae, 
                     nome_do_pai, 
@@ -916,7 +913,6 @@ function rota_adminCadastraPessoa(app) {
                     ?, /* nome_social */
                     ?, /* dt_nasc */
                     ?, /* cpf */
-                    ?, /* nis */
                     ?, /* cartao_sus */
                     ?, /* nome_da_mae */
                     ?, /* nome_do_pai */
@@ -987,7 +983,6 @@ function rota_adminCadastraPessoa(app) {
                     nome_social, 
                     dt_nasc, 
                     cpf, 
-                    nis,
                     cartao_sus,
                     nome_da_mae, 
                     nome_do_pai, 

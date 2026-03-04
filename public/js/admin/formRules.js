@@ -46,18 +46,34 @@ export function toggleCampoPorMultiplos(controladores, campoId) {
     }
 }
 //================================buscar cep unidade acolhedora============================
-export async function buscarCep(cep) {
-    const response = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
+export async function buscarCep() {
 
-    if (!response.ok) {
-        throw new Error("Erro na requisição");
+    const cepInput = document.getElementById("cep");
+    if (!cepInput) return;
+
+    const cep = cepInput.value.replace(/\D/g, ""); // remove máscara
+
+    console.log("CEP LIMPO:", cep);
+
+    if (cep.length !== 8) {
+        alert("CEP inválido");
+        return;
     }
 
-    const data = await response.json();
+    try {
+        const response = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
+        const data = await response.json();
 
-    if (!data || data.erro) {
-        throw new Error("CEP não encontrado");
+        console.log(data);
+
+        if (data.erro) {
+            alert("CEP não encontrado");
+            return;
+        }
+
+        console.log("CEP válido ✅");
+
+    } catch (error) {
+        console.error("Erro ao buscar CEP:", error);
     }
-
-    return data;
 }

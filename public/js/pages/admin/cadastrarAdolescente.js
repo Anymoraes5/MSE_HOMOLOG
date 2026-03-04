@@ -1,6 +1,6 @@
-import { $, $$, on, somenteLetras, somenteNumeros, upperTrim, validarObrigatoriosAutomatico, limparCampos, validarDocumento } from "../admin/helpers.js";
-import { toggleCampo, toggleCampoPorMultiplos } from "../admin/formRules.js";
-import { aplicarMascaraCEP, aplicarMascaraProcesso } from "../admin/mascaras.js";
+import { $, $$, on, somenteLetras, somenteNumeros, upperTrim, validarObrigatoriosAutomatico, limparCampos, validarDocumento } from "../../admin/helpers.js";
+import { toggleCampo, toggleCampoPorMultiplos } from "../../admin/formRules.js";
+import { aplicarMascaraCEP, aplicarMascaraProcesso } from "../../admin/mascaras.js";
 import { 
     validarCPF, 
     validaCartao_sus, 
@@ -10,11 +10,10 @@ import {
     validarCep,
     validarTelefone,
     verificarComprimentoNProcesso,
-} from "../admin/validacoes.js";
+} from "../../admin/validacoes.js";
 
-import { buscarCep } from "../admin/formRules.js";
-import { popularSelect } from "../admin/fetchSelects.js";
-
+import { buscarCep } from "../../admin/formRules.js";
+import { popularSelect } from "../../admin/fetchSelects.js";
 
 
 console.log("JS CARREGADO");
@@ -420,7 +419,6 @@ const numeros = "0123456789";
 
 [
     "cpf",
-    "nis",
     "cartao_sus",
     "numero_unidade",
     "telefone_unidade",
@@ -516,16 +514,23 @@ function checkCaps(){
 //     toggleCampo("cad_unico", "cad_unico", "1", true);
 // }
 function checkMatriculado() {
-    // Obtendo os elementos
-    var matriculado = $("matriculado").value;
-    // var numeroRa = $("numeroRa");
-    var tipoEscola = $("tipoEscola");
-    var ensinoModalidade = $("ensinoModalidade");
-    var cicloEstudo = $("cicloEstudo");
-    var frequenciaAula = $("frequenciaAula");
-    var concluiuCurso = $("concluiuCurso");
-    var paroudeEstudar = $("paroudeEstudar");
 
+    const campoMatriculado = $("matriculado");
+    if (!campoMatriculado) return;
+
+    const matriculado = campoMatriculado.value;
+
+    const tipoEscola = $("tipoEscola");
+    const ensinoModalidade = $("ensinoModalidade");
+    const cicloEstudo = $("cicloEstudo");
+    const frequenciaAula = $("frequenciaAula");
+    const concluiuCurso = $("concluiuCurso");
+    const paroudeEstudar = $("paroudeEstudar");
+
+    if (!tipoEscola || !ensinoModalidade || !cicloEstudo ||
+        !frequenciaAula || !concluiuCurso || !paroudeEstudar) return;
+
+    // Habilita tudo primeiro
     tipoEscola.disabled = false;
     ensinoModalidade.disabled = false;
     cicloEstudo.disabled = false;
@@ -533,12 +538,13 @@ function checkMatriculado() {
     concluiuCurso.disabled = false;
     paroudeEstudar.disabled = false;
 
-    // Aplicando a lógica de desativação com base na seleção
-    if (matriculado === "1") { 
+    if (matriculado === "1") {
+
         concluiuCurso.value = "";
         paroudeEstudar.value = "";
         concluiuCurso.disabled = true;
         paroudeEstudar.disabled = true;
+
     } else if (matriculado === "0") {
 
         tipoEscola.value = "";
@@ -547,17 +553,22 @@ function checkMatriculado() {
         tipoEscola.disabled = true;
         ensinoModalidade.disabled = true;
         frequenciaAula.disabled = true;
-     }
+    }
 }
 
 function checkTecRef() {
-    var mse = $("mse").value;
-    var tec_ref = $("tec_ref");
 
-    if (mse == "") { // Não
+    const campoMse = $("mse");
+    const tec_ref = $("tec_ref");
+
+    if (!campoMse || !tec_ref) return;
+
+    const mse = campoMse.value;
+
+    if (mse === "") {
         tec_ref.value = "";
         tec_ref.disabled = true;
-    } else if (mse != "") {
+    } else {
         tec_ref.disabled = false;
     }
 }
@@ -602,6 +613,7 @@ if (dtNascField) {
 const form = $('editar-form');
 if(form){
     form.addEventListener('submit', function(event){
+        console.log("SUBMIT DISPAROU");
         if (!validarDiasUnidadeAcolhedora()) {
 			event.preventDefault();
 			return;
@@ -616,9 +628,17 @@ if(form){
             if (!validarDocumento(v.id, v.func, v.msg, event)) return;
         }
         //======================validar campos obrigatorios================
-        if (!validarObrigatoriosAutomatico()) {
-            event.preventDefault();
-            return;
+        function validarObrigatoriosAutomatico() {
+            const obrigatorios = document.querySelectorAll("[data-obrigatorio]");
+            for(let campo of obrigatorios){
+                if(campo.disabled || campo.closest('.inativo')) continue; // ignora desativados ou invisíveis
+                if(!campo.value || campo.value.trim() === "") {
+                    campo.focus();
+                    alert('Preencha todos os campos obrigatórios');
+                    return false;
+                }
+            }
+            return true;
         }
         //======================pegar campos do form ===================
         const formData = new FormData(form);
@@ -797,6 +817,7 @@ function carregarDados(){
     }
 });
 const btnBuscarCepPessoa = $("buscar_cep_pessoa");
+console.log("botão", btnBuscarCepPessoa);
 
 if (btnBuscarCepPessoa) {
 
@@ -863,16 +884,15 @@ if (btnBuscarCepPessoa) {
     });
 
 }
-
+console.log("ANTES DO BOTÃO");
 // Buscar CEP
 const btnBuscarCep = $("buscar_cep");
 
 if (btnBuscarCep) {
-    btnBuscarCep.addEventListener("click", async function (e) {
+    btnBuscarCep.addEventListener("click", async function () {
          console.log("CLICOU buscar cep 2");
-        e.preventDefault();
 
-        const inputCep = document.getElementById("cep_unidade");
+        const inputCep = $("cep_unidade");
         if (!inputCep) return;
 
         const cepValido = validarCep(inputCep.value);
@@ -913,6 +933,7 @@ if (btnBuscarCep) {
         }
     });
 }
+console.log("DEPOIS DO BOTÃO");
 
     // Busca as opções UBS
 fetch('/opcoesUbs')
@@ -928,6 +949,7 @@ fetch('/opcoesUbs')
         option.value = opcao.descricao;
         datalist.appendChild(option);
     });
+    if (!datalist || !input || !hiddenInput) return;
     
     // Mostra todas as opções quando o input recebe foco
     input.addEventListener('focus', function() {
@@ -1301,16 +1323,21 @@ function confirmLogout() {
         // Você pode adicionar algum feedback aqui se preferir
     }
 }
+
+
+
+
+
 //Preenchimento para teste
 
 document.addEventListener("DOMContentLoaded", function () {
 
-    const btnTeste = document.getElementById("btnPreencherTeste");
+    const btnTeste = $("btnPreencherTeste");
     if (!btnTeste) return;
 
     btnTeste.addEventListener("click", function () {
 
-        const form = document.getElementById("editar-form");
+        const form = $("editar-form");
         if (!form) {
             alert("Formulário não encontrado");
             return;
@@ -1320,7 +1347,7 @@ document.addEventListener("DOMContentLoaded", function () {
            FUNÇÃO AUXILIAR PARA SETAR VALOR + EVENTOS
         ===================================================== */
         function setValor(id, valor) {
-            const campo = document.getElementById(id);
+            const campo = $(id);
             if (!campo) return;
 
             campo.value = valor;
@@ -1339,8 +1366,6 @@ document.addEventListener("DOMContentLoaded", function () {
         // Cartão SUS
         setValor("cartao_sus", "254354343483434");
 
-        // NIS
-        setValor("nis", "15435445416");
 
         // Processo de execução (com máscara automática)
         setValor("n_processo", "34534834534535434834");
@@ -1369,7 +1394,7 @@ document.addEventListener("DOMContentLoaded", function () {
         /* =====================================================
            SELECT FIXO DO SMSE-MA
         ===================================================== */
-        const mseSelect = document.getElementById("mse");
+        const mseSelect = $("mse");
         if (mseSelect) {
             mseSelect.value = "SMSE-MA CIAP LAJEADO";
             mseSelect.dispatchEvent(new Event("change"));
@@ -1445,7 +1470,7 @@ document.addEventListener("DOMContentLoaded", function () {
         alert("Formulário preenchido automaticamente para teste ✅");
     });
 });
-
+console.log("FIM DO ARQUIVO EXECUTOU");
 
 
 

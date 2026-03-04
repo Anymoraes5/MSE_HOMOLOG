@@ -43,7 +43,7 @@ https://app.powerbi.com/view?r=eyJrIjoiMmRhYzFlOTItYWNmMS00NGE1LTg4Y2ItZmU5OTZmN
 23º Quando se cola um texto nos campos de consulta o texto é duplicado 
 24º o asterisco indicativo de obrigatoriedade não deve ocorrer quando o item de curso profissionalizante for igual a "Não". Verificar o mesmo para todos os outros casos do formulário que tem itens "Sim/Não"
 25º Número de processo de execução não pode permitir duplicação na base de dados"
-
+26º SELECT NO CAD UNICO NO EDITAR!!!
     
 
 
