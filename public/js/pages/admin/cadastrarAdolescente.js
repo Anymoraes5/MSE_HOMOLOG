@@ -12,7 +12,7 @@ import {
     verificarComprimentoNProcesso,
 } from "../../admin/validacoes.js";
 
-import { buscarCep } from "../../admin/formRules.js";
+import { buscarCepGenerico } from "../../admin/formRules.js";
 import { popularSelect } from "../../admin/fetchSelects.js";
 
 
@@ -28,6 +28,12 @@ function validarObrigatorio(id, mensagem) {
     }  
     return true;  
 }
+//----------------------init---------------
+document.addEventListener("DOMContentLoaded", init);
+
+function init(){
+    iniciarEventosCep();
+}
 
 /*-----AUTENTICAÇÃO---------------------------------------------------------------------------------------------------------*/
 
@@ -37,6 +43,7 @@ if (!isAuthenticated) {
     // Redireciona para a página de login se não estiver autenticado
     window.location.href = '/'; // Supondo que a página de login esteja em '/'
 }
+
 
 /*---------menu lateral : ajuste de posição da tela ao clicar no link -------------------------*/
 
@@ -250,42 +257,42 @@ function formatarData(data) {
 
 
 
-document.addEventListener('DOMContentLoaded', function() {
-    var errorMessage = $('error-message');
-    var cadastrarButton = $('cadastrar');
-    var cpfInput = $('cpf');
+// document.addEventListener('DOMContentLoaded', function() {
+//     var errorMessage = $('error-message');
+//     var cadastrarButton = $('cadastrar');
+//     var cpfInput = $('cpf');
 
-    if (!cpfInput || !cadastrarButton || !errorMessage) return;
+//     if (!cpfInput || !cadastrarButton || !errorMessage) return;
 
-    if (cpfInput) {
-        cpfInput.addEventListener('input', function (){
-            var cpfValue = this.value;
-        var cpfValido = validarCPF(cpfValue);
+//     if (cpfInput) {
+//         cpfInput.addEventListener('input', function (){
+//             var cpfValue = this.value;
+//         var cpfValido = validarCPF(cpfValue);
 
-        if (!cpfValido) {
-            // Exibir uma mensagem de erro
-            errorMessage.textContent = 'CPF inválido. Por favor, verifique e tente novamente.';
-            cadastrarButton.disabled = true; // Desativar botão se CPF for inválido
-            cadastrarButton.title = 'cpf inválido';
-        } else {
-            // Limpar a mensagem de erro se o CPF for válido
-            errorMessage.textContent = '';
-            cadastrarButton.disabled = false; // Ativar botão se CPF for válido
-            cadastrarButton.title = '';
-        }
+//         if (!cpfValido) {
+//             // Exibir uma mensagem de erro
+//             errorMessage.textContent = 'CPF inválido. Por favor, verifique e tente novamente.';
+//             cadastrarButton.disabled = true; // Desativar botão se CPF for inválido
+//             cadastrarButton.title = 'cpf inválido';
+//         } else {
+//             // Limpar a mensagem de erro se o CPF for válido
+//             errorMessage.textContent = '';
+//             cadastrarButton.disabled = false; // Ativar botão se CPF for válido
+//             cadastrarButton.title = '';
+//         }
 
-        });
-    }
+//         });
+//     }
         
-    cadastrarButton.addEventListener('mouseover', function(event) {
-        if (cadastrarButton.disabled) {
-            // Prevenir a ação padrão de um botão desabilitado (caso tenha sido reabilitado via código)
-            event.preventDefault();
-            // Colocar o foco no campo CPF
-            cpfInput.focus();
-        }
-    });
-});
+//     cadastrarButton.addEventListener('mouseover', function(event) {
+//         if (cadastrarButton.disabled) {
+//             // Prevenir a ação padrão de um botão desabilitado (caso tenha sido reabilitado via código)
+//             event.preventDefault();
+//             // Colocar o foco no campo CPF
+//             cpfInput.focus();
+//         }
+//     });
+// });
 
 function checkDrogas() {
     const select = $('alcool_ou_drogas');
@@ -649,6 +656,14 @@ if(form){
             event.preventDefault()
             return; // Encerra a função se o usuário cancelar
         } 
+        /*-----CANCELAR----------------------------------------------------------------------------------------------------------*/
+        const btnCancelar = $('cancelar');
+        if(btnCancelar){
+            btnCancelar.addEventListener('click', function() {
+                window.location.href = '/verPessoas'; // Redireciona para a página de consulta ao clicar em Cancelar
+                console.log("CLICOU cancelar");
+            });
+        }
         const selects = document.querySelectorAll('select[name="programas_sociais[]"]');
         const programasSociaisSelecionados = [];
         
@@ -688,7 +703,29 @@ if(form){
 
     });
 }
+function iniciarEventosCep(){
 
+    $("buscar_cep_pessoa")?.addEventListener("click", function(e){
+        e.preventDefault();
+
+        buscarCepGenerico({
+            cepId: "cep",
+            ruaId: "rua",
+            bairroId: "bairro"
+        });
+    });
+
+    $("buscar_cep")?.addEventListener("click", function(e){
+        e.preventDefault();
+
+        buscarCepGenerico({
+            cepId: "cep_unidade",
+            ruaId: "logradouro_unidade",
+            bairroId: "bairro_unidade"
+        });
+    });
+
+}
 
 /*-----PREENCHIMENTO INICIAL DA PÁGINA--------------------------------------------------------------------------------------*/
 const paginaAtual = window.location.pathname;
@@ -697,9 +734,8 @@ const isEdicao = paginaAtual.includes("editar");
 
 //Ao carregar a página preenche com os dados padrão
 
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", function() {
     carregarDados();
-
 });
 
 function carregarDados(){
@@ -816,124 +852,9 @@ function carregarDados(){
         buscarTecRefPorMse(e.target.value);
     }
 });
-const btnBuscarCepPessoa = $("buscar_cep_pessoa");
-console.log("botão", btnBuscarCepPessoa);
-
-if (btnBuscarCepPessoa) {
-
-    btnBuscarCepPessoa.addEventListener("click", function (e) {
-         console.log("CLICOU buscar cep1");
-        e.preventDefault();
-        
-
-        const inputCep = $("cep");
-        console.log("Botão clicado", btnBuscarCepPessoa);
-
-        if (!inputCep) return;
-
-        const cep = inputCep.value.replace(/\D/g, "");
-
-        if (cep.length !== 8) {
-            alert("CEP inválido. Digite um CEP com 8 números.");
-            return;
-        }
-        
 
 
-        fetch(`https://viacep.com.br/ws/${cep}/json/`)
-            .then(response => response.json())
-            .then(data => {
 
-                if (!data || data.erro) {
-                    alert("CEP não encontrado.");
-                    return;
-                }
-
-                // Validação São Paulo
-                if (data.localidade !== "São Paulo" || data.uf !== "SP") {
-
-                    alert("Este CEP não pertence à cidade de São Paulo.");
-
-                    const rua = $("rua");
-                    const bairro_pessoa = $("bairro");
-
-                    if (rua) rua.value = "";
-                    if (bairro_pessoa) bairro_pessoa.value = "";
-
-                    bloquearCamposEndereco(false);
-                    return;
-                }
-
-                
-
-                const campoRua = $("rua");
-                const campoBairroPessoa = $("bairro");
-
-                if (campoRua) campoRua.value = data.logradouro || "";
-                if (campoBairroPessoa) campoBairroPessoa.value = data.bairro || "";
-
-                if (campoRua) campoRua.dispatchEvent(new Event("input"));
-                if (campoBairroPessoa) campoBairroPessoa.dispatchEvent(new Event("input"));
-
-                bloquearCamposEndereco(true);
-            })
-            .catch(() => {
-                alert("Erro ao buscar o CEP.");
-            });
-
-    });
-
-}
-console.log("ANTES DO BOTÃO");
-// Buscar CEP
-const btnBuscarCep = $("buscar_cep");
-
-if (btnBuscarCep) {
-    btnBuscarCep.addEventListener("click", async function () {
-         console.log("CLICOU buscar cep 2");
-
-        const inputCep = $("cep_unidade");
-        if (!inputCep) return;
-
-        const cepValido = validarCep(inputCep.value);
-
-        if (!cepValido) {
-            alert("CEP inválido. Digite 8 números.");
-            return;
-        }
-
-        try {
-            const data = await buscarCep(cepValido);
-
-            // 🔹 Validação São Paulo
-            if (data.localidade !== "São Paulo" || data.uf !== "SP") {
-                alert("Este CEP não pertence à cidade de São Paulo.");
-
-                $("tipo_logradouro").value = "";
-                $("logradouro_unidade").value = "";
-                $("bairro_unidade").value = "";
-
-                bloquearCamposEndereco(false);
-                return;
-            }
-
-            // 🔹 Preenchimento
-            const campoTipo = $("tipo_logradouro");
-            const campoLogradouro = $("logradouro_unidade");
-            const campoBairro = $("bairro_unidade");
-
-            if (campoTipo) campoTipo.value = data.tipo_logradouro || "";
-            if (campoLogradouro) campoLogradouro.value = data.logradouro || "";
-            if (campoBairro) campoBairro.value = data.bairro || "";
-
-            bloquearCamposEndereco(true);
-
-        } catch (error) {
-            alert(error.message || "Erro ao buscar CEP.");
-        }
-    });
-}
-console.log("DEPOIS DO BOTÃO");
 
     // Busca as opções UBS
 fetch('/opcoesUbs')
@@ -1325,23 +1246,22 @@ function confirmLogout() {
 }
 
 
-
-
-
 //Preenchimento para teste
 
 document.addEventListener("DOMContentLoaded", function () {
 
-    const btnTeste = $("btnPreencherTeste");
-    if (!btnTeste) return;
+    document.addEventListener("click", function (e) {
+        const btnTeste = e.target.closest("#btnPreencherTeste");
+        if (!btnTeste) return;
 
-    btnTeste.addEventListener("click", function () {
+
 
         const form = $("editar-form");
         if (!form) {
             alert("Formulário não encontrado");
             return;
         }
+        console.log("passou")
 
         /* =====================================================
            FUNÇÃO AUXILIAR PARA SETAR VALOR + EVENTOS
@@ -1470,6 +1390,7 @@ document.addEventListener("DOMContentLoaded", function () {
         alert("Formulário preenchido automaticamente para teste ✅");
     });
 });
+
 console.log("FIM DO ARQUIVO EXECUTOU");
 
 

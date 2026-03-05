@@ -30,7 +30,6 @@ function rota_verPessoas(app) {
             connection.query(`SELECT
                                 P.ID,
                                 P.cpf,
-                                P.nis,
                                 PRO.n_processo,
                                 P.nome,
                                 P.nome_social,
@@ -60,11 +59,11 @@ function rota_verPessoas(app) {
 
     // Rota para filtrar usuários
     app.post('/pessoasFiltro', (req, res) => {
-        const { ID, cpf, nis, n_processo, nome, nome_social, nome_da_mae, dt_nasc, ativo_inativo, mse, tec_ref} = req.body;
+        const { ID, cpf, n_processo, nome, nome_social, nome_da_mae, dt_nasc, ativo_inativo, mse, tec_ref} = req.body;
         let query = `SELECT
                         P.ID,
                         P.cpf,
-                        P.nis,
+                        
                         PRO.n_processo,
                         P.nome,
                         P.nome_social,
@@ -90,10 +89,10 @@ function rota_verPessoas(app) {
             queryParams.push(cpf);
         }
 
-        if (nis) {
-            query += ` AND P.nis = ?`;
-            queryParams.push(nis);
-        }
+        // if (nis) {
+        //     query += ` AND P.nis = ?`;
+        //     queryParams.push(nis);
+        // }
 
         if (n_processo) {
             query += ` AND PRO.n_processo = ?`;
