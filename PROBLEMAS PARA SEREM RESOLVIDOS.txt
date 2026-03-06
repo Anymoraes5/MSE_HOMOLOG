@@ -22,6 +22,7 @@ EDITAR - Esta permitindo gravar campos vazios em campos obrigatórios (unidade a
 22º logo abaixo do campo "dia da semana que presta a medida" deve ter uma mensagem em azul informando que caso tenha mais de um horário essa informação deve ser preenchida no campo de resumo do caso (item 21). Abaixo envio um exemplo de como é feito no campo de UBS
 12º "Auxilio Reencontro" não pode ser selecionado em conjunto com "Auxílio Reencontro Família" 
 13º Os itens da lista abaixo não podem ser selecionados em conjunto com "Bolsa de Trabalho" mas podem ser selecionados em conjunto entre si
+21º Campo de resumo do caso deve ter no mínimo 20 caracteres -ok 
 ----------------------------------------------------------------------
 
 
@@ -39,7 +40,6 @@ No painel do perfil de acolhidos e vinculados você consegue verificar qual dist
 https://app.powerbi.com/view?r=eyJrIjoiMmRhYzFlOTItYWNmMS00NGE1LTg4Y2ItZmU5OTZmNTM0MTljIiwidCI6ImYzOThkZjljLWZkMGMtNDgyOS1hMDAzLWM3NzBhMWM0YTA2MyJ9
 16º A data do relatório só pode ser posterior a data da interpretação.
 20º Horário de inicio e fim não podem superar 08 horas 
-21º Campo de resumo do caso deve ter no mínimo 20 caracteres -ok 
 23º Quando se cola um texto nos campos de consulta o texto é duplicado 
 24º o asterisco indicativo de obrigatoriedade não deve ocorrer quando o item de curso profissionalizante for igual a "Não". Verificar o mesmo para todos os outros casos do formulário que tem itens "Sim/Não"
 25º Número de processo de execução não pode permitir duplicação na base de dados"

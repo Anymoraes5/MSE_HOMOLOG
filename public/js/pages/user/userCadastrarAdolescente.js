@@ -17,7 +17,6 @@ import { popularSelect } from "../../shared/fetchSelects.js";
 
 
 console.log("JS CARREGADO");
-
 //=======================função para validar se está nulo============================
 function validarObrigatorio(id, mensagem) {  
     const el = $(id);  
@@ -32,12 +31,11 @@ function validarObrigatorio(id, mensagem) {
 /*-----AUTENTICAÇÃO---------------------------------------------------------------------------------------------------------*/
 
 // Verifica se o usuário está autenticado usando o cookie de admin
-var isAuthenticated = document.cookie.indexOf('adminAuthenticated=true') !== -1;
+var isAuthenticated = document.cookie.indexOf('userAuthenticated=true') !== -1;
 if (!isAuthenticated) {
     // Redireciona para a página de login se não estiver autenticado
     window.location.href = '/'; // Supondo que a página de login esteja em '/'
 }
-
 
 /*---------menu lateral : ajuste de posição da tela ao clicar no link -------------------------*/
 

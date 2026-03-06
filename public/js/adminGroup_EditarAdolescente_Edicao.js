@@ -1,3 +1,6 @@
+
+
+
 console.log("JS CARREGANDO EDITAR EDIÇÃO");
 // Script para ajustar o scroll quando um link do menu lateral é clicado
 document.querySelectorAll('#menu-lateral a').forEach(anchor => {
