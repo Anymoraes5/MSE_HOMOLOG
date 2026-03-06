@@ -28,12 +28,6 @@ function validarObrigatorio(id, mensagem) {
     }  
     return true;  
 }
-//----------------------init---------------
-document.addEventListener("DOMContentLoaded", init);
-
-function init(){
-    iniciarEventosCep();
-}
 
 /*-----AUTENTICAÇÃO---------------------------------------------------------------------------------------------------------*/
 
@@ -703,29 +697,28 @@ if(form){
 
     });
 }
-function iniciarEventosCep(){
+document.addEventListener("DOMContentLoaded", function () {
 
-    $("buscar_cep_pessoa")?.addEventListener("click", function(e){
-        e.preventDefault();
-
+    document.addEventListener("click", function (e) {
+        const btnBuscarCep = e.target.closest("#buscar_cep_pessoa");
+        if (!btnBuscarCep) return;
         buscarCepGenerico({
             cepId: "cep",
             ruaId: "rua",
             bairroId: "bairro"
         });
     });
-
-    $("buscar_cep")?.addEventListener("click", function(e){
-        e.preventDefault();
-
+    document.addEventListener("click", function (e) {
+        const btnBuscarCepUnidade = e.target.closest("#buscar_cep");
+        if (!btnBuscarCepUnidade) return;
         buscarCepGenerico({
             cepId: "cep_unidade",
-            ruaId: "logradouro_unidade",
-            bairroId: "bairro_unidade"
+             ruaId: "logradouro_unidade",
+             bairroId: "bairro_unidade"
         });
     });
 
-}
+});
 
 /*-----PREENCHIMENTO INICIAL DA PÁGINA--------------------------------------------------------------------------------------*/
 const paginaAtual = window.location.pathname;
@@ -1225,13 +1218,16 @@ function validarDiasUnidadeAcolhedora() {
 }
 
 /*-----CANCELAR----------------------------------------------------------------------------------------------------------*/
-const btnCancelar = $('cancelar');
-if(btnCancelar){
-    btnCancelar.addEventListener('click', function() {
+document.addEventListener("DOMContentLoaded", function () {
+
+    document.addEventListener("click", function (e) {
+        const btnCancelar = e.target.closest("#cancelar");
+        if (!btnCancelar) return;
+
         window.location.href = '/verPessoas'; // Redireciona para a página de consulta ao clicar em Cancelar
         console.log("CLICOU cancelar");
     });
-}
+});
     
 /*-----CONFIRMAÇÃO DE LOGOUT----------------------------------------------------------------------------------------------------------*/
 
@@ -1301,6 +1297,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
         // CEP principal
         setValor("cep", "05143320");
+        setValor("cep_unidade", "05143320");
+
 
         // RA
         setValor("numeroRa", "52482348384");

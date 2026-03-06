@@ -624,7 +624,7 @@ function rota_adminEditaPessoa(app) {
                             nome_social = ? , 
                             dt_nasc = ? ,
                             cpf = ? , 
-                            nis = ? ,
+                           
                             cartao_sus = ?,
                             nome_da_mae = ? , 
                             nome_do_pai = ? , 

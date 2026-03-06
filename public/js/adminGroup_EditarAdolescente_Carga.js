@@ -739,7 +739,7 @@ async function carregarDadosDoUsuario(ID) {
             'nome_social': data['nome_social'] || '',
             'dt_nasc': formatarData(data['dt_nasc']),
             'cpf': data['cpf'] || '',
-            'nis': data['nis'] || '',
+            
             'cartao_sus': data['cartao_sus'] || '',
             'medidas_mse': tratarValor(data['medidas_mse']),
             'nome_da_mae': data['nome_da_mae'] || '',

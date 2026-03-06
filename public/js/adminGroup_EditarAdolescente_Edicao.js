@@ -371,27 +371,27 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
-// Função para validar o campo de NIS
-function validaNis(nis) {
-    // Verificar se o NIS é nulo ou uma string vazia
-    if (!nis) return true;
-    // Remover caracteres não numéricos do NIS
-    nis = nis.replace(/[^\d]/g, '');
-    // Verificar se o NIS tem 11 dígitos ou se é uma sequência de dígitos repetidos
-    if (nis.length !== 11 || /^(\d)\1{10}$/.test(nis)) return false;
-    // Verificar se o NIS tem 11 dígitos após a remoção de caracteres não numéricos
-    if (nis.length !== 11 || !/^\d+$/.test(nis)) return false;
-    // Inicializar resultado como verdadeiro
-    var result = true;
+// // Função para validar o campo de NIS
+// function validaNis(nis) {
+//     // Verificar se o NIS é nulo ou uma string vazia
+//     if (!nis) return true;
+//     // Remover caracteres não numéricos do NIS
+//     nis = nis.replace(/[^\d]/g, '');
+//     // Verificar se o NIS tem 11 dígitos ou se é uma sequência de dígitos repetidos
+//     if (nis.length !== 11 || /^(\d)\1{10}$/.test(nis)) return false;
+//     // Verificar se o NIS tem 11 dígitos após a remoção de caracteres não numéricos
+//     if (nis.length !== 11 || !/^\d+$/.test(nis)) return false;
+//     // Inicializar resultado como verdadeiro
+//     var result = true;
     
-    var regex = /[.*+?^${}()|[\]\\]/g;
-    if (regex.test(result)) {
-        alert("Caracteres inválidos detectados!");
-        return false;
-    }
-    // Retornar o resultado da validação
-    return result;
-}
+//     var regex = /[.*+?^${}()|[\]\\]/g;
+//     if (regex.test(result)) {
+//         alert("Caracteres inválidos detectados!");
+//         return false;
+//     }
+//     // Retornar o resultado da validação
+//     return result;
+// }
 
 		aplicarMascaraCEP("cep_unidade");
 		aplicarMascaraCEP("cep");
@@ -527,7 +527,7 @@ function validarCaracteresPermitidos(elementId, allowedCharacters) {
 validarCaracteresPermitidos("nome", "qwertyuioplkjhgfdsazxcvbnm QWERTYUIOPLKJHGFDSAZXCVBNM");
 validarCaracteresPermitidos("nome_social", "qwertyuioplkjhgfdsazxcvbnm QWERTYUIOPLKJHGFDSAZXCVBNM");
 validarCaracteresPermitidos("cpf", "0123456789");
-validarCaracteresPermitidos("nis", "0123456789");
+// validarCaracteresPermitidos("nis", "0123456789");
 validarCaracteresPermitidos("cartao_sus", "0123456789"); 
 validarCaracteresPermitidos("nome_da_mae", "qwertyuioplkjhgfdsazxcvbnm QWERTYUIOPLKJHGFDSAZXCVBNM");
 validarCaracteresPermitidos("nome_do_pai", "qwertyuioplkjhgfdsazxcvbnm QWERTYUIOPLKJHGFDSAZXCVBNM");
@@ -700,13 +700,13 @@ if(btnSalvar){
             return;
         }
 
-         var nisValue = document.getElementById('nis').value.replace(/[^\d]/g, '');
-         var nisValido = validaNis(nisValue);
-         if (!nisValido) {
-             // Se o NIS não for válido, interrompe o processo de cadastro
-             alert('NIS inválido. Por favor, verifique e tente novamente.');
-             return;
-         }
+        //  var nisValue = document.getElementById('nis').value.replace(/[^\d]/g, '');
+        //  var nisValido = validaNis(nisValue);
+        //  if (!nisValido) {
+        //      // Se o NIS não for válido, interrompe o processo de cadastro
+        //      alert('NIS inválido. Por favor, verifique e tente novamente.');
+        //      return;
+        //  }
  
          var cartao_susValue = document.getElementById('cartao_sus').value.replace(/[^\d]/g, '');
          var cartao_susValido = validaCartao_sus(cartao_susValue);
@@ -1069,7 +1069,7 @@ if(btnSalvar){
                 nome_social: nome_social, 
                 dt_nasc: dt_nasc, 
                 cpf: cpfValue, 
-                nis: nisValue, 
+                // nis: nisValue, 
                 cartao_sus: cartao_susValue,
                 medidas_mse: medidas_mse, 
                 nome_da_mae: nome_da_mae, 
