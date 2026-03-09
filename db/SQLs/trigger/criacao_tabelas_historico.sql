@@ -32,7 +32,7 @@ CREATE TABLE IF NOT EXISTS `historico_pessoas` (
   `nome_social` varchar(100) DEFAULT NULL,
   `dt_nasc` date NOT NULL,
   `cpf` varchar(11) DEFAULT NULL,
-  `nis` varchar(11) DEFAULT NULL,
+  -- `nis` varchar(11) DEFAULT NULL,
   `cartao_sus` varchar(18) DEFAULT NULL,
   `nome_da_mae` varchar(100) NOT NULL,
   `nome_do_pai` varchar(100) DEFAULT NULL,

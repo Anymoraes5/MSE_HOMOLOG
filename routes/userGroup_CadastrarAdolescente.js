@@ -51,7 +51,7 @@ function rota_cadastroPessoas(app) {
             cpf = cpfValido.cpf;
         }
 
-        let nis = req.body.nis.replace(/[.-]/g, '');
+        // let nis = req.body.nis.replace(/[.-]/g, '');
         let cartao_sus = req.body.cartao_sus.replace(/[.-]/g, '');
         let cep = req.body.cep.replace(/-/g, "")
         let telefone = req.body.telefone.replace(/\D/g, '')

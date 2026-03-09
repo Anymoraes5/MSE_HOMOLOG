@@ -175,7 +175,7 @@ function rota_adminEditaPessoa(app) {
 				// pega todos os programas sociais
 				usuario.programas_sociais = results
 					.map(r => r.programas_sociais)
-					.filter(p => p); // remove null
+					.filter(Boolean); // remove null
 
 				res.json(usuario);
 
@@ -183,6 +183,9 @@ function rota_adminEditaPessoa(app) {
                 res.status(404).send('Usuário não encontrado.');
             }
         });
+        connection.query("SELECT DATABASE()", (err, result) => {
+        console.log("BANCO ATUAL:", result);
+});
     });
 
 		 app.get('/editandoPessoasProgramas/:ID', (req, res) => {
@@ -230,7 +233,7 @@ function rota_adminEditaPessoa(app) {
             cpf = cpfValido.cpf;
         }
 
-        // let nis = req.body.nis.replace(/[.-]/g, '');
+        // let nis = req.body.nis ? req.body.nis.replace(/[.-]/g, '') : null;
         let cartao_sus = req.body.cartao_sus.replace(/[.-]/g, '');
         let cep = req.body.cep.replace(/-/g, "")
         let telefone = req.body.telefone.replace(/\D/g, '')
@@ -479,26 +482,22 @@ function rota_adminEditaPessoa(app) {
             }
             idTecRef = await getIdByDescricaoTec(tec_ref)
 
-			for (let i = 0; i < programas_sociais.length; i++) {
-				if (!programas_sociais[i] || programas_sociais[i] === '') {
-					console.log("Nenhum programa social selecionado para a entrada " + (i + 1));
-					continue; // Pula para o próximo item se não houver seleção
-				}
+			idsProgramasSociais = [];
 
-				let descricao = programas_sociais[i]; // Definindo a variável 'descricao'
+            for (let i = 0; i < programas_sociais.length; i++) {
 
-				IdDescricaoRepository.getIdByDescricaoCadastro('programas_sociais', descricao, (error, id) => {
-					if (error) {
-						console.error('Erro ao obter ID do programa social:', error);
-						return;
-					}
-					if (id) {
-						idsProgramasSociais.push(id);
-					} else {
-						console.log(`Programa social não encontrado: ${descricao}`);
-					}
-				});
-			}
+                if (!programas_sociais[i]) continue;
+
+                let descricao = programas_sociais[i];
+
+                let id = await IdDescricaoRepository.getIdByDescricao('programas_sociais', descricao);
+
+                if (id) {
+                    idsProgramasSociais.push(id);
+                } else {
+                    console.log(`Programa social não encontrado: ${descricao}`);
+                }
+            }
 			
             if (utils.verificar_campos(gestante) == null) {
                 gestante = null
@@ -600,7 +599,7 @@ function rota_adminEditaPessoa(app) {
             // Todos os IDs foram capturados, agora execute o código de atualização
             atualizarDadosPessoa();
 
-           res.status(200).json({ message: 'Sucesso.' });
+           
 
         } catch (error) {
 
@@ -609,10 +608,14 @@ function rota_adminEditaPessoa(app) {
     }
 
     function atualizarDadosPessoa() {
+
+                        console.log("CPF:", cpf);
+                        console.log("ID:", ID);
+                        console.log("BODY:", req.body);
                         
                         // Atualização dos dados do usuário
                         connection.query(`UPDATE pessoas SET 
-                            ID = ? , 
+                             
                             fk_creas_atual = ? , 
                             fk_mse = ? ,
                             fk_tec_ref = ?, 
@@ -624,7 +627,7 @@ function rota_adminEditaPessoa(app) {
                             nome_social = ? , 
                             dt_nasc = ? ,
                             cpf = ? , 
-                           
+                            
                             cartao_sus = ?,
                             nome_da_mae = ? , 
                             nome_do_pai = ? , 
@@ -682,7 +685,7 @@ function rota_adminEditaPessoa(app) {
                             dt_desligamento = ?,
                             listar_cursos = ?
                             WHERE ID = ?;
-                            `, [ID, 
+                            `, [
                                 idCreasAtual, 
                                 idMse, 
                                 idTecRef,
@@ -694,7 +697,7 @@ function rota_adminEditaPessoa(app) {
                                 nome_social, 
                                 dt_nasc, 
                                 cpf, 
-                                // nis, 
+                                 
                                 cartao_sus,
                                 nome_da_mae, 
                                 nome_do_pai, 
@@ -877,6 +880,7 @@ function rota_adminEditaPessoa(app) {
                                                 res.status(500).send('Erro ao atualizar dados do contato.');
                                                 return;
                                             }
+                                        res.status(200).json({ message: 'Sucesso.' });
                                     if (programas_sociais && programas_sociais.length > 0) {
 
 										connection.query(`

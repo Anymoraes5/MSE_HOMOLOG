@@ -309,27 +309,27 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
-// Função para validar o campo de NIS
-function validaNis(nis) {
-    // Verificar se o NIS é nulo ou uma string vazia
-    if (!nis) return true;
-    // Remover caracteres não numéricos do NIS
-    nis = nis.replace(/[^\d]/g, '');
-    // Verificar se o NIS tem 11 dígitos ou se é uma sequência de dígitos repetidos
-    if (nis.length !== 11 || /^(\d)\1{10}$/.test(nis)) return false;
-    // Verificar se o NIS tem 11 dígitos após a remoção de caracteres não numéricos
-    if (nis.length !== 11 || !/^\d+$/.test(nis)) return false;
-    // Inicializar resultado como verdadeiro
-    var result = true;
+// // Função para validar o campo de NIS
+// function validaNis(nis) {
+//     // Verificar se o NIS é nulo ou uma string vazia
+//     if (!nis) return true;
+//     // Remover caracteres não numéricos do NIS
+//     nis = nis.replace(/[^\d]/g, '');
+//     // Verificar se o NIS tem 11 dígitos ou se é uma sequência de dígitos repetidos
+//     if (nis.length !== 11 || /^(\d)\1{10}$/.test(nis)) return false;
+//     // Verificar se o NIS tem 11 dígitos após a remoção de caracteres não numéricos
+//     if (nis.length !== 11 || !/^\d+$/.test(nis)) return false;
+//     // Inicializar resultado como verdadeiro
+//     var result = true;
     
-    var regex = /[.*+?^${}()|[\]\\]/g;
-    if (regex.test(result)) {
-        alert("Caracteres inválidos detectados!");
-        return false;
-    }
-    // Retornar o resultado da validação
-    return result;
-}
+//     var regex = /[.*+?^${}()|[\]\\]/g;
+//     if (regex.test(result)) {
+//         alert("Caracteres inválidos detectados!");
+//         return false;
+//     }
+//     // Retornar o resultado da validação
+//     return result;
+// }
 
 // Função para validar o campo de CEP
 function validarCEP(cep) {

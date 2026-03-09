@@ -35,8 +35,8 @@ document.addEventListener("DOMContentLoaded", function () {
         // Cartão SUS
         setValor("cartao_sus", "254354343483434");
 
-        // NIS
-        setValor("nis", "15435445416");
+        // // NIS
+        // setValor("nis", "15435445416");
 
         // Processo de execução (com máscara automática)
         setValor("n_processo", "34534834534535434834");

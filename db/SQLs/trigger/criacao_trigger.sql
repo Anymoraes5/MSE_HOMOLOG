@@ -24,7 +24,7 @@ FOR EACH ROW
         fk_ensinoModalidade, fk_estado_civil, fk_genero, fk_medidas, fk_mse, fk_nacionalidade, 
         fk_orientacao_sexual, fk_paroudeEstudar, fk_processos, fk_raca, fk_sas, fk_servico_familia, 
         fk_tec_ref, fk_tipoEscola, fk_trabalho, fk_ubs, frequenciaAula, gestante, ID, lactante, listar_cursos, 
-        matriculado, medicamentos, medicamentos_controlados, necessita_cuidados_terceiros, nis, nome, 
+        matriculado, medicamentos, medicamentos_controlados, necessita_cuidados_terceiros,  nome, 
         nome_da_mae, nome_do_pai, nome_responsavel, nome_social, numero, numeroRa, parceira_gestante, 
         possui_deficiencia, possui_demanda_saude, possui_demanda_saude_mental, possui_familia_em_servico, 
         possui_filhos, possui_trabalho, responsavel_por_pcd, rua, saude, saude_mental, sexo
@@ -38,7 +38,7 @@ FOR EACH ROW
         OLD.fk_nacionalidade, OLD.fk_orientacao_sexual, OLD.fk_paroudeEstudar, OLD.fk_processos, OLD.fk_raca, 
         OLD.fk_sas, OLD.fk_servico_familia, OLD.fk_tec_ref, OLD.fk_tipoEscola, OLD.fk_trabalho, OLD.fk_ubs, 
         OLD.frequenciaAula, OLD.gestante, OLD.ID, OLD.lactante, OLD.listar_cursos, OLD.matriculado, OLD.medicamentos, 
-        OLD.medicamentos_controlados, OLD.necessita_cuidados_terceiros, OLD.nis, OLD.nome, OLD.nome_da_mae, 
+        OLD.medicamentos_controlados, OLD.necessita_cuidados_terceiros, OLD.nome, OLD.nome_da_mae, 
         OLD.nome_do_pai, OLD.nome_responsavel, OLD.nome_social, OLD.numero, OLD.numeroRa, OLD.parceira_gestante, 
         OLD.possui_deficiencia, OLD.possui_demanda_saude, OLD.possui_demanda_saude_mental, 
         OLD.possui_familia_em_servico, OLD.possui_filhos, OLD.possui_trabalho, OLD.responsavel_por_pcd, 

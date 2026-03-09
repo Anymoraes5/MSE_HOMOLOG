@@ -374,7 +374,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
-// // Função para validar o campo de NIS
+// Função para validar o campo de NIS
 // function validaNis(nis) {
 //     // Verificar se o NIS é nulo ou uma string vazia
 //     if (!nis) return true;
@@ -530,7 +530,7 @@ function validarCaracteresPermitidos(elementId, allowedCharacters) {
 validarCaracteresPermitidos("nome", "qwertyuioplkjhgfdsazxcvbnm QWERTYUIOPLKJHGFDSAZXCVBNM");
 validarCaracteresPermitidos("nome_social", "qwertyuioplkjhgfdsazxcvbnm QWERTYUIOPLKJHGFDSAZXCVBNM");
 validarCaracteresPermitidos("cpf", "0123456789");
-// validarCaracteresPermitidos("nis", "0123456789");
+validarCaracteresPermitidos("nis", "0123456789");
 validarCaracteresPermitidos("cartao_sus", "0123456789"); 
 validarCaracteresPermitidos("nome_da_mae", "qwertyuioplkjhgfdsazxcvbnm QWERTYUIOPLKJHGFDSAZXCVBNM");
 validarCaracteresPermitidos("nome_do_pai", "qwertyuioplkjhgfdsazxcvbnm QWERTYUIOPLKJHGFDSAZXCVBNM");
@@ -624,6 +624,7 @@ if(btnSalvar){
             return;
         }
         var dt_desligamento = validarData(formatarData(document.getElementById('dt_desligamento').value));
+        
 
          // Obtém os valores dos campos do formulário e verifica se está vazio
          var ativo_inativo = document.getElementById('ativo_inativo').value;

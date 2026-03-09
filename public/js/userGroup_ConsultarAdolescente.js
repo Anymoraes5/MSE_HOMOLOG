@@ -206,7 +206,7 @@ window.onload = function() {
         event.preventDefault();
         // Obtém os valores dos campos do formulário
         var cpf = document.getElementById('cpf').value;
-        var nis = document.getElementById('nis').value;
+        // var nis = document.getElementById('nis').value;
         var n_processo = document.getElementById('n_processo').value;
         var nome = document.getElementById('nome').value;
         var nome_social = document.getElementById('nome_social').value;

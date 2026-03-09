@@ -90,10 +90,10 @@ function rota_home(app) {
             queryParams.push(cpf);
         }
 
-        if (nis) {
-            query += ` AND P.nis = ?`;
-            queryParams.push(nis);
-        }
+        // if (nis) {
+        //     query += ` AND P.nis = ?`;
+        //     queryParams.push(nis);
+        // }
 
         if (n_processo) {
             query += ` AND PRO.n_processo = ?`;
