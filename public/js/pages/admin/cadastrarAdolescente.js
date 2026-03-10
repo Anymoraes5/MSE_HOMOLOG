@@ -585,37 +585,116 @@ function checkCurso() {
 
 /*--------------------------calcular idade----------------------------*/
 
-const dtNascField = $('dt_nasc');
-if (dtNascField) {
-    dtNascField.addEventListener('change', function() {
-        const birthDate = new Date(this.value);
-        const today = new Date();
-        let age = today.getFullYear() - birthDate.getFullYear();
-        const monthDiff = today.getMonth() - birthDate.getMonth();
+// const dtNascField = $('dt_nasc');
 
-        if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
-            age--;
-        }
+// if (dtNascField) {
+//     dtNascField.addEventListener('change', function() {
 
-        if (age < 12 || age > 21){
-            alert("Idade fora do escopo");
-            $('idade') && ($('idade').value = "");
-        }
+//         if (!this.value) return;
 
-        $('idade') && ($('idade').value = age);
-    });
-}
+//         const birthDate = new Date(this.value);
+//         const today = new Date();
+
+//         let age = today.getFullYear() - birthDate.getFullYear();
+//         const monthDiff = today.getMonth() - birthDate.getMonth();
+
+//         if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+//             age--;
+//         }
+
+//         if (age < 12 || age > 21) {
+//             alert("A idade deve estar entre 12 e 21 anos.");
+
+//             this.value = "";          // limpa a data
+//             if ($('idade')) $('idade').value = "";
+
+//             this.focus();
+//             return;
+//         }
+
+//         if ($('idade')) $('idade').value = age;
+//     });
+// }
 
 /*-----CADASTRAR----------------------------------------------------------------------------------------------------------*/
 
-const form = $('editar-form');
-if(form){
-    form.addEventListener('submit', function(event){
+
+   document.addEventListener("submit", function(event){
+
+    if(event.target && event.target.id === "editar-form"){
+        event.preventDefault();
         console.log("SUBMIT DISPAROU");
+        //=====================validar idade==================================
+        const dt = document.getElementById("dt_nasc")?.value;
+        
+        if (dt) {
+
+            const birthDate = new Date(dt);
+            const today = new Date();
+
+            let age = today.getFullYear() - birthDate.getFullYear();
+            const monthDiff = today.getMonth() - birthDate.getMonth();
+
+            if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+                age--;
+            }
+
+            
+
+            if (age < 12 || age > 21) {
+                alert("A idade deve estar entre 12 e 21 anos na data do cadastro.");
+                document.getElementById("dt_nasc").focus();
+                return;
+            }
+        }
+       
         if (!validarDiasUnidadeAcolhedora()) {
 			event.preventDefault();
 			return;
 		}
+        //====================valida data de relatorio
+        const dtInterpretacao = $("dt_interpretacao_medida")?.value;
+        const dtRelatorio = $("dt_ultimo_relatorio_enviado")?.value;
+
+        if (dtInterpretacao && dtRelatorio) {
+
+            const dataInterpretacao = new Date(dtInterpretacao);
+            const dataRelatorio = new Date(dtRelatorio);
+
+            if (dataRelatorio <= dataInterpretacao) {
+                alert("A data do relatório deve ser posterior à data da interpretação.");
+                $("dt_ultimo_relatorio_enviado").focus();
+                return;
+            }
+        }
+        //===============================horario inicio e fim ========================
+        const inicio = $("horario_inicio_unidade")?.value;
+        const fim = $("horario_fim_unidade")?.value;
+
+            if (inicio && fim) {
+                const [horaInicio, minInicio] = inicio.split(":").map(Number);
+                const [horaFim, minFim] = fim.split(":").map(Number);
+
+                const totalInicio = horaInicio * 60 + minInicio;
+                const totalFim = horaFim * 60 + minFim;
+
+                const diferenca = totalFim - totalInicio;
+
+                if (diferenca > 480) { // mais de 8 horas
+                    alert("O intervalo entre início e fim da unidade não pode ultrapassar 8 horas.");
+                    $("horario_fim_unidade").focus();
+                    event.preventDefault();
+                    return;
+                }
+
+                if (diferenca < 0) { // horário final antes do inicial
+                    alert("O horário final não pode ser menor que o horário de início.");
+                    $("horario_fim_unidade").focus();
+                    event.preventDefault();
+                    return;
+                }
+            
+            }
         //======================validar documento==============================
         const validacoes = [
             { id: 'cpf', func: validarCPF, msg: 'CPF inválido.' },
@@ -625,6 +704,7 @@ if(form){
         for (const v of validacoes) {
             if (!validarDocumento(v.id, v.func, v.msg, event)) return;
         }
+        
         //======================validar campos obrigatorios================
         
         //======================pegar campos do form ===================
@@ -664,25 +744,24 @@ if(form){
         })
         .then(response => response.json())
         .then(data => {
-            alert('Pessoa cadastrada com sucesso!');
-            // Redireciona para a página home após o cadastro
-            window.location.href = '/verPessoas';
-        })
 
-        .then(data => {
             if (data.error === 'ER_DUP_ENTRY') {
-                console.error('Erro ao atualizar dados:', error.code);
-                alert('Erro: O número de processo já existe. Verifique os dados e tente novamente.');
-                window.history.back();
-            } else {
-                console.error('O número de processo já existe:', error.code);
-                window.history.back(); // Volta para a página anterior em caso de erro
-                alert('O número de processo já existe.');
+                alert('Erro: O número de processo já existe.');
+                return;
             }
+
+            alert('Pessoa cadastrada com sucesso!');
+            window.location.href = '/verPessoas';
+
+        })
+        .catch(error => {
+            console.error('Erro:', error);
         });
 
-    });
-}
+    }
+});
+
+
 document.addEventListener("click", function (e) {
 
     if (e.target.closest("#buscar_cep_pessoa")) {
@@ -700,7 +779,6 @@ document.addEventListener("click", function (e) {
             bairroId: "bairro_unidade"
         });
     }
-
 });
 
 /*-----PREENCHIMENTO INICIAL DA PÁGINA--------------------------------------------------------------------------------------*/

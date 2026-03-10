@@ -1,3 +1,4 @@
+
 /*-configurações padrões---------------------------------------------------------------------------------------------*/
 
 //Importa o módulo fs e path para lidar com arquivos e caminhos
@@ -72,6 +73,7 @@ function rota_adminCadastraPessoa(app) {
 			horario_fim_unidade,
 			atividade_unidade,
 			horas_psc,
+            cad_unico,
             ativo_inativo,    //: ativo_inativo, 
             creas_atual,    //: creas_atual, 
             mse,    //: mse,  
@@ -282,6 +284,8 @@ function rota_adminCadastraPessoa(app) {
         let idVaraDaInfancia;
         let idTipoDeContato;
         let idsProgramasSociais = [];
+
+        
 
         // Consulta para obter o ID do Creas atual
         IdDescricaoRepository.getIdByDescricaoCadastro('creas', creas_atual, (error, id) => {
@@ -656,18 +660,19 @@ function rota_adminCadastraPessoa(app) {
             }
         });
 
+
         // Consulta para obter o ID do tipo de contato
-        IdDescricaoRepository.getIdByDescricaoCadastro('tipo_de_contato', tipo_de_contato, (error, id) => {
-            if (error) {
-                console.error('Erro ao buscar ID do tipo de contato:', error);
-                return;
-            }
-            if (id) {
-                idTipoDeContato = id; // Armazena o ID na variável global
-            } else {
-                console.log(`Tipo de contato não encontrado: ${tipo_de_contato}`);
-            }
-        });
+        // IdDescricaoRepository.getIdByDescricaoCadastro('tipo_de_contato', tipo_de_contato, (error, id) => {
+        //     if (error) {
+        //         console.error('Erro ao buscar ID do tipo de contato:', error);
+        //         return;
+        //     }
+        //     if (id) {
+        //         idTipoDeContato = id; // Armazena o ID na variável global
+        //     } else {
+        //         console.log(`Tipo de contato não encontrado: ${tipo_de_contato}`);
+        //     }
+        // });
         
 		// alteração realizada para caso o usuário inclua um container mas não selecione uma opção o sistema ignore.
 		for (let i = 0; i < programas_sociais.length; i++) {
@@ -690,6 +695,14 @@ function rota_adminCadastraPessoa(app) {
 					}
 				});
 		}
+        console.log({
+            fk_creas_atual: idCreasAtual,
+            fk_mse: idMse,
+            fk_tec_ref: idTecRef,
+            fk_ubs: idUbs,
+            fk_servico_familia: idServicoFamilia,
+            fk_trabalho: idTrabalho
+        });
         
         if (utils.verificar_campos(gestante) == null) {
             gestante = null
@@ -892,7 +905,8 @@ function rota_adminCadastraPessoa(app) {
                     bairro, 
                     rua, 
                     numero, 
-                    complemento, 
+                    complemento,
+                    cad_unico, 
                     ativo_inativo, 
                     fk_medidas,
                     dt_cadastro, 
@@ -962,6 +976,7 @@ function rota_adminCadastraPessoa(app) {
                     ?, /* rua */
                     ?, /* numero */
                     ?, /* complemento */
+                    ?, /* cad_unico */
                     ?, /* ativo_inativo */
                     ?, /* fk_medidas */
                     ?, /* dt_cadastro */
@@ -1031,7 +1046,8 @@ function rota_adminCadastraPessoa(app) {
                     bairro, 
                     rua, 
                     numero, 
-                    complemento,  
+                    complemento,
+                    cad_unico,  
                     ativo_inativo, 
                     idMedidasMse, 
                     dt_cadastro, 
@@ -1082,26 +1098,48 @@ function rota_adminCadastraPessoa(app) {
                         res.status(500).send('Erro ao inserir dados de contato.');
                         return;
                     }
+
+                    IdDescricaoRepository.getIdByDescricaoCadastro('tipo_de_contato', tipo_de_contato, (error, id) => {
+                        if (error) {
+                            console.error('Erro ao buscar ID do tipo de contato:', error);
+                            return;
+                        }
+                        if (id) {
+                            idTipoDeContato = id; // Armazena o ID na variável global
+                        } else {
+                            console.log(`Tipo de contato não encontrado: ${tipo_de_contato}`);
+                        }
+                    });
                     
                     // Obter o ID do novo contato inserido
                     let novoIDContato = resultsInsert.insertId;
 
-                    // Inserção de nova relação entre contato e pessoa
-                    connection.query(`INSERT INTO contatos_pessoas (fk_id_contatos, fk_id_pessoas, fk_tipo_de_contato) VALUES (?, ?, ?);`, [novoIDContato, novoIDPessoa, idTipoDeContato], (errorInsertRel, resultsInsertRel, fieldsInsertRel) => {
-                        if (errorInsertRel) {
-                            console.error('Erro ao inserir relação entre contato e pessoa:', errorInsertRel);
-                            res.status(500).send('Erro ao inserir relação entre contato e pessoa.');
-                            return;
+                    // Verifica se tipo de contato existe
+                    if (!idTipoDeContato) {
+                        console.log("Tipo de contato não encontrado:", idTipoDeContato);
+                        return; // impede erro no banco
+                    }
+
+                    // Inserção da relação
+                    connection.query(
+                        `INSERT INTO contatos_pessoas (fk_id_contatos, fk_id_pessoas, fk_tipo_de_contato) VALUES (?, ?, ?)`,
+                        [novoIDContato, novoIDPessoa, idTipoDeContato],
+                        (errorInsertRel, resultsInsertRel) => {
+
+                            if (errorInsertRel) {
+                                console.error('Erro ao inserir relação entre contato e pessoa:', errorInsertRel);
+                                return res.status(500).send('Erro ao inserir relação entre contato e pessoa.');
+                            }
+
                         }
-                      
-                    });
+                    );
                 });
 				
 				const sqlUnidade = `
 				INSERT INTO unidade_acolhedora (
 					nome,
 					tipo_local,
-					atividade,
+					atividade_unidade,
 					tipo_logradouro,
 					logradouro_unidade,
 					numero,
@@ -1109,9 +1147,9 @@ function rota_adminCadastraPessoa(app) {
 					bairro,
 					cep_unidade,
 					telefone,
-					responsavel,
-					horario_inicio,
-					horario_fim,
+					responsavel_unidade,
+					horario_inicio_unidade,
+					horario_fim_unidade,
 					dias_semana,
 					horas_psc,
 					ativo_inativo
@@ -1186,8 +1224,9 @@ function rota_adminCadastraPessoa(app) {
         })
     });
 });
-
 }
+
+
 
 // Exporta a função de configuração das rotas
 module.exports = rota_adminCadastraPessoa;

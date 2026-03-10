@@ -87,22 +87,22 @@ function validarCaracteresPermitidos(elementId, allowedCharacters) {
     element.setAttribute('autocomplete', 'off');
 
     // Ouvinte de evento para o evento de "paste" (colar)
-    element.addEventListener('paste', function(e) {
-        var clipboardData, pastedData;
+    // element.addEventListener('paste', function(e) {
+    //     var clipboardData, pastedData;
 
-        // Pega o texto colado do evento
-        clipboardData = e.clipboardData || window.clipboardData;
-        pastedData = clipboardData.getData('text');
+    //     // Pega o texto colado do evento
+    //     clipboardData = e.clipboardData || window.clipboardData;
+    //     pastedData = clipboardData.getData('text');
 
-        // Remove caracteres não permitidos
-        pastedData = pastedData.replace(new RegExp('[^' + allowedCharacters + ']', 'g'), '');
+    //     // Remove caracteres não permitidos
+    //     pastedData = pastedData.replace(new RegExp('[^' + allowedCharacters + ']', 'g'), '');
 
-        // Define o texto colado modificado no campo de entrada
-        document.execCommand("insertText", false, pastedData);
+    //     // Define o texto colado modificado no campo de entrada
+    //     document.execCommand("insertText", false, pastedData);
 
-        // Previne a ação padrão de colar
-        e.preventDefault();
-    });
+    //     // Previne a ação padrão de colar
+    //     e.preventDefault();
+    // });
 
     // Ouvinte de evento para o evento de "keypress"
     element.addEventListener('keypress', function(e) {
