@@ -45,7 +45,7 @@ function rota_adminEditaPessoa(app) {
                             P.nome_social,
                             P.dt_nasc,
                             P.cpf,
-                            
+                            P.cad_unico,
                             P.cartao_sus,
                             MM.descricao AS "medidas_mse",
                             P.nome_da_mae,
@@ -166,25 +166,19 @@ function rota_adminEditaPessoa(app) {
                 res.status(500).send('Erro ao buscar dados do usuário.');
                 return;
             }
-
             if (results.length > 0) {
-               /* let usuario = results[0];
-                res.json(usuario); // Envia os dados do usuário como resposta em JSON*/
-				let usuario = results[0];
+                let usuario = results[0];
+                    
+                console.log("DADOS RETORNADOS DO BANCO:", JSON.stringify(usuario, null, 2)); // ← adicione isso
+                    
+                usuario.programas_sociais = results
+                    .map(r => r.programas_sociais)
+                    .filter(Boolean);
 
-				// pega todos os programas sociais
-				usuario.programas_sociais = results
-					.map(r => r.programas_sociais)
-					.filter(Boolean); // remove null
-
-				res.json(usuario);
-
-            } else {
-                res.status(404).send('Usuário não encontrado.');
+                res.json(usuario);
             }
-        });
-        connection.query("SELECT DATABASE()", (err, result) => {
-        console.log("BANCO ATUAL:", result);
+
+
 });
     });
 
@@ -227,7 +221,7 @@ function rota_adminEditaPessoa(app) {
         var cpf = req.body.cpf.replace(/[.-]/g, '');
         var cpfValido = utils.validarCPF(cpf);
         if (!cpfValido.valido) {
-            return res.status(500).send('<script>alert("cpf inválido");window.location.href = "/adminEditaPessoa";</script>');
+            return res.status(400).json({ error: 'CPF inválido.' });
         } else {
             console.log("CPF válido:", cpfValido.cpf);
             cpf = cpfValido.cpf;
@@ -242,6 +236,7 @@ function rota_adminEditaPessoa(app) {
 			nome_unidade,
 			cep_unidade,
 			tipo_logradouro,
+            cad_unico, //: cad_unico
 			//logradouro,
 			logradouro_unidade,
 			numero_unidade,
@@ -330,6 +325,11 @@ function rota_adminEditaPessoa(app) {
             email,    //: email 
         } = req.body;
 
+        // Trata dias_semana vazio
+        if (!dias_semana || dias_semana.trim() === '') {
+            dias_semana = null;
+        }
+
         console.log("ANTES DO TRATAMENTO:", req.body.cep_unidade);
 
 
@@ -382,19 +382,19 @@ function rota_adminEditaPessoa(app) {
 		// Telefone: remover tudo que não é número e validar se é celular/fixo
 		telefone = telefone.replace(/\D/g, ''); 
 		if (telefone.length < 10 || telefone.length > 11) {
-			return res.send(`<script>alert("Telefone inválido! Deve ter 10 ou 11 dígitos"); window.history.back();</script>`);
+			return res.status(400).json({ error: 'Telefone inválido! Deve ter 10 ou 11 dígitos.' });
 		}
 		let tipoTelefone = (telefone.length === 11) ? 'Celular' : 'Fixo'; // automático
 
 		// CEP: apenas números
 		cep = cep.replace(/\D/g, '');
 		if (cep.length !== 8) {
-			return res.send(`<script>alert("CEP inválido! Deve ter 8 dígitos."); window.history.back();</script>`);
+			return res.status(400).json({ error: 'CEP inválido! Deve ter 8 dígitos.' });
 		}
 
 		// Nome do responsável: apenas letras e espaços
 		if (!/^[A-Za-zÀ-ÖØ-öø-ÿ ]+$/.test(nome_responsavel)) {
-			return res.send(`<script>alert("Nome do responsável inválido! Apenas letras e espaços são permitidos."); window.history.back();</script>`);
+			return res.status(400).json({ error: 'Nome do responsável inválido.' });
 		}
 
 		// Logradouro: remover caracteres inválidos (apenas letras, números, espaços e acentos)
@@ -403,7 +403,7 @@ function rota_adminEditaPessoa(app) {
 		// Número do logradouro: apenas números
 		numero = numero.replace(/\D/g, '');
 		if(numero === '') {
-			return res.send(`<script>alert("Número do logradouro inválido! Apenas números são permitidos."); window.history.back();</script>`);
+			return res.status(400).json({ error: 'Número do logradouro inválido.' });
 		}
        
         // Declara as variáveis globais para armazenar os respectivos ID
@@ -586,6 +586,9 @@ function rota_adminEditaPessoa(app) {
             if (utils.verificar_campos(caps) == null) {
                 caps = null
             }
+            if (utils.verificar_campos(cad_unico) == null) {
+                cad_unico = null
+            }
             if (utils.verificar_campos(curso) == null) {
                 curso = null
             }
@@ -627,7 +630,7 @@ function rota_adminEditaPessoa(app) {
                             nome_social = ? , 
                             dt_nasc = ? ,
                             cpf = ? , 
-                            
+                            cad_unico = ?,
                             cartao_sus = ?,
                             nome_da_mae = ? , 
                             nome_do_pai = ? , 
@@ -697,7 +700,7 @@ function rota_adminEditaPessoa(app) {
                                 nome_social, 
                                 dt_nasc, 
                                 cpf, 
-                                 
+                                cad_unico, 
                                 cartao_sus,
                                 nome_da_mae, 
                                 nome_do_pai, 
@@ -758,8 +761,8 @@ function rota_adminEditaPessoa(app) {
                                 (errorUpdate, resultsUpdate, fieldsUpdate) => {
                                 if (errorUpdate) {
                                     console.error('Erro ao atualizar dados da pessoa:', errorUpdate);
-                                    res.status(500).send('Erro ao atualizar dados da pessoa.');
-                                    return;
+                                    return res.status(500).json({ error: 'Erro ao atualizar dados da pessoa.' });
+                                    
                                 }
                                 
                                 // Atualização dos dados do processo
@@ -788,8 +791,8 @@ function rota_adminEditaPessoa(app) {
                                     (errorUpdate, resultsUpdate, fieldsUpdate) => {
                                     if (errorUpdate) {
                                         console.error('Erro ao atualizar os processos:', errorUpdate);
-                                        res.status(500).send('Erro ao atualizar os processos.');
-                                        return;
+                                        return res.status(500).json({ error: 'Erro ao atualizar os processos.' });
+                                        
                                     }
 									
                                     // console.log("CEP recebido:", req.body.cep_unidade);
@@ -838,6 +841,7 @@ function rota_adminEditaPessoa(app) {
 												console.error('Erro ao atualizar unidade acolhedora:', errorUA);
 											} else {
 												console.log('Rows afetadas:', result.affectedRows);
+                                                console.log('dias_semana enviado:', dias_semana);
 											}
 										}
 
@@ -877,8 +881,8 @@ function rota_adminEditaPessoa(app) {
                                             (errorUpdate, resultsUpdate, fieldsUpdate) => {
                                             if (errorUpdate) {
                                                 console.error('Erro ao atualizar dados do contato:', errorUpdate);
-                                                res.status(500).send('Erro ao atualizar dados do contato.');
-                                                return;
+                                                return res.status(500).json({ error: 'Erro ao atualizar dados do contato.' });
+                                                
                                             }
                                         res.status(200).json({ message: 'Sucesso.' });
                                     if (programas_sociais && programas_sociais.length > 0) {
@@ -918,6 +922,7 @@ function rota_adminEditaPessoa(app) {
                             });
                         });
 	}
+
 
 
     processarDados()

@@ -17,7 +17,6 @@ import { popularSelect } from "../../shared/fetchSelects.js";
 
 
 console.log("JS CARREGADO");
-
 //=======================função para validar se está nulo============================
 function validarObrigatorio(id, mensagem) {  
     const el = $(id);  
@@ -624,6 +623,11 @@ function checkCurso() {
     if(event.target && event.target.id === "editar-form"){
         event.preventDefault();
         console.log("SUBMIT DISPAROU");
+
+        const form = event.target;
+        const formData = new FormData(form);
+        const data = Object.fromEntries(formData.entries());
+
         //=====================validar idade==================================
         const dt = document.getElementById("dt_nasc")?.value;
         
@@ -708,8 +712,8 @@ function checkCurso() {
         //======================validar campos obrigatorios================
         
         //======================pegar campos do form ===================
-        const formData = new FormData(form);
-        const data = Object.fromEntries(formData.entries());
+        console.log(form)
+
 
         if (!confirm("Tem certeza que deseja cadastrar a pessoa?")) {
             alert("Operação cancelada");
@@ -733,29 +737,39 @@ function checkCurso() {
             programasSociaisSelecionados.push(select.value || null);
         });
 
-          // Envia uma requisição POST para a rota /cadastro com os dados do formulário
+        // Envia uma requisição POST para a rota /cadastro com os dados do formulário
         fetch('/adminCadastraPessoa', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(data)			
-                
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+            
         })
-        .then(response => response.json())
+        .then(response => {
+            
+            // Mostra o status real do servidor
+            console.log("Status:", response.status, response.statusText);
+            
+            if (!response.ok) {
+                // Lê como texto para ver o HTML de erro
+                return response.text().then(text => {
+                    console.error("Resposta do servidor:", text);
+                    throw new Error(`Erro ${response.status}: ${response.statusText}`);
+                });
+            }
+            
+            return response.json();
+        })
         .then(data => {
-
             if (data.error === 'ER_DUP_ENTRY') {
                 alert('Erro: O número de processo já existe.');
                 return;
             }
-
             alert('Pessoa cadastrada com sucesso!');
             window.location.href = '/verPessoas';
-
         })
         .catch(error => {
             console.error('Erro:', error);
+            alert('Erro ao cadastrar: ' + error.message);
         });
 
     }
@@ -869,7 +883,7 @@ function carregarDados(){
         url: "/opcoesAtividadeUnidade",
         selectId: "atividade_unidade",
         addDefault: true,        // adiciona option vazia
-        valueKey: "id",          // usa id como value
+        valueKey: "descricao",       
         textKey: "descricao",
         defaultText: "Selecione",
         sortFn: (a, b) => {
@@ -1147,7 +1161,7 @@ fetch('/opcoesProgramasSociais')
     popularSelect({
         url: "/opcoesContatos",
         selectId: "tipo_de_contato",
-        valueKey: "id",              // usa id como value
+        valueKey: "descricao",              // usa id como value
         textKey: "descricao",
         addDefault: true,            // adiciona option vazia
         sortFn: (a, b) => {

@@ -739,6 +739,7 @@ async function carregarDadosDoUsuario(ID) {
             'nome_social': data['nome_social'] || '',
             'dt_nasc': formatarData(data['dt_nasc']),
             'cpf': data['cpf'] || '',
+            'cad_unico': tratarValor(data['cad_unico']),
             
             'cartao_sus': data['cartao_sus'] || '',
             'medidas_mse': tratarValor(data['medidas_mse']),
@@ -819,18 +820,7 @@ async function carregarDadosDoUsuario(ID) {
             }
         });
 		
-		// ===== Dias da Semana (checkbox Unidade Acolhedora) =====
-		if (data.dias_semana) {
-			const diasSelecionados = data.dias_semana
-				.split(',')
-				.map(dia => dia.trim());
-
-			const checkboxes = document.querySelectorAll('input[name="dias[]"]');
-
-			checkboxes.forEach(checkbox => {
-				checkbox.checked = diasSelecionados.includes(checkbox.value);
-			});
-		}
+		
 
         checkSexo();
         calculaIdade();
@@ -844,12 +834,21 @@ async function carregarDadosDoUsuario(ID) {
         checkFamiliar();
         //checkDrogas();
         checkCurso();
+
+        // ===== Dias da Semana (checkbox Unidade Acolhedora) =====
+		if (data.dias_semana) {
+			const diasSelecionados = data.dias_semana
+				.split(',')
+				.map(dia => dia.trim());
+
+			document.querySelectorAll('input[name="dias[]"]').forEach(checkbox => {
+                checkbox.checked = diasSelecionados.includes(checkbox.value);
+            });
+		}
+
     } catch (error) {
         console.error('Erro ao buscar dados da pessoa:', error);
     }
-	if (window.atualizarObrigatoriedadeUnidade) {
-    window.atualizarObrigatoriedadeUnidade();
-}
 }
 
 

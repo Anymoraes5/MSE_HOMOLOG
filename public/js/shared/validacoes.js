@@ -116,9 +116,9 @@ export function validaCartao_sus(cartao_sus) {
     
     cartao_sus = cartao_sus.replace(/[^\d]/g, '');
 
-    if (cartao.length !== 15) return false;
-    if (!/^\d+$/.test(cartao)) return false;
-    if (/^(\d)\1{14}$/.test(cartao)) return false;
+    if (cartao_sus.length !== 15) return false;
+    if (!/^\d+$/.test(cartao_sus)) return false;
+    if (/^(\d)\1{14}$/.test(cartao_sus)) return false;
         return true;
     }
 
