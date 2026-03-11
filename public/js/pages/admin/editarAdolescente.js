@@ -1036,7 +1036,13 @@ if(btnSalvar){
 			.from(document.querySelectorAll('input[name="dias[]"]:checked'))
 			.map(el => el.value)
 			.join(',');
-				
+			console.log('dias a marcar:', diasSelecionados); 
+
+            document.querySelectorAll('input[name="dias[]"]').forEach(checkbox => {
+                checkbox.checked = diasSelecionados.includes(checkbox.value);
+                console.log(checkbox.value, checkbox.checked); 
+            });
+
 		// Envia uma requisição AJAX para atualizar os dados do usuário
         fetch(`/editandoPessoas/${ID}`, {
             method: 'PUT',
