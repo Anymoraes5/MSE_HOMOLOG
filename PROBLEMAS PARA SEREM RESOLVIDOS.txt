@@ -31,6 +31,7 @@ EDITAR - Esta permitindo gravar campos vazios em campos obrigatórios (unidade a
 8º O campo distrito deve ser limitado a SAS selecionada. Precisa criar uma coluna na base de dados indicando que aquele distrito corresponde a aquela SAS (seria uma chave estrangeira na tabela distrito com o código da SAS). Posteriormente o sistema precisa identificar essas relações e só carregar o distrito corresponde.
 No painel do perfil de acolhidos e vinculados você consegue verificar qual distrito pertence a qual SAS
 https://app.powerbi.com/view?r=eyJrIjoiMmRhYzFlOTItYWNmMS00NGE1LTg4Y2ItZmU5OTZmNTM0MTljIiwidCI6ImYzOThkZjljLWZkMGMtNDgyOS1hMDAzLWM3NzBhMWM0YTA2MyJ9 - ok
+25º Número de processo de execução não pode permitir duplicação na base de dados" - ok
 ----------------------------------------------------------------------
 
 
@@ -46,7 +47,7 @@ Esta permitindo gravar processos duplicados? Pode isso? (Número do processo de 
 
 
 24º o asterisco indicativo de obrigatoriedade não deve ocorrer quando o item de curso profissionalizante for igual a "Não". Verificar o mesmo para todos os outros casos do formulário que tem itens "Sim/Não"
-25º Número de processo de execução não pode permitir duplicação na base de dados"
+
 
     
 

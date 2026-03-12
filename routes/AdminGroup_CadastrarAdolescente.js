@@ -594,17 +594,7 @@ function rota_adminCadastraPessoa(app) {
         });
 
         // Consulta para obter o ID da SAS
-        IdDescricaoRepository.getIdByDescricaoCadastro('sas', sas, (error, id) => {
-            if (error) {
-                console.error('Erro ao buscar ID da SAS:', error);
-                return;
-            }
-            if (id) {
-                idSas = id; // Armazena o ID na variável global
-            } else {
-                console.log(`SAS não encontrada: ${sas}`);
-            }
-        });
+        idSas = sas ? parseInt(sas) : null;
 
         // Consulta para obter o ID da servico_familia
         IdDescricaoRepository.getIdByDescricaoCadastro('servico_familia', servico_familia, (error, id) => {
@@ -1094,6 +1084,14 @@ function rota_adminCadastraPessoa(app) {
                         }
                     }
                 }
+                const sql = "SELECT 1 FROM processos WHERE n_processo = ? LIMIT 1";
+
+                connection.query(sql, [n_processo], (err, result) => {
+                    if(result.length > 0){
+                        return res.status(400).json({error: 'Processo Já cadastrado' });
+                    }
+
+                });
                 
                 // Inserção de novos dados de contato
                 connection.query(`INSERT INTO contatos (telefone, nome, email) VALUES (?, ?, ?);`, [telefone, nome_do_contato, email], (errorInsert, resultsInsert, fieldsInsert) => {
