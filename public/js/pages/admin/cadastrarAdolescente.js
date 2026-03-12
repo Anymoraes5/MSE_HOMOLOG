@@ -815,8 +815,8 @@ function carregarDados(){
     // Busca as opções deficiência
     popularSelect({ url: "/opcoesDeficiencia", selectId: "deficiencia", addDefault: true, defaultText: "Selecione" });
     // Busca as opções de Distrito para o serviço
-    popularSelect({ url: "/opcoesDistrito", selectId: "distrito_servico", addDefault: true, defaultText: "Selecione" });
-    // Busca as opções de Distrito para a pessoa
+    // popularSelect({ url: "/opcoesDistrito", selectId: "distrito_servico", addDefault: true, defaultText: "Selecione" });
+    // // Busca as opções de Distrito para a pessoa
     popularSelect({ url: "/opcoesDistrito", selectId: "distrito_pessoa", addDefault: true, defaultText: "Selecione"});
     // Busca as opções Ciclo Estudo 
     popularSelect({ url: "/opcoesCicloEstudo", selectId: "cicloEstudo", addDefault: true, defaultText: "Selecione" });
@@ -845,7 +845,12 @@ function carregarDados(){
     popularSelect({url: "/opcoesOrientacaoSexual", selectId: "orientacao_sexual", addDefault: true, defaultText: "Selecione" });
 
     // Busca as opções Sas
-    popularSelect({ url: "/opcoesSas", selectId: "sas",  addDefault: true, defaultText: "Selecione" });
+    popularSelect({ url: "/opcoesSas", selectId: "sas", valueKey: "ID" , textKey: "descricao", addDefault: true, defaultText: "Selecione" });
+    
+
+
+
+    
    // Busca as opções MSE
    popularSelect({
         url: "/opcoesMse",
@@ -1172,6 +1177,26 @@ fetch('/opcoesProgramasSociais')
         }
     });
 }
+    function carregarDistritoServicoPorSas(idSas) {
+        console.log("carregarDistritoServicoPorSas chamada com:", idSas);
+        if (!idSas) {
+            resetSelectField("distrito_servico");
+            return;
+        }
+
+        popularSelect({ 
+            url: `/opcoesDistrito?id_sas=${idSas}`, 
+            selectId: "distrito_servico", 
+            addDefault: true, 
+            defaultText: "Selecione" 
+        });
+    }
+   
+document.addEventListener("change", function(e) {
+    if (e.target && e.target.id === "sas") {
+        carregarDistritoServicoPorSas(e.target.value);
+    }
+});
 
 // Validação de obrigatoriedade – Unidade Acolhedora
 document.addEventListener('DOMContentLoaded', function () {

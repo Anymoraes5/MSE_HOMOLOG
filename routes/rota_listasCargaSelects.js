@@ -66,16 +66,39 @@ function rota_listasCargaSelects(app) {
 
     //  rotas para preencher o select
     app.get('/opcoesDistrito', (req, res) => {
-        connection.query('SELECT descricao FROM distrito WHERE ativo_inativo = 1 ORDER BY 1', (error, results, fields) => {
-            if (error) {
-                console.error('Erro ao buscar opções Distrito:', error);
-                res.status(500).send('Erro ao buscar opções Distrito.');
-                return;
-            }
+        const { id_sas } = req.query;
 
-            res.json(results); // Envia as opções MSE como resposta em JSON
+        let sql;
+        let params;
+
+        if (id_sas) {
+            // Com filtro de SAS — para distrito_servico
+            sql = `
+                SELECT DISTINCT d.ID, d.descricao
+                FROM distrito d
+                INNER JOIN sas_distrito sd ON sd.id_distrito = d.ID
+                WHERE sd.id_sas = ?
+                AND d.ativo_inativo = 1
+                ORDER BY d.descricao
+            `;
+            params = [id_sas];
+        } else {
+            // Sem filtro — para distrito_pessoa
+            sql = `
+                SELECT ID, descricao
+                FROM distrito
+                WHERE ativo_inativo = 1
+                ORDER BY descricao
+            `;
+            params = [];
+        }
+
+        connection.query(sql, params, (err, results) => {
+            if (err) return res.status(500).json({ error: err });
+            res.json(results);
         });
     });
+
     //  rotas para preencher o select
     app.get('/opcoesEstadoCivil', (req, res) => {
         connection.query('SELECT descricao FROM estado_civil WHERE ativo_inativo = 1 ORDER BY 1', (error, results, fields) => {
@@ -290,7 +313,7 @@ function rota_listasCargaSelects(app) {
 
     //  rotas para preencher o select
     app.get('/opcoesSas', (req, res) => {
-        connection.query('SELECT descricao FROM sas WHERE ativo_inativo = 1 ORDER BY 1', (error, results, fields) => {
+        connection.query('SELECT ID, descricao FROM sas WHERE ativo_inativo = 1 ORDER BY 1', (error, results, fields) => {
             if (error) {
                 console.error('Erro ao buscar opções SAS:', error);
                 res.status(500).send('Erro ao buscar opções SAS.');
