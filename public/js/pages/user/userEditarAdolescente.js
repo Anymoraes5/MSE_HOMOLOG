@@ -1028,11 +1028,12 @@ if(btnSalvar){
 		var horario_fim_unidade = document.getElementById('horario_fim_unidade').value;
 		var cep_unidade = document.getElementById('cep_unidade').value;
 
-        // dias da semana (checkbox)
+		// dias da semana (checkbox)
 		var dias_semana = Array
 			.from(document.querySelectorAll('input[name="dias[]"]:checked'))
 			.map(el => el.value)
 			.join(',');
+			
 
 		// Envia uma requisição AJAX para atualizar os dados do usuário
         fetch(`/editandoPessoas/${ID}`, {
@@ -1314,7 +1315,9 @@ if (btnBuscarCepPessoa) {
 
 
 
-// Buscar CEP unidade
+
+
+// Buscar CEP
 const btnBuscarCep = document.getElementById("buscar_cep");
 
 if (btnBuscarCep) {
@@ -1324,15 +1327,15 @@ if (btnBuscarCep) {
 
         if (!campoCep) return;
 
-        let cep_unidade = campoCep.value.replace(/\D/g, "");
+        let cep = campoCep.value.replace(/\D/g, "");
 
-        if (cep_unidade.length !== 8) {
+        if (cep.length !== 8) {
             alert("CEP inválido. Digite um CEP com 8 números.");
             return;
         }
         console.log(cep)
 
-        fetch(`https://viacep.com.br/ws/${cep_unidade}/json/`)
+        fetch(`https://viacep.com.br/ws/${cep}/json/`)
             .then(response => response.json())
             .then(data => {
                 if (data.erro === true) {

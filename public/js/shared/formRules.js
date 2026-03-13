@@ -5,15 +5,25 @@ export function toggleCampo(selectId, campoId, valorAtivar = "1", usarRequired =
     const select = $(selectId);
     const campo = $(campoId);
 
-    if (!select || !campo) return; 
+    if (!select || !campo) return;
+
+    // Busca o label associado ao campo (pelo atributo 'for')
+    const label = document.querySelector(`label[for="${campoId}"]`);
+    const asterisco = label?.querySelector(".red-asterisk");
 
     if (select.value === valorAtivar) {
         campo.disabled = false;
-        if (usarRequired) campo.setAttribute("required", "required");
+        if (usarRequired) {
+            campo.setAttribute("required", "required");
+            if (asterisco) asterisco.style.display = "inline"; // ← mostra *
+        }
     } else {
         campo.value = "";
         campo.disabled = true;
-        if (usarRequired) campo.removeAttribute("required");
+        if (usarRequired) {
+            campo.removeAttribute("required");
+            if (asterisco) asterisco.style.display = "none"; // ← esconde *
+        }
     }
 }
 //==================check campos de multiplos========================================

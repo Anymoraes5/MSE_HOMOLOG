@@ -6,7 +6,7 @@ if (!isAuthenticated) {
     // Redireciona para a página de login se não estiver autenticado
     window.location.href = '/'; // Supondo que a página de login esteja em '/'
 }
-
+console.log('carregando pagina de cadastro usuario ')
 /*-----VALIDAÇÕES----------------------------------------------------------------------------------------------------------*/
 
 // Obtém a data atual

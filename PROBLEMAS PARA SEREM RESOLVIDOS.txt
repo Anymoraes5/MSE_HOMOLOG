@@ -32,6 +32,8 @@ EDITAR - Esta permitindo gravar campos vazios em campos obrigatórios (unidade a
 No painel do perfil de acolhidos e vinculados você consegue verificar qual distrito pertence a qual SAS
 https://app.powerbi.com/view?r=eyJrIjoiMmRhYzFlOTItYWNmMS00NGE1LTg4Y2ItZmU5OTZmNTM0MTljIiwidCI6ImYzOThkZjljLWZkMGMtNDgyOS1hMDAzLWM3NzBhMWM0YTA2MyJ9 - ok
 25º Número de processo de execução não pode permitir duplicação na base de dados" - ok
+24º o asterisco indicativo de obrigatoriedade não deve ocorrer quando o item de curso profissionalizante for igual a "Não". Verificar o mesmo para todos os outros casos do formulário que tem itens "Sim/Não"
+1º Precisamos confirmar que as mudanças abaixo estão funcionando nos dois perfis, tanto de administrador quanto de técnicos, além de verificar em ambos se estão corretamente aplicados tanto em "Cadastrar" quanto em "Editar"
 ----------------------------------------------------------------------
 
 
@@ -42,11 +44,11 @@ Esta permitindo gravar processos duplicados? Pode isso? (Número do processo de 
 
  Sobre as demandas MSE que estamos implementando temos as seguintes tarefas:
 
-1º Precisamos confirmar que as mudanças abaixo estão funcionando nos dois perfis, tanto de administrador quanto de técnicos, além de verificar em ambos se estão corretamente aplicados tanto em "Cadastrar" quanto em "Editar"
 
 
 
-24º o asterisco indicativo de obrigatoriedade não deve ocorrer quando o item de curso profissionalizante for igual a "Não". Verificar o mesmo para todos os outros casos do formulário que tem itens "Sim/Não"
+
+
 
 
     

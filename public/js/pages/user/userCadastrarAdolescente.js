@@ -30,12 +30,14 @@ function validarObrigatorio(id, mensagem) {
 
 /*-----AUTENTICAÇÃO---------------------------------------------------------------------------------------------------------*/
 
+
 // Verifica se o usuário está autenticado usando o cookie de admin
 var isAuthenticated = document.cookie.indexOf('userAuthenticated=true') !== -1;
 if (!isAuthenticated) {
     // Redireciona para a página de login se não estiver autenticado
     window.location.href = '/'; // Supondo que a página de login esteja em '/'
 }
+
 
 /*---------menu lateral : ajuste de posição da tela ao clicar no link -------------------------*/
 
@@ -245,44 +247,6 @@ function formatarData(data) {
 }
 
 
-
-// document.addEventListener('DOMContentLoaded', function() {
-//     var errorMessage = $('error-message');
-//     var cadastrarButton = $('cadastrar');
-//     var cpfInput = $('cpf');
-
-//     if (!cpfInput || !cadastrarButton || !errorMessage) return;
-
-//     if (cpfInput) {
-//         cpfInput.addEventListener('input', function (){
-//             var cpfValue = this.value;
-//         var cpfValido = validarCPF(cpfValue);
-
-//         if (!cpfValido) {
-//             // Exibir uma mensagem de erro
-//             errorMessage.textContent = 'CPF inválido. Por favor, verifique e tente novamente.';
-//             cadastrarButton.disabled = true; // Desativar botão se CPF for inválido
-//             cadastrarButton.title = 'cpf inválido';
-//         } else {
-//             // Limpar a mensagem de erro se o CPF for válido
-//             errorMessage.textContent = '';
-//             cadastrarButton.disabled = false; // Ativar botão se CPF for válido
-//             cadastrarButton.title = '';
-//         }
-
-//         });
-//     }
-        
-//     cadastrarButton.addEventListener('mouseover', function(event) {
-//         if (cadastrarButton.disabled) {
-//             // Prevenir a ação padrão de um botão desabilitado (caso tenha sido reabilitado via código)
-//             event.preventDefault();
-//             // Colocar o foco no campo CPF
-//             cpfInput.focus();
-//         }
-//     });
-// });
-
 function checkDrogas() {
     const select = $('alcool_ou_drogas');
     if (!select) return;
@@ -392,44 +356,46 @@ function extrairTipoLogradouro(logradouroCompleto) {
         nome: logradouroUpper
     };
 }
+document.addEventListener("DOMContentLoaded", () => {
 
-// Aplicando a validação para cada campo de entrada
-const letras = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ ÀÁÂÃÉÊÍÓÔÕÚÇ()";
-const numeros = "0123456789";
-[
-    "nome",
-    "nome_social",
-    "nome_da_mae",
-    "nome_do_pai",
-    "responsavel_unidade",
-    "nome_responsavel",
-    "logradouro_unidade",
-    "saude",
-    "medicamentos",
-    "n_pt",
-    "bairro",
-    "bairro_unidade",
-    "rua",
-    "nome_do_contato",
-].forEach(id => validarCaracteresPermitidos(id, letras));
+    const letras = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ ÀÁÂÃÉÊÍÓÔÕÚÇ()";
+    const numeros = "0123456789";
 
-[
-    "cpf",
-    "cartao_sus",
-    "numero_unidade",
-    "telefone_unidade",
-    "numero_unidade",
-    "cep_unidade",
-    "horas_psc",
-    "numeroRa",
-    "n_processo",
-    "n_processo_apuracao",
-    "numero",
-    "telefone",
-].forEach(id => validarCaracteresPermitidos(id, numeros));
+    [
+        "nome",
+        "nome_social",
+        "nome_da_mae",
+        "nome_do_pai",
+        "responsavel_unidade",
+        "nome_responsavel",
+        "logradouro_unidade",
+        "saude",
+        "medicamentos",
+        "n_pt",
+        "bairro",
+        "bairro_unidade",
+        "rua",
+        "nome_do_contato",
+    ].forEach(id => validarCaracteresPermitidos(id, letras));
+
+    [
+        "cpf",
+        "cartao_sus",
+        "numero_unidade",
+        "telefone_unidade",
+        "cep_unidade",
+        "horas_psc",
+        "numeroRa",
+        "n_processo",
+        "n_processo_apuracao",
+        "numero",
+        "telefone",
+    ].forEach(id => validarCaracteresPermitidos(id, numeros));
+
+});
 
 /*----as funções de check são chamadas dentro da tag html com o evento que verifica mudanças no campo---*/
-document.addEventListener("formReady", () => {
+document.addEventListener("DOMContentLoaded", () => {
 
     $("sexo")?.addEventListener("change", checkSexo);
     // $("cad_unico")?.addEventListener("change", checkCadUnico);
@@ -444,6 +410,26 @@ document.addEventListener("formReady", () => {
     $("possui_demanda_saude_mental")?.addEventListener("change", checkDemandaSaudeMental);
     $("tec_ref")?.addEventListener("change", checkTecRef);
     $("alcool_ou_drogas")?.addEventListener("change", checkCaps);
+
+    // Garante que os asteriscos condicionais iniciem ocultos
+    const camposCondicionais = [
+        "listar_cursos",
+        "deficiencia",
+        "medicamentos",
+        "saude",
+        "saude_mental",
+        "servico_familia",
+        "trabalho",
+        "gestante",
+        "lactante",
+        "parceira_gestante",
+    ];
+
+    camposCondicionais.forEach(campoId => {
+        const label = document.querySelector(`label[for="${campoId}"]`);
+        const asterisco = label?.querySelector(".red-asterisk");
+        if (asterisco) asterisco.style.display = "none";
+    });
 
     checkSexo();
     checkDeficiencia();
@@ -583,37 +569,121 @@ function checkCurso() {
 
 /*--------------------------calcular idade----------------------------*/
 
-const dtNascField = $('dt_nasc');
-if (dtNascField) {
-    dtNascField.addEventListener('change', function() {
-        const birthDate = new Date(this.value);
-        const today = new Date();
-        let age = today.getFullYear() - birthDate.getFullYear();
-        const monthDiff = today.getMonth() - birthDate.getMonth();
+// const dtNascField = $('dt_nasc');
 
-        if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
-            age--;
-        }
+// if (dtNascField) {
+//     dtNascField.addEventListener('change', function() {
 
-        if (age < 12 || age > 21){
-            alert("Idade fora do escopo");
-            $('idade') && ($('idade').value = "");
-        }
+//         if (!this.value) return;
 
-        $('idade') && ($('idade').value = age);
-    });
-}
+//         const birthDate = new Date(this.value);
+//         const today = new Date();
+
+//         let age = today.getFullYear() - birthDate.getFullYear();
+//         const monthDiff = today.getMonth() - birthDate.getMonth();
+
+//         if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+//             age--;
+//         }
+
+//         if (age < 12 || age > 21) {
+//             alert("A idade deve estar entre 12 e 21 anos.");
+
+//             this.value = "";          // limpa a data
+//             if ($('idade')) $('idade').value = "";
+
+//             this.focus();
+//             return;
+//         }
+
+//         if ($('idade')) $('idade').value = age;
+//     });
+// }
 
 /*-----CADASTRAR----------------------------------------------------------------------------------------------------------*/
 
-const form = $('editar-form');
-if(form){
-    form.addEventListener('submit', function(event){
+
+   document.addEventListener("submit", function(event){
+
+    if(event.target && event.target.id === "editar-form"){
+        event.preventDefault();
         console.log("SUBMIT DISPAROU");
+
+        const form = event.target;
+        const formData = new FormData(form);
+        const data = Object.fromEntries(formData.entries());
+
+        //=====================validar idade==================================
+        const dt = document.getElementById("dt_nasc")?.value;
+        
+        if (dt) {
+
+            const birthDate = new Date(dt);
+            const today = new Date();
+
+            let age = today.getFullYear() - birthDate.getFullYear();
+            const monthDiff = today.getMonth() - birthDate.getMonth();
+
+            if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+                age--;
+            }
+
+            
+
+            if (age < 12 || age > 21) {
+                alert("A idade deve estar entre 12 e 21 anos na data do cadastro.");
+                document.getElementById("dt_nasc").focus();
+                return;
+            }
+        }
+       
         if (!validarDiasUnidadeAcolhedora()) {
 			event.preventDefault();
 			return;
 		}
+        //====================valida data de relatorio
+        const dtInterpretacao = $("dt_interpretacao_medida")?.value;
+        const dtRelatorio = $("dt_ultimo_relatorio_enviado")?.value;
+
+        if (dtInterpretacao && dtRelatorio) {
+
+            const dataInterpretacao = new Date(dtInterpretacao);
+            const dataRelatorio = new Date(dtRelatorio);
+
+            if (dataRelatorio <= dataInterpretacao) {
+                alert("A data do relatório deve ser posterior à data da interpretação.");
+                $("dt_ultimo_relatorio_enviado").focus();
+                return;
+            }
+        }
+        //===============================horario inicio e fim ========================
+        const inicio = $("horario_inicio_unidade")?.value;
+        const fim = $("horario_fim_unidade")?.value;
+
+            if (inicio && fim) {
+                const [horaInicio, minInicio] = inicio.split(":").map(Number);
+                const [horaFim, minFim] = fim.split(":").map(Number);
+
+                const totalInicio = horaInicio * 60 + minInicio;
+                const totalFim = horaFim * 60 + minFim;
+
+                const diferenca = totalFim - totalInicio;
+
+                if (diferenca > 480) { // mais de 8 horas
+                    alert("O intervalo entre início e fim da unidade não pode ultrapassar 8 horas.");
+                    $("horario_fim_unidade").focus();
+                    event.preventDefault();
+                    return;
+                }
+
+                if (diferenca < 0) { // horário final antes do inicial
+                    alert("O horário final não pode ser menor que o horário de início.");
+                    $("horario_fim_unidade").focus();
+                    event.preventDefault();
+                    return;
+                }
+            
+            }
         //======================validar documento==============================
         const validacoes = [
             { id: 'cpf', func: validarCPF, msg: 'CPF inválido.' },
@@ -623,11 +693,12 @@ if(form){
         for (const v of validacoes) {
             if (!validarDocumento(v.id, v.func, v.msg, event)) return;
         }
+        
         //======================validar campos obrigatorios================
         
         //======================pegar campos do form ===================
-        const formData = new FormData(form);
-        const data = Object.fromEntries(formData.entries());
+        console.log(form)
+
 
         if (!confirm("Tem certeza que deseja cadastrar a pessoa?")) {
             alert("Operação cancelada");
@@ -651,36 +722,51 @@ if(form){
             programasSociaisSelecionados.push(select.value || null);
         });
 
-          // Envia uma requisição POST para a rota /cadastro com os dados do formulário
+        // Envia uma requisição POST para a rota /cadastro com os dados do formulário
         fetch('/adminCadastraPessoa', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(data)			
-                
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
         })
-        .then(response => response.json())
-        .then(data => {
+        .then(response => {
+            return response.json().then(data => ({ ok: response.ok, status: response.status, body: data }));
+        })
+        .then(({ ok, status, body }) => {
+
+            if (!ok) {
+                const mensagens = {
+                    'ER_DUP_ENTRY':                                      'Este número de processo já está cadastrado no sistema.',
+                    'CPF inválido.':                                      'O CPF informado é inválido. Verifique e tente novamente.',
+                    'Telefone inválido! Deve ter 10 ou 11 dígitos.':      'O telefone informado é inválido. Use 10 ou 11 dígitos.',
+                    'CEP inválido! Deve ter 8 dígitos.':                  'O CEP informado é inválido. Deve ter 8 dígitos.',
+                    'Nome do responsável inválido.':                      'O nome do responsável contém caracteres inválidos.',
+                    'Número do logradouro inválido.':                     'O número do logradouro é inválido.',
+                    'Tipo de logradouro inválido.':                       'O tipo de logradouro selecionado é inválido.',
+                    'Erro ao verificar processo.':                        'Erro de conexão ao verificar o processo. Tente novamente.',
+                    'Erro ao inserir processo.':                          'Erro ao salvar o processo. Tente novamente.',
+                    'Erro ao inserir dados de contato.':                  'Erro ao salvar os dados de contato. Tente novamente.',
+                    'Erro ao salvar unidade acolhedora.':                 'Erro ao salvar a unidade acolhedora. Tente novamente.',
+                    'Erro ao criar vínculo.':                             'Erro ao vincular adolescente à unidade. Tente novamente.',
+                    'Erro ao finalizar cadastro.':                        'Erro ao finalizar o cadastro. Tente novamente.',
+                };
+
+                const mensagem = mensagens[body.error] || 'Ocorreu um erro inesperado. Tente novamente mais tarde.';
+                alert(mensagem);
+                return;
+            }
+
             alert('Pessoa cadastrada com sucesso!');
-            // Redireciona para a página home após o cadastro
             window.location.href = '/verPessoas';
         })
-
-        .then(data => {
-            if (data.error === 'ER_DUP_ENTRY') {
-                console.error('Erro ao atualizar dados:', error.code);
-                alert('Erro: O número de processo já existe. Verifique os dados e tente novamente.');
-                window.history.back();
-            } else {
-                console.error('O número de processo já existe:', error.code);
-                window.history.back(); // Volta para a página anterior em caso de erro
-                alert('O número de processo já existe.');
-            }
+        .catch(error => {
+            console.error('Erro:', error);
+            alert('Não foi possível conectar ao servidor. Verifique sua conexão e tente novamente.');
         });
 
-    });
-}
+    }
+});
+
+
 document.addEventListener("click", function (e) {
 
     if (e.target.closest("#buscar_cep_pessoa")) {
@@ -698,7 +784,6 @@ document.addEventListener("click", function (e) {
             bairroId: "bairro_unidade"
         });
     }
-
 });
 
 /*-----PREENCHIMENTO INICIAL DA PÁGINA--------------------------------------------------------------------------------------*/
@@ -721,8 +806,8 @@ function carregarDados(){
     // Busca as opções deficiência
     popularSelect({ url: "/opcoesDeficiencia", selectId: "deficiencia", addDefault: true, defaultText: "Selecione" });
     // Busca as opções de Distrito para o serviço
-    popularSelect({ url: "/opcoesDistrito", selectId: "distrito_servico", addDefault: true, defaultText: "Selecione" });
-    // Busca as opções de Distrito para a pessoa
+    // popularSelect({ url: "/opcoesDistrito", selectId: "distrito_servico", addDefault: true, defaultText: "Selecione" });
+    // // Busca as opções de Distrito para a pessoa
     popularSelect({ url: "/opcoesDistrito", selectId: "distrito_pessoa", addDefault: true, defaultText: "Selecione"});
     // Busca as opções Ciclo Estudo 
     popularSelect({ url: "/opcoesCicloEstudo", selectId: "cicloEstudo", addDefault: true, defaultText: "Selecione" });
@@ -751,7 +836,12 @@ function carregarDados(){
     popularSelect({url: "/opcoesOrientacaoSexual", selectId: "orientacao_sexual", addDefault: true, defaultText: "Selecione" });
 
     // Busca as opções Sas
-    popularSelect({ url: "/opcoesSas", selectId: "sas",  addDefault: true, defaultText: "Selecione" });
+    popularSelect({ url: "/opcoesSas", selectId: "sas", valueKey: "ID" , textKey: "descricao", addDefault: true, defaultText: "Selecione" });
+    
+
+
+
+    
    // Busca as opções MSE
    popularSelect({
         url: "/opcoesMse",
@@ -789,7 +879,7 @@ function carregarDados(){
         url: "/opcoesAtividadeUnidade",
         selectId: "atividade_unidade",
         addDefault: true,        // adiciona option vazia
-        valueKey: "id",          // usa id como value
+        valueKey: "descricao",       
         textKey: "descricao",
         defaultText: "Selecione",
         sortFn: (a, b) => {
@@ -1032,22 +1122,16 @@ fetch('/opcoesProgramasSociais')
     });
 
     
-
-    // Busca as opções servico_familia
-    fetch('/opcoesServicoFamilia')
-    .then(response => response.json())
-    .then(opcoesServicoFamilia => {
-        // Preenche o select com as opções servico_familia
-        var selectServicoFamilia = $('servico_familia');
-        opcoesServicoFamilia.forEach(opcao => {
-            var option = document.createElement('option');
-            option.text = opcao.descricao;
-            selectServicoFamilia.appendChild(option);
-        });
-    })
-    .catch(error => {
-        console.error('Erro ao buscar opções servico_familia:', error);
+    // Carrega os tipos de local
+    popularSelect({
+        url: "/opcoesServicoFamilia",
+        selectId: "servico_familia",
+        addDefault: true,
+        defaultText: "Selecione",
+        valueKey: "descricao",
+        textKey: "descricao"
     });
+
 
     // Busca as opções SituacaoDoProcesso
     popularSelect({
@@ -1067,7 +1151,7 @@ fetch('/opcoesProgramasSociais')
     popularSelect({
         url: "/opcoesContatos",
         selectId: "tipo_de_contato",
-        valueKey: "id",              // usa id como value
+        valueKey: "descricao",              // usa id como value
         textKey: "descricao",
         addDefault: true,            // adiciona option vazia
         sortFn: (a, b) => {
@@ -1078,6 +1162,26 @@ fetch('/opcoesProgramasSociais')
         }
     });
 }
+    function carregarDistritoServicoPorSas(idSas) {
+        console.log("carregarDistritoServicoPorSas chamada com:", idSas);
+        if (!idSas) {
+            resetSelectField("distrito_servico");
+            return;
+        }
+
+        popularSelect({ 
+            url: `/opcoesDistrito?id_sas=${idSas}`, 
+            selectId: "distrito_servico", 
+            addDefault: true, 
+            defaultText: "Selecione" 
+        });
+    }
+   
+document.addEventListener("change", function(e) {
+    if (e.target && e.target.id === "sas") {
+        carregarDistritoServicoPorSas(e.target.value);
+    }
+});
 
 // Validação de obrigatoriedade – Unidade Acolhedora
 document.addEventListener('DOMContentLoaded', function () {
@@ -1210,17 +1314,6 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 });
     
-/*-----CONFIRMAÇÃO DE LOGOUT----------------------------------------------------------------------------------------------------------*/
-
-// Função para confirmar logout
-function confirmLogout() {
-    if (confirm("Tem certeza que deseja encerrar a sessão?")) {
-        window.location.href = '/logout'; // Redireciona para a rota de logout se o usuário confirmar
-    } else {
-        // Se o usuário cancelar, não faz nada
-        // Você pode adicionar algum feedback aqui se preferir
-    }
-}
 
 
 //Preenchimento para teste
@@ -1373,5 +1466,16 @@ document.addEventListener("DOMContentLoaded", function () {
 console.log("FIM DO ARQUIVO EXECUTOU");
 
 
+/*-----CONFIRMAÇÃO DE LOGOUT----------------------------------------------------------------------------------------------------------*/
+
+// Função para confirmar logout
+function confirmLogout() {
+    if (confirm("Tem certeza que deseja encerrar a sessão?")) {
+        window.location.href = '/logout'; // Redireciona para a rota de logout se o usuário confirmar
+    } else {
+        // Se o usuário cancelar, não faz nada
+        // Você pode adicionar algum feedback aqui se preferir
+    }
+}
 
 

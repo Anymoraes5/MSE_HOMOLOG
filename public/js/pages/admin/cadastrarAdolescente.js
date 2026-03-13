@@ -246,44 +246,6 @@ function formatarData(data) {
 }
 
 
-
-// document.addEventListener('DOMContentLoaded', function() {
-//     var errorMessage = $('error-message');
-//     var cadastrarButton = $('cadastrar');
-//     var cpfInput = $('cpf');
-
-//     if (!cpfInput || !cadastrarButton || !errorMessage) return;
-
-//     if (cpfInput) {
-//         cpfInput.addEventListener('input', function (){
-//             var cpfValue = this.value;
-//         var cpfValido = validarCPF(cpfValue);
-
-//         if (!cpfValido) {
-//             // Exibir uma mensagem de erro
-//             errorMessage.textContent = 'CPF inválido. Por favor, verifique e tente novamente.';
-//             cadastrarButton.disabled = true; // Desativar botão se CPF for inválido
-//             cadastrarButton.title = 'cpf inválido';
-//         } else {
-//             // Limpar a mensagem de erro se o CPF for válido
-//             errorMessage.textContent = '';
-//             cadastrarButton.disabled = false; // Ativar botão se CPF for válido
-//             cadastrarButton.title = '';
-//         }
-
-//         });
-//     }
-        
-//     cadastrarButton.addEventListener('mouseover', function(event) {
-//         if (cadastrarButton.disabled) {
-//             // Prevenir a ação padrão de um botão desabilitado (caso tenha sido reabilitado via código)
-//             event.preventDefault();
-//             // Colocar o foco no campo CPF
-//             cpfInput.focus();
-//         }
-//     });
-// });
-
 function checkDrogas() {
     const select = $('alcool_ou_drogas');
     if (!select) return;
@@ -445,6 +407,26 @@ document.addEventListener("formReady", () => {
     $("possui_demanda_saude_mental")?.addEventListener("change", checkDemandaSaudeMental);
     $("tec_ref")?.addEventListener("change", checkTecRef);
     $("alcool_ou_drogas")?.addEventListener("change", checkCaps);
+
+    // Garante que os asteriscos condicionais iniciem ocultos
+    const camposCondicionais = [
+        "listar_cursos",
+        "deficiencia",
+        "medicamentos",
+        "saude",
+        "saude_mental",
+        "servico_familia",
+        "trabalho",
+        "gestante",
+        "lactante",
+        "parceira_gestante",
+    ];
+
+    camposCondicionais.forEach(campoId => {
+        const label = document.querySelector(`label[for="${campoId}"]`);
+        const asterisco = label?.querySelector(".red-asterisk");
+        if (asterisco) asterisco.style.display = "none";
+    });
 
     checkSexo();
     checkDeficiencia();
@@ -742,34 +724,40 @@ function checkCurso() {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(data)
-            
         })
         .then(response => {
-            
-            // Mostra o status real do servidor
-            console.log("Status:", response.status, response.statusText);
-            
-            if (!response.ok) {
-                // Lê como texto para ver o HTML de erro
-                return response.text().then(text => {
-                    console.error("Resposta do servidor:", text);
-                    throw new Error(`Erro ${response.status}: ${response.statusText}`);
-                });
-            }
-            
-            return response.json();
+            return response.json().then(data => ({ ok: response.ok, status: response.status, body: data }));
         })
-        .then(data => {
-            if (data.error === 'ER_DUP_ENTRY') {
-                alert('Erro: O número de processo já existe.');
+        .then(({ ok, status, body }) => {
+
+            if (!ok) {
+                const mensagens = {
+                    'ER_DUP_ENTRY':                                      'Este número de processo já está cadastrado no sistema.',
+                    'CPF inválido.':                                      'O CPF informado é inválido. Verifique e tente novamente.',
+                    'Telefone inválido! Deve ter 10 ou 11 dígitos.':      'O telefone informado é inválido. Use 10 ou 11 dígitos.',
+                    'CEP inválido! Deve ter 8 dígitos.':                  'O CEP informado é inválido. Deve ter 8 dígitos.',
+                    'Nome do responsável inválido.':                      'O nome do responsável contém caracteres inválidos.',
+                    'Número do logradouro inválido.':                     'O número do logradouro é inválido.',
+                    'Tipo de logradouro inválido.':                       'O tipo de logradouro selecionado é inválido.',
+                    'Erro ao verificar processo.':                        'Erro de conexão ao verificar o processo. Tente novamente.',
+                    'Erro ao inserir processo.':                          'Erro ao salvar o processo. Tente novamente.',
+                    'Erro ao inserir dados de contato.':                  'Erro ao salvar os dados de contato. Tente novamente.',
+                    'Erro ao salvar unidade acolhedora.':                 'Erro ao salvar a unidade acolhedora. Tente novamente.',
+                    'Erro ao criar vínculo.':                             'Erro ao vincular adolescente à unidade. Tente novamente.',
+                    'Erro ao finalizar cadastro.':                        'Erro ao finalizar o cadastro. Tente novamente.',
+                };
+
+                const mensagem = mensagens[body.error] || 'Ocorreu um erro inesperado. Tente novamente mais tarde.';
+                alert(mensagem);
                 return;
             }
+
             alert('Pessoa cadastrada com sucesso!');
             window.location.href = '/verPessoas';
         })
         .catch(error => {
             console.error('Erro:', error);
-            alert('Erro ao cadastrar: ' + error.message);
+            alert('Não foi possível conectar ao servidor. Verifique sua conexão e tente novamente.');
         });
 
     }
@@ -1131,22 +1119,16 @@ fetch('/opcoesProgramasSociais')
     });
 
     
-
-    // Busca as opções servico_familia
-    fetch('/opcoesServicoFamilia')
-    .then(response => response.json())
-    .then(opcoesServicoFamilia => {
-        // Preenche o select com as opções servico_familia
-        var selectServicoFamilia = $('servico_familia');
-        opcoesServicoFamilia.forEach(opcao => {
-            var option = document.createElement('option');
-            option.text = opcao.descricao;
-            selectServicoFamilia.appendChild(option);
-        });
-    })
-    .catch(error => {
-        console.error('Erro ao buscar opções servico_familia:', error);
+    // Carrega os tipos de local
+    popularSelect({
+        url: "/opcoesServicoFamilia",
+        selectId: "servico_familia",
+        addDefault: true,
+        defaultText: "Selecione",
+        valueKey: "descricao",
+        textKey: "descricao"
     });
+
 
     // Busca as opções SituacaoDoProcesso
     popularSelect({
@@ -1329,17 +1311,6 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 });
     
-/*-----CONFIRMAÇÃO DE LOGOUT----------------------------------------------------------------------------------------------------------*/
-
-// Função para confirmar logout
-function confirmLogout() {
-    if (confirm("Tem certeza que deseja encerrar a sessão?")) {
-        window.location.href = '/logout'; // Redireciona para a rota de logout se o usuário confirmar
-    } else {
-        // Se o usuário cancelar, não faz nada
-        // Você pode adicionar algum feedback aqui se preferir
-    }
-}
 
 
 //Preenchimento para teste
@@ -1492,5 +1463,16 @@ document.addEventListener("DOMContentLoaded", function () {
 console.log("FIM DO ARQUIVO EXECUTOU");
 
 
+/*-----CONFIRMAÇÃO DE LOGOUT----------------------------------------------------------------------------------------------------------*/
+
+// Função para confirmar logout
+function confirmLogout() {
+    if (confirm("Tem certeza que deseja encerrar a sessão?")) {
+        window.location.href = '/logout'; // Redireciona para a rota de logout se o usuário confirmar
+    } else {
+        // Se o usuário cancelar, não faz nada
+        // Você pode adicionar algum feedback aqui se preferir
+    }
+}
 
 

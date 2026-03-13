@@ -1,3 +1,4 @@
+
 /*-configurações padrões---------------------------------------------------------------------------------------------*/
 
 //Importa o módulo fs e path para lidar com arquivos e caminhos
@@ -45,7 +46,7 @@ function rota_adminCadastraPessoa(app) {
 
         let cpfValido = utils.validarCPF(cpf);
         if (!cpfValido.valido) {
-            return res.send(`<script>alert("cpf inválido");window.history.back();</script>`);
+            return res.status(400).json({ error: 'CPF inválido.' });
         } else {
             console.log("CPF válido:", cpfValido.cpf);
             cpf = cpfValido.cpf;
@@ -72,6 +73,7 @@ function rota_adminCadastraPessoa(app) {
 			horario_fim_unidade,
 			atividade_unidade,
 			horas_psc,
+            cad_unico,
             ativo_inativo,    //: ativo_inativo, 
             creas_atual,    //: creas_atual, 
             mse,    //: mse,  
@@ -147,6 +149,20 @@ function rota_adminCadastraPessoa(app) {
             email,    //: email 
         } = req.body;
 
+
+        const sql = "SELECT 1 FROM processos WHERE n_processo = ? LIMIT 1";
+
+        connection.query(sql, [n_processo], (err, result) => {
+            if (err) return res.status(500).json({ error: 'Erro ao verificar processo.' });
+            if (result.length > 0) {
+                return res.status(400).json({ error: 'ER_DUP_ENTRY' });
+            }
+
+        });
+
+
+
+
 	  var dt_desligamento
         if (ativo_inativo == 0){
             dt_desligamento = `${ano}-${mes}-${dia}`;
@@ -165,19 +181,19 @@ function rota_adminCadastraPessoa(app) {
 		// Telefone: remover tudo que não é número e validar se é celular/fixo
 		telefone = telefone.replace(/\D/g, ''); 
 		if (telefone.length < 10 || telefone.length > 11) {
-			return res.send(`<script>alert("Telefone inválido! Deve ter 10 ou 11 dígitos"); window.history.back();</script>`);
+			return res.status(400).json({ error: 'Telefone inválido! Deve ter 10 ou 11 dígitos.' });
 		}
 		let tipoTelefone = (telefone.length === 11) ? 'Celular' : 'Fixo'; // automático
 
 		// CEP: apenas números
 		cep = cep.replace(/\D/g, '');
 		if (cep.length !== 8) {
-			return res.send(`<script>alert("CEP inválido! Deve ter 8 dígitos."); window.history.back();</script>`);
+			return res.status(400).json({ error: 'CEP inválido! Deve ter 8 dígitos.' });
 		}
 
 		// Nome do responsável: apenas letras e espaços
 		if (!/^[A-Za-zÀ-ÖØ-öø-ÿ ]+$/.test(nome_responsavel)) {
-			return res.send(`<script>alert("Nome do responsável inválido! Apenas letras e espaços são permitidos."); window.history.back();</script>`);
+			return res.status(400).json({ error: 'Nome do responsável inválido.' });
 		}
 
 		// Logradouro: remover caracteres inválidos (apenas letras, números, espaços e acentos)
@@ -186,7 +202,7 @@ function rota_adminCadastraPessoa(app) {
 		// Número do logradouro: apenas números
 		numero = numero.replace(/\D/g, '');
 		if(numero === '') {
-			return res.send(`<script>alert("Número do logradouro inválido! Apenas números são permitidos."); window.history.back();</script>`);
+			return res.status(400).json({ error: 'Número do logradouro inválido.' });
 		}
 
 		// ===============================
@@ -247,12 +263,7 @@ function rota_adminCadastraPessoa(app) {
 
 		// só valida se tiver valor
 		if (tipo_logradouro && !tiposLogradouroValidos.includes(tipo_logradouro)) {
-			return res.send(`
-				<script>
-					alert("Tipo de logradouro inválido D.");
-					window.history.back();
-				</script>
-			`);
+			return res.status(400).json({ error: 'Número do logradouro inválido.' });
 		}
 
         // Declara as variáveis globais para armazenar os respectivos ID
@@ -282,6 +293,8 @@ function rota_adminCadastraPessoa(app) {
         let idVaraDaInfancia;
         let idTipoDeContato;
         let idsProgramasSociais = [];
+
+        
 
         // Consulta para obter o ID do Creas atual
         IdDescricaoRepository.getIdByDescricaoCadastro('creas', creas_atual, (error, id) => {
@@ -592,17 +605,7 @@ function rota_adminCadastraPessoa(app) {
         });
 
         // Consulta para obter o ID da SAS
-        IdDescricaoRepository.getIdByDescricaoCadastro('sas', sas, (error, id) => {
-            if (error) {
-                console.error('Erro ao buscar ID da SAS:', error);
-                return;
-            }
-            if (id) {
-                idSas = id; // Armazena o ID na variável global
-            } else {
-                console.log(`SAS não encontrada: ${sas}`);
-            }
-        });
+        idSas = sas ? parseInt(sas) : null;
 
         // Consulta para obter o ID da servico_familia
         IdDescricaoRepository.getIdByDescricaoCadastro('servico_familia', servico_familia, (error, id) => {
@@ -656,40 +659,55 @@ function rota_adminCadastraPessoa(app) {
             }
         });
 
+
         // Consulta para obter o ID do tipo de contato
-        IdDescricaoRepository.getIdByDescricaoCadastro('tipo_de_contato', tipo_de_contato, (error, id) => {
-            if (error) {
-                console.error('Erro ao buscar ID do tipo de contato:', error);
-                return;
-            }
-            if (id) {
-                idTipoDeContato = id; // Armazena o ID na variável global
-            } else {
-                console.log(`Tipo de contato não encontrado: ${tipo_de_contato}`);
-            }
-        });
+        // IdDescricaoRepository.getIdByDescricaoCadastro('tipo_de_contato', tipo_de_contato, (error, id) => {
+        //     if (error) {
+        //         console.error('Erro ao buscar ID do tipo de contato:', error);
+        //         return;
+        //     }
+        //     if (id) {
+        //         idTipoDeContato = id; // Armazena o ID na variável global
+        //     } else {
+        //         console.log(`Tipo de contato não encontrado: ${tipo_de_contato}`);
+        //     }
+        // });
         
 		// alteração realizada para caso o usuário inclua um container mas não selecione uma opção o sistema ignore.
-		for (let i = 0; i < programas_sociais.length; i++) {
-				if (!programas_sociais[i] || programas_sociais[i] === '') {
-					console.log("Nenhum programa social selecionado para a entrada " + (i + 1));
-					continue; // Pula para o próximo item se não houver seleção
-				}
+        const programas_sociais_normalizado = Array.isArray(programas_sociais)
+            ? programas_sociais
+            : programas_sociais
+                ? [programas_sociais]
+                : [];
 
-				let descricao = programas_sociais[i]; // Definindo a variável 'descricao'
+        for (let i = 0; i < programas_sociais_normalizado.length; i++) {
+            if (!programas_sociais_normalizado[i] || programas_sociais_normalizado[i] === '') {
+                console.log("Nenhum programa social selecionado para a entrada " + (i + 1));
+                continue;
+            }
 
-				IdDescricaoRepository.getIdByDescricaoCadastro('programas_sociais', descricao, (error, id) => {
-					if (error) {
-						console.error('Erro ao obter ID do programa social:', error);
-						return;
-					}
-					if (id) {
-						idsProgramasSociais.push(id);
-					} else {
-						console.log(`Programa social não encontrado: ${descricao}`);
-					}
-				});
-		}
+            let descricao = programas_sociais_normalizado[i];
+
+            IdDescricaoRepository.getIdByDescricaoCadastro('programas_sociais', descricao, (error, id) => {
+                if (error) {
+                    console.error('Erro ao obter ID do programa social:', error);
+                    return;
+                }
+                if (id) {
+                    idsProgramasSociais.push(id);
+                } else {
+                    console.log(`Programa social não encontrado: ${descricao}`);
+                }
+            });
+        }
+        console.log({
+            fk_creas_atual: idCreasAtual,
+            fk_mse: idMse,
+            fk_tec_ref: idTecRef,
+            fk_ubs: idUbs,
+            fk_servico_familia: idServicoFamilia,
+            fk_trabalho: idTrabalho
+        });
         
         if (utils.verificar_campos(gestante) == null) {
             gestante = null
@@ -821,8 +839,8 @@ function rota_adminCadastraPessoa(app) {
                 ],
                 (errorUpdate, resultsResults, fieldsUpdate) => {
                     if (errorUpdate) {
-                        console.error('Erro ao atualizar dados do processo:', errorUpdate);
-                        return res.status(500).send('<script>alert("erro de processo duplicado"); window.location.href = "/verPessoas";</script>');
+                        return res.status(500).json({ error: 'Erro ao atualizar os processos.' });
+                        
                     }
 
                 let novoIDProcesso = resultsResults.insertId;
@@ -892,7 +910,8 @@ function rota_adminCadastraPessoa(app) {
                     bairro, 
                     rua, 
                     numero, 
-                    complemento, 
+                    complemento,
+                    cad_unico, 
                     ativo_inativo, 
                     fk_medidas,
                     dt_cadastro, 
@@ -962,6 +981,7 @@ function rota_adminCadastraPessoa(app) {
                     ?, /* rua */
                     ?, /* numero */
                     ?, /* complemento */
+                    ?, /* cad_unico */
                     ?, /* ativo_inativo */
                     ?, /* fk_medidas */
                     ?, /* dt_cadastro */
@@ -1031,7 +1051,8 @@ function rota_adminCadastraPessoa(app) {
                     bairro, 
                     rua, 
                     numero, 
-                    complemento,  
+                    complemento,
+                    cad_unico,  
                     ativo_inativo, 
                     idMedidasMse, 
                     dt_cadastro, 
@@ -1042,16 +1063,16 @@ function rota_adminCadastraPessoa(app) {
                 (errorUpdate, resultsUpdate, fieldsUpdate) => {
                     if (errorUpdate) {
                         console.error('Erro ao inserir dados da pessoa:', errorUpdate);
-                        return res.status(400).send('<script>alert("erro de processo duplicado"); window.location.href = "/verPessoas";</script>');
+                        return res.status(500).json({ error: 'ER_DUP_ENTRY' });
                     }
 
                 let novoIDPessoa = resultsUpdate.insertId;
 
                 // Realizando a inserção na tabela programas sociais pessoas
 
-                for (let i = 0; i < programas_sociais.length; i++) {
+                for (let i = 0; i < programas_sociais_normalizado.length; i++) {
 
-                    if (programas_sociais[i] == '') {
+                    if (programas_sociais_normalizado[i] == '') {
                         console.log("************************************************************************")
                         console.log("Não foram enviados programas sociais no formulário.")
                         console.log("PARTE DO INSERT")
@@ -1074,39 +1095,43 @@ function rota_adminCadastraPessoa(app) {
                         }
                     }
                 }
+
                 
                 // Inserção de novos dados de contato
                 connection.query(`INSERT INTO contatos (telefone, nome, email) VALUES (?, ?, ?);`, [telefone, nome_do_contato, email], (errorInsert, resultsInsert, fieldsInsert) => {
                     if (errorInsert) {
                         console.error('Erro ao inserir dados de contato:', errorInsert);
-                        res.status(500).send('Erro ao inserir dados de contato.');
-                        return;
+                        return res.status(500).json({ error: 'Erro ao inserir dados de contato.' });
+                        
                     }
-
-                    IdDescricaoRepository.getIdByDescricaoCadastro('tipo_de_contato', tipo_de_contato, (error, id) => {
+                    
+                    IdDescricaoRepository.getIdByDescricaoCadastro('tipo_de_contato', tipo_de_contato?.trim(), (error, id) => {
                         if (error) {
                             console.error('Erro ao buscar ID do tipo de contato:', error);
                             return;
                         }
-                        if (id) {
-                            idTipoDeContato = id; // Armazena o ID na variável global
-                        } else {
-                            console.log(`Tipo de contato não encontrado: ${tipo_de_contato}`);
-                        }
-                    });
-                    
-                    // // Obter o ID do novo contato inserido
-                    // let novoIDContato = resultsInsert.insertId;
 
-                    // // Inserção de nova relação entre contato e pessoa
-                    // connection.query(`INSERT INTO contatos_pessoas (fk_id_contatos, fk_id_pessoas, fk_tipo_de_contato) VALUES (?, ?, ?);`, [novoIDContato, novoIDPessoa, idTipoDeContato], (errorInsertRel, resultsInsertRel, fieldsInsertRel) => {
-                    //     if (errorInsertRel) {
-                    //         console.error('Erro ao inserir relação entre contato e pessoa:', errorInsertRel);
-                    //         res.status(500).send('Erro ao inserir relação entre contato e pessoa.');
-                    //         return;
-                    //     }
-                      
-                    // });
+                        idTipoDeContato = id;
+                        let novoIDContato = resultsInsert.insertId;
+
+                        if (!idTipoDeContato) {
+                            console.log("Tipo de contato não encontrado:", tipo_de_contato);
+                            return;
+                        }
+
+                        connection.query(
+                            `INSERT INTO contatos_pessoas (fk_id_contatos, fk_id_pessoas, fk_tipo_de_contato) VALUES (?, ?, ?)`,
+                            [novoIDContato, novoIDPessoa, idTipoDeContato],
+                            (errorInsertRel) => {
+                                if (errorInsertRel) {
+                                    console.error('Erro ao inserir relação entre contato e pessoa:', errorInsertRel);
+                                    return res.status(500).json({ error: 'Erro ao inserir relação entre contato e pessoa.' });
+                                }
+                            }
+                        );
+                    });
+
+                    
                 });
 				
 				const sqlUnidade = `
@@ -1154,7 +1179,7 @@ function rota_adminCadastraPessoa(app) {
 					if (err) {
 					  return connection.rollback(() => {
 						console.error('Erro ao inserir unidade acolhedora:', err);
-						res.status(500).send('Erro ao salvar unidade acolhedora');
+						res.status(500).json({ error: 'Erro ao salvar unidade acolhedora' });
 					  });
 					}
 
@@ -1175,7 +1200,7 @@ function rota_adminCadastraPessoa(app) {
 						if (err) {
 						  return connection.rollback(() => {
 							console.error('Erro ao criar vínculo:', err);
-							res.status(500).send('Erro ao criar vínculo');
+							res.status(500).json({ error: 'Erro ao criar vínculo' });
 						  });
 						}
 
@@ -1183,11 +1208,11 @@ function rota_adminCadastraPessoa(app) {
 						  if (err) {
 							return connection.rollback(() => {
 							  console.error('Erro no commit final:', err);
-							  res.status(500).send('Erro ao finalizar cadastro');
+							  res.status(500).json({ error: 'Erro ao finalizar cadastro' });
 							});
 						  }
 
-						  res.send('<script>alert("Cadastro realizado com sucesso"); window.location.href="/verPessoas";</script>');
+						  return res.json({success: true});
 						});
 
 					  }
@@ -1198,8 +1223,9 @@ function rota_adminCadastraPessoa(app) {
         })
     });
 });
-
 }
+
+
 
 // Exporta a função de configuração das rotas
 module.exports = rota_adminCadastraPessoa;
