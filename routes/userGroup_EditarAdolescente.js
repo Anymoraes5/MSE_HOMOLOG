@@ -45,7 +45,7 @@ function rota_editarPessoas(app) {
                             P.nome_social,
                             P.dt_nasc,
                             P.cpf,
-                            -- P.nis,
+                            P.cad_unico,
                             P.cartao_sus,
                             MM.descricao AS "medidas_mse",
                             P.nome_da_mae,
@@ -113,20 +113,20 @@ function rota_editarPessoas(app) {
                             C.email,
                             P.dt_desligamento,
                             P.listar_cursos,
-							UA.tipo_local,
+                            UA.tipo_local,
                             UA.nome AS 'nome_unidade',
-                            UA.cep AS 'cep_unidade',
+                            UA.cep_unidade AS 'cep_unidade',
                             UA.tipo_logradouro,
                             UA.logradouro_unidade,
                             UA.numero AS 'numero_unidade',
                             UA.complemento AS 'complemento_unidade',
                             UA.bairro AS 'bairro_unidade',
                             UA.telefone AS 'telefone_unidade',
-                            UA.horario_inicio,
-                            UA.horario_fim,
+                            UA.horario_inicio_unidade,
+                            UA.horario_fim_unidade,
                             UA.dias_semana,
-                            UA.responsavel,
-                            UA.atividade  
+                            UA.responsavel_unidade,
+                            UA.atividade_unidade                           
                         FROM pessoas P
                         LEFT JOIN creas CA ON CA.ID = P.fk_creas_atual
                         LEFT JOIN mse M ON M.ID = P.fk_mse
@@ -156,58 +156,55 @@ function rota_editarPessoas(app) {
                         LEFT JOIN paroudeEstudar PE ON PE.ID = P.fk_paroudeEstudar
                         LEFT JOIN usuarios U ON U.ID = P.fk_tec_ref
                         LEFT JOIN ubs UBS ON UBS.ID = P.fk_ubs
-						LEFT JOIN adolescente_unidade_acolhedora AUA ON AUA.fk_pessoa = P.ID
+                        LEFT JOIN adolescente_unidade_acolhedora AUA ON AUA.fk_pessoa = P.ID
                         LEFT JOIN unidade_acolhedora UA ON UA.id = AUA.fk_unidade_acolhedora
 						LEFT JOIN programas_sociais_pessoas PSP ON PSP.fk_id_pessoa = P.ID
-                        LEFT JOIN programas_sociais PS ON PS.ID = PSP.fk_programa_social_id						
+                        LEFT JOIN programas_sociais PS ON PS.ID = PSP.fk_programa_social_id
                         WHERE P.ID = ?`, [ID], (error, results, fields) => {
             if (error) {
                 console.error('Erro ao buscar dados do usuário:', error);
                 res.status(500).send('Erro ao buscar dados do usuário.');
                 return;
             }
-
             if (results.length > 0) {
-               /* let usuario = results[0];
-                res.json(usuario); // Envia os dados do usuário como resposta em JSON*/
-				let usuario = results[0];
+                let usuario = results[0];
+                    
+                // console.log("DADOS RETORNADOS DO BANCO:", JSON.stringify(usuario, null, 2)); // ← adicione isso
+                    
+                usuario.programas_sociais = results
+                    .map(r => r.programas_sociais)
+                    .filter(Boolean);
 
-				// pega todos os programas sociais
-				usuario.programas_sociais = results
-					.map(r => r.programas_sociais)
-					.filter(p => p); // remove null
-
-				res.json(usuario);
-
-            } else {
-                res.status(404).send('Usuário não encontrado.');
+                res.json(usuario);
             }
-        });
+
+
+});
     });
 
 	 app.get('/editandoPessoasProgramas/:ID', (req, res) => {
 				let ID = req.params.ID;
 
-				connection.query(`
-					SELECT PS.descricao
-					FROM programas_sociais PS
-					INNER JOIN programas_sociais_pessoas PSP 
-						ON PS.ID = PSP.fk_programa_social_id
-					WHERE PSP.fk_id_pessoa = ?`,
-					[ID],
-					(error, results) => {
+			connection.query(`
+				SELECT PS.descricao
+				FROM programas_sociais PS
+				INNER JOIN programas_sociais_pessoas PSP 
+					ON PS.ID = PSP.fk_programa_social_id
+				WHERE PSP.fk_id_pessoa = ?`,
+				[ID],
+				(error, results) => {
 
-						if (error) {
-							console.error('Erro ao buscar programas sociais:', error);
-							return res.status(500).json([]);
-						}
-
-						// Retorna array simples
-						const programas = results.map(r => r.descricao);
-						res.json(programas);
+					if (error) {
+						console.error('Erro ao buscar programas sociais:', error);
+						return res.status(500).json([]);
 					}
-				);
-			}); 
+
+					// Retorna array simples
+					const programas = results.map(r => r.descricao);
+					res.json(programas);
+				}
+			);
+	});
 		
    app.put('/pessoas/:ID', (req, res) => {
        let dataAtual = new Date();
@@ -245,7 +242,7 @@ function rota_editarPessoas(app) {
 		   telefone_unidade,
 		   horario_inicio,
 		   horario_fim,
-		   dias_semana,
+		   dias,
 		   responsavel,
 		   atividade,
            ativo_inativo,    //: ativo_inativo, 
@@ -745,7 +742,7 @@ function rota_editarPessoas(app) {
 											UA.telefone = ?,
 											UA.horario_inicio = ?,
 											UA.horario_fim = ?,
-											UA.dias_semana = ?,
+											UA.dias = ?,
 											UA.responsavel = ?,
 											UA.atividade = ?
 										WHERE AUA.fk_pessoa = ?`,
@@ -761,7 +758,7 @@ function rota_editarPessoas(app) {
 											telefone_unidade,
 											horario_inicio,
 											horario_fim,
-											dias_semana,
+											dias,
 											responsavel,
 											atividade,
 											ID

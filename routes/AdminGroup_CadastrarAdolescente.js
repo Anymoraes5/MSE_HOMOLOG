@@ -108,7 +108,7 @@ function rota_adminCadastraPessoa(app) {
             faz_uso_de_medicamentos_controlados,
             medicamentos_controlados,
             possui_trabalho,
-            programas_sociais,
+            ['programas_sociais[]']: programas_sociais,
             possui_familia_em_servico,
             possui_filhos,
             responsavel_por_pcd,
@@ -134,6 +134,8 @@ function rota_adminCadastraPessoa(app) {
             nome_do_contato,
             email,
         } = req.body;
+
+        
 
         // ================================================
         // VALIDAÇÕES SÍNCRONAS
@@ -185,8 +187,13 @@ function rota_adminCadastraPessoa(app) {
             [n_processo],
             (errVerifica, resultVerifica) => {
                 if (errVerifica) {
+                    console.error("ERRO NA VERIFICAÇÃO:", errVerifica);
                     return res.status(500).json({ error: 'Erro ao verificar processo.' });
                 }
+
+                console.log("n_processo:", n_processo);
+                console.log("resultVerifica:", resultVerifica);
+
                 if (resultVerifica.length > 0) {
                     return res.status(400).json({ error: 'ER_DUP_ENTRY' });
                 }
@@ -198,7 +205,18 @@ function rota_adminCadastraPessoa(app) {
                 var dt_desligamento = (ativo_inativo == 0) ? `${ano}-${mes}-${dia}` : null;
 
                 const cep_unidade_limpo = cep_unidade ? cep_unidade.replace(/\D/g, '') : null;
-                const dias_semana = Array.isArray(dias) ? dias.join(',') : null;
+                let dias_semana = null;
+
+                let diasRaw = req.body['dias[]'] || req.body.dias || req.body.dias_semana;
+
+                if (diasRaw) {
+                    if (!Array.isArray(diasRaw)) {
+                        diasRaw = [diasRaw]; // transforma string em array
+                    }
+                    dias_semana = diasRaw.join(',');
+                }
+
+                console.log("dias_semana resolvido:", dias_semana);
 
                 // Normaliza campos opcionais para null
                 gestante                    = utils.verificar_campos(gestante)                    ?? null;
@@ -323,6 +341,42 @@ function rota_adminCadastraPessoa(app) {
                                 }
 
                                 const novoIDProcesso = resProcesso.insertId;
+                                // INSERT pessoas
+                                const colunasInsert = ['fk_processos', 'fk_creas_atual', 'fk_mse', 'fk_tec_ref', 'fk_sas', 'fk_servico_familia',
+                                    'fk_distrito_servico', 'fk_ubs', 'fk_creas_origem', 'nome', 'nome_social', 'dt_nasc', 'cpf',
+                                    'cartao_sus', 'nome_da_mae', 'nome_do_pai', 'nome_responsavel', 'sexo', 'fk_raca',
+                                    'fk_nacionalidade', 'fk_genero', 'fk_orientacao_sexual', 'fk_estado_civil', 'matriculado',
+                                    'alfabetizado', 'fk_cicloEstudo', 'numeroRa', 'fk_tipoEscola', 'fk_ensinoModalidade',
+                                    'frequenciaAula', 'concluiuCurso', 'fk_paroudeEstudar', 'possui_deficiencia',
+                                    'fk_deficiencia', 'fk_trabalho', 'necessita_cuidados_terceiros', 'possui_demanda_saude',
+                                    'saude', 'possui_demanda_saude_mental', 'saude_mental', 'acompanhamento_saude',
+                                    'faz_uso_de_medicamentos', 'medicamentos', 'faz_uso_de_medicamentos_controlados',
+                                    'medicamentos_controlados', 'possui_trabalho', 'possui_familia_em_servico', 'gestante',
+                                    'parceira_gestante', 'lactante', 'possui_filhos', 'responsavel_por_pcd',
+                                    'adolescente_com_trajetoria_de_acolhimento', 'fk_alcool_ou_drogas', 'caps', 'curso',
+                                    'fk_distrito_pessoa', 'cep', 'bairro', 'rua', 'numero', 'complemento', 'cad_unico',
+                                    'ativo_inativo', 'fk_medidas', 'dt_cadastro', 'dt_atualizacao', 'dt_desligamento', null, 'listar_cursos'];
+
+                                const valoresInsert = [
+                                    novoIDProcesso, idCreasAtual, idMse, idTecRef, idSas, idServicoFamilia,
+                                    idDistritoServico, idUbs, idCreasOrigem, nome, nome_social, dt_nasc, cpf,
+                                    cartao_sus, nome_da_mae, nome_do_pai, nome_responsavel, sexo, idRaca,
+                                    idNacionalidade, idGenero, idOrientacaoSexual, idEstadoCivil, matriculado,
+                                    alfabetizado, idCicloEstudo, numeroRa, idTipoEscola, idEnsinoModalidade,
+                                    frequenciaAula, concluiuCurso, idParouEstudar, possui_deficiencia,
+                                    idDeficiencia, idTrabalho, necessita_cuidados_terceiros, possui_demanda_saude,
+                                    saude, possui_demanda_saude_mental, saude_mental, acompanhamento_saude,
+                                    faz_uso_de_medicamentos, medicamentos, faz_uso_de_medicamentos_controlados,
+                                    medicamentos_controlados, possui_trabalho, possui_familia_em_servico, gestante,
+                                    parceira_gestante, lactante, possui_filhos, responsavel_por_pcd,
+                                    adolescente_com_trajetoria_de_acolhimento, idAlcoolOuDrogas, caps, curso,
+                                    idDistritoPessoa, cep, bairro, rua, numero, complemento, cad_unico,
+                                    ativo_inativo, idMedidasMse, dt_cadastro, dt_atualizacao, dt_desligamento, null,  listar_cursos];
+
+                                console.log("COLUNAS:", colunasInsert.length);
+                                console.log("VALORES:", valoresInsert.length);
+
+                                
 
                                 // INSERT pessoas
                                 connection.query(`
@@ -340,8 +394,14 @@ function rota_adminCadastraPessoa(app) {
                                         parceira_gestante, lactante, possui_filhos, responsavel_por_pcd,
                                         adolescente_com_trajetoria_de_acolhimento, fk_alcool_ou_drogas, caps, curso,
                                         fk_distrito_pessoa, cep, bairro, rua, numero, complemento, cad_unico,
-                                        ativo_inativo, fk_medidas, dt_cadastro, dt_atualizacao, dt_desligamento, listar_cursos)
-                                    VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
+                                        ativo_inativo, fk_medidas, dt_cadastro, dt_atualizacao, dt_desligamento, nis, listar_cursos)
+                                    VALUES (?,?,?,?,?,?,?,?,?,?,
+                                    ?,?,?,?,?,?,?,?,?,?,
+                                    ?,?,?,?,?,?,?,?,?,?,
+                                    ?,?,?,?,?,?,?,?,?,?,
+                                    ?,?,?,?,?,?,?,?,?,?,
+                                    ?,?,?,?,?,?,?,?,?,?,
+                                    ?,?,?,?,?,?,?,?,?,?)`,
                                     [
                                         novoIDProcesso, idCreasAtual, idMse, idTecRef, idSas, idServicoFamilia,
                                         idDistritoServico, idUbs, idCreasOrigem, nome, nome_social, dt_nasc, cpf,
@@ -356,12 +416,17 @@ function rota_adminCadastraPessoa(app) {
                                         parceira_gestante, lactante, possui_filhos, responsavel_por_pcd,
                                         adolescente_com_trajetoria_de_acolhimento, idAlcoolOuDrogas, caps, curso,
                                         idDistritoPessoa, cep, bairro, rua, numero, complemento, cad_unico,
-                                        ativo_inativo, idMedidasMse, dt_cadastro, dt_atualizacao, dt_desligamento, listar_cursos
+                                        ativo_inativo, idMedidasMse, dt_cadastro, dt_atualizacao, dt_desligamento, null, listar_cursos
                                     ],
                                     (errPessoa, resPessoa) => {
                                         if (errPessoa) {
                                             return connection.rollback(() => {
-                                                return res.status(500).json({ error: 'ER_DUP_ENTRY' });
+                                                console.error("Erro ao inserir pessoa:", errPessoa);
+
+                                                if (errPessoa.code === 'ER_DUP_ENTRY') {
+                                                    return res.status(400).json({ error: 'ER_DUP_ENTRY' });
+                                                }
+                                                return res.status(500).json({ error: 'Erro ao inserir pessoa.' });
                                             });
                                         }
 

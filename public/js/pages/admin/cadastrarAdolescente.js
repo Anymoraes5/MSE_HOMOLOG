@@ -608,7 +608,20 @@ function checkCurso() {
 
         const form = event.target;
         const formData = new FormData(form);
-        const data = Object.fromEntries(formData.entries());
+        const data = {};
+
+        formData.forEach((value, key) => {
+
+            if (data[key]) {
+                if (!Array.isArray(data[key])) {
+                    data[key] = [data[key]];
+                }
+                data[key].push(value);
+            } else {
+                data[key] = value;
+            }
+
+        });
 
         //=====================validar idade==================================
         const dt = document.getElementById("dt_nasc")?.value;

@@ -1140,6 +1140,7 @@ if(btnSalvar){
                 dt_desligamento: dt_desligamento,
             })
         })
+        
         .then(response => response.json())
         .then(data => {
             alert('Dados atualizados com sucesso!');
@@ -1157,6 +1158,9 @@ if(btnSalvar){
                 window.history.back(); // Volta para a página anterior em caso de erro
             }
         });
+
+        // Após carregar usuario.dias_semana
+       
     }
 })
 };

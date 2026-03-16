@@ -169,7 +169,7 @@ function rota_adminEditaPessoa(app) {
             if (results.length > 0) {
                 let usuario = results[0];
                     
-                console.log("DADOS RETORNADOS DO BANCO:", JSON.stringify(usuario, null, 2)); // ← adicione isso
+                // console.log("DADOS RETORNADOS DO BANCO:", JSON.stringify(usuario, null, 2)); // ← adicione isso
                     
                 usuario.programas_sociais = results
                     .map(r => r.programas_sociais)
@@ -182,7 +182,7 @@ function rota_adminEditaPessoa(app) {
 });
     });
 
-		 app.get('/editandoPessoasProgramas/:ID', (req, res) => {
+	app.get('/editandoPessoasProgramas/:ID', (req, res) => {
 			let ID = req.params.ID;
 
 			connection.query(`
@@ -204,10 +204,11 @@ function rota_adminEditaPessoa(app) {
 					res.json(programas);
 				}
 			);
-		});
+	});
 
     // Rota para atualizar os dados do usuário com base no ID
     app.put('/editandoPessoas/:ID', (req, res) => {
+
         let dataAtual = new Date();
 
         // Extrair ano, mês e dia
@@ -245,7 +246,7 @@ function rota_adminEditaPessoa(app) {
 			telefone_unidade,
 			horario_inicio_unidade,
 			horario_fim_unidade,
-			dias_semana,
+			// dias_semana,
 			responsavel_unidade,
 			atividade_unidade, 
             ativo_inativo,    //: ativo_inativo, 
@@ -325,12 +326,16 @@ function rota_adminEditaPessoa(app) {
             email,    //: email 
         } = req.body;
 
-        // Trata dias_semana vazio
-        if (!dias_semana || dias_semana.trim() === '') {
+
+        let dias_semana;
+        const diasRaw = req.body.dias || req.body['dias[]'] || req.body.dias_semana;
+        if (Array.isArray(diasRaw)) {
+            dias_semana = diasRaw.length > 0 ? diasRaw.join(',') : null;
+        } else if (diasRaw) {
+            dias_semana = diasRaw;
+        } else {
             dias_semana = null;
         }
-
-        console.log("ANTES DO TRATAMENTO:", req.body.cep_unidade);
 
 
         if (typeof cep_unidade === "string") {
@@ -434,6 +439,7 @@ function rota_adminEditaPessoa(app) {
         let idUbs;
         let idsProgramasSociais = [];
 
+        
     // Função assíncrona para processar os dados e capturar os IDs
     async function processarDados() {
         try {
@@ -482,20 +488,23 @@ function rota_adminEditaPessoa(app) {
             }
             idTecRef = await getIdByDescricaoTec(tec_ref)
 
-			idsProgramasSociais = [];
+			let programas_sociais = req.body['programas_sociais[]'] || req.body.programas_sociais;
 
-            for (let i = 0; i < programas_sociais.length; i++) {
+            if (programas_sociais && !Array.isArray(programas_sociais)) {
+                programas_sociais = [programas_sociais];
+            }
 
-                if (!programas_sociais[i]) continue;
+            if (programas_sociais) {
+                for (let i = 0; i < programas_sociais.length; i++) {
 
-                let descricao = programas_sociais[i];
+                    let descricao = programas_sociais[i];
 
-                let id = await IdDescricaoRepository.getIdByDescricao('programas_sociais', descricao);
+                    let id = await IdDescricaoRepository.getIdByDescricao(
+                        'programas_sociais',
+                        descricao
+                    );
 
-                if (id) {
-                    idsProgramasSociais.push(id);
-                } else {
-                    console.log(`Programa social não encontrado: ${descricao}`);
+                    if (id) idsProgramasSociais.push(id);
                 }
             }
 			
@@ -577,9 +586,9 @@ function rota_adminEditaPessoa(app) {
             if (utils.verificar_campos(trabalho) == null) {
                 trabalho = null
             }
-            if (utils.verificar_campos(programas_sociais) == null) {
-                programas_sociais = null
-            }
+            // if (utils.verificar_campos(programas_sociais) == null) {
+            //     programas_sociais = null
+            // }
             if (utils.verificar_campos(servico_familia) == null) {
                 servico_familia = null
             }
@@ -608,6 +617,7 @@ function rota_adminEditaPessoa(app) {
 
             console.error('Erro ao capturar um dos IDs:', error);
         }
+        
     }
 
     function atualizarDadosPessoa() {
@@ -798,8 +808,6 @@ function rota_adminEditaPessoa(app) {
                                     // console.log("CEP recebido:", req.body.cep_unidade);
                                     // console.log(cep_unidade)
                                     
-
-                                    
 									// ATUALIZAÇÃO DIRETA DOS CAMPOS DA UNIDADE ACOLHEDORA
 									connection.query(`UPDATE unidade_acolhedora UA
 										INNER JOIN adolescente_unidade_acolhedora AUA ON AUA.fk_unidade_acolhedora = UA.id
@@ -923,11 +931,43 @@ function rota_adminEditaPessoa(app) {
                         });
 	}
 
+    connection.query(
+    `SELECT fk_processos FROM pessoas WHERE ID = ?`,
+    [ID],
+    (errBuscaProcesso, resultBuscaProcesso) => {
+        if (errBuscaProcesso || resultBuscaProcesso.length === 0) {
+            return res.status(500).json({ error: 'Erro ao buscar processo atual.' });
+        }
 
+        const idProcessoAtual = resultBuscaProcesso[0].fk_processos;
 
-    processarDados()
+        // Adiciona log para depuração
+        console.log("ID pessoa:", ID);
+        console.log("idProcessoAtual:", idProcessoAtual);
 
-        });
+        if (!idProcessoAtual) {
+            return res.status(500).json({ error: 'Processo atual não encontrado para esta pessoa.' });
+        }
+
+        connection.query(
+            "SELECT 1 FROM processos WHERE n_processo = ? AND ID != ? LIMIT 1",
+            [n_processo, idProcessoAtual],
+            (errVerifica, resultVerifica) => {
+                if (errVerifica) {
+                    return res.status(500).json({ error: 'Erro ao verificar processo.' });
+                }
+                if (resultVerifica.length > 0) {
+                    return res.status(400).json({ error: 'ER_DUP_ENTRY' });
+                }
+
+                processarDados();
+            }
+        );
+    }
+);
+    
+
+    });
     }
 
 // Exporta a função de configuração das rotas
