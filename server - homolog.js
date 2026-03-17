@@ -12,6 +12,7 @@ const { pool } = require('./db/db');
 // Importa o módulo https e o módulo fs para trabalhar com o sistema de arquivos
 const https = require('https');
 const fs = require('fs');
+const path = require('path');
 
 const app = express();
 
@@ -29,7 +30,9 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
 // Configura o middleware para servir arquivos estáticos
-app.use('/public', express.static(__dirname + '/public'));
+app.use(express.static("public"));
+app.use("/components", express.static("views/components"));
+app.use(express.static(path.join(__dirname, 'public')));
 
 // Configura as rotas do aplicativo
 setupRoutes(app);

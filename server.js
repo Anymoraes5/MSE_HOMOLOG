@@ -18,6 +18,8 @@ const app = express();
 
 //chama public componentes
 app.use(express.static("public"));
+
+
 app.use("/components", express.static("views/components"));
 //configuração para chamar imagens e css
 app.use(express.static(path.join(__dirname, 'public')));
