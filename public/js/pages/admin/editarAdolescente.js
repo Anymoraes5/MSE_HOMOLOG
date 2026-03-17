@@ -1167,26 +1167,27 @@ if(btnSalvar){
 	
 // ================= UNIDADE ACOLHEDORA =================
 
-// Campos da Unidade Acolhedora
-const camposUnidade = [
-    document.getElementById("tipo_local"),
-    document.getElementById("nome_unidade"),
-    document.getElementById("responsavel_unidade"),
-    document.getElementById("telefone_unidade"),
-    document.getElementById("cep_unidade"),
-    document.getElementById("tipo_logradouro"),
-    document.getElementById("logradouro_unidade"),
-    document.getElementById("numero_unidade"),
-    document.getElementById("bairro_unidade"),
-    document.getElementById("atividade_unidade"),
-    document.getElementById("horario_inicio_unidade"),
-    document.getElementById("horario_fim_unidade")
-];
-
 const checkboxesDias = document.querySelectorAll('#dias_semana input[type="checkbox"]');
 
+function getCamposUnidade() {
+    return [
+        document.getElementById("tipo_local"),
+        document.getElementById("nome_unidade"),
+        document.getElementById("responsavel_unidade"),
+        document.getElementById("telefone_unidade"),
+        document.getElementById("cep_unidade"),
+        document.getElementById("tipo_logradouro"),
+        document.getElementById("logradouro_unidade"),
+        document.getElementById("numero_unidade"),
+        document.getElementById("bairro_unidade"),
+        document.getElementById("atividade_unidade"),
+        document.getElementById("horario_inicio_unidade"),
+        document.getElementById("horario_fim_unidade")
+    ].filter(Boolean);
+}
+
 function existeAlgumCampoPreenchido() {
-    return camposUnidade.some(campo => campo && campo.value.trim() !== '');
+    return getCamposUnidade().some(campo => campo.value.trim() !== '');
 }
 
 function existeAlgumDiaSelecionado() {
@@ -1196,9 +1197,7 @@ function existeAlgumDiaSelecionado() {
 function atualizarObrigatoriedadeUnidade() {
     const obrigatorio = existeAlgumCampoPreenchido() || existeAlgumDiaSelecionado();
 
-    camposUnidade.forEach(campo => {
-        if (campo) campo.required = obrigatorio;
-    });
+    getCamposUnidade().forEach(campo => campo.required = obrigatorio);
 
     document.querySelectorAll('.unidade-obrigatorio').forEach(el => {
         el.style.display = obrigatorio ? 'inline' : 'none';
@@ -1207,20 +1206,24 @@ function atualizarObrigatoriedadeUnidade() {
 
 window.atualizarObrigatoriedadeUnidade = atualizarObrigatoriedadeUnidade;
 
-camposUnidade.forEach(campo => {
-    if (campo) {
-        campo.addEventListener('input', atualizarObrigatoriedadeUnidade);
-        campo.addEventListener('change', atualizarObrigatoriedadeUnidade);
+
+document.addEventListener('input', function(e) {
+    const ids = ["tipo_local","nome_unidade","responsavel_unidade","telefone_unidade",
+                 "cep_unidade","tipo_logradouro","logradouro_unidade","numero_unidade",
+                 "bairro_unidade","atividade_unidade","horario_inicio_unidade","horario_fim_unidade"];
+    if (ids.includes(e.target.id)) atualizarObrigatoriedadeUnidade();
+});
+
+document.addEventListener('change', function(e) {
+    const ids = ["tipo_local","nome_unidade","responsavel_unidade","telefone_unidade",
+                 "cep_unidade","tipo_logradouro","logradouro_unidade","numero_unidade",
+                 "bairro_unidade","atividade_unidade","horario_inicio_unidade","horario_fim_unidade"];
+    if (ids.includes(e.target.id) || e.target.closest('#dias_semana')) {
+        atualizarObrigatoriedadeUnidade();
     }
 });
 
-checkboxesDias.forEach(chk => {
-    chk.addEventListener('change', atualizarObrigatoriedadeUnidade);
-});
-
-if (window.atualizarObrigatoriedadeUnidade) {
-    window.atualizarObrigatoriedadeUnidade();
-}
+atualizarObrigatoriedadeUnidade();
 
 /*-----CANCELAR----------------------------------------------------------------------------------------------------------*/
 
@@ -1258,7 +1261,7 @@ if (btnBuscarCepPessoa) {
             alert("CEP inválido. Digite um CEP com 8 números.");
             return;
         }
-        console.log(cepPessoa)
+        
 
         fetch(`https://viacep.com.br/ws/${cepPessoa}/json/`)
             .then(response => response.json())
@@ -1334,7 +1337,7 @@ if (btnBuscarCep) {
             alert("CEP inválido. Digite um CEP com 8 números.");
             return;
         }
-        console.log(cep)
+        
 
         fetch(`https://viacep.com.br/ws/${cep_unidade}/json/`)
             .then(response => response.json())

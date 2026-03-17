@@ -835,17 +835,17 @@ async function carregarDadosDoUsuario(ID) {
         //checkDrogas();
         checkCurso();
 
-        console.log('dias_semana do banco:', data.dias_semana);
+        
         if (data.dias_semana) {
             const diasSelecionados = data.dias_semana
                 .split(',')
                 .map(dia => dia.trim());
 
-            console.log('dias a marcar:', diasSelecionados);
+            
 
             document.querySelectorAll('input[name="dias[]"]').forEach(checkbox => {
                 checkbox.checked = diasSelecionados.includes(checkbox.value);
-                console.log(checkbox.value, '→', checkbox.checked);
+                
             });
         }
 

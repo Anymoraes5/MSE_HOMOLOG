@@ -483,11 +483,7 @@ function checkCaps(){
         caps.disabled = true;
         caps.required = false;
     }
-    console.log({
-    saudeMental,
-    alcool,
-    ativar
-    });
+
 }
 // function checkCadUnico() {
 //     toggleCampo("cad_unico", "cad_unico", "1", true);
@@ -604,7 +600,7 @@ function checkCurso() {
 
     if(event.target && event.target.id === "editar-form"){
         event.preventDefault();
-        console.log("SUBMIT DISPAROU");
+        
 
         const form = event.target;
         const formData = new FormData(form);
@@ -707,7 +703,7 @@ function checkCurso() {
         //======================validar campos obrigatorios================
         
         //======================pegar campos do form ===================
-        console.log(form)
+        
 
 
         if (!confirm("Tem certeza que deseja cadastrar a pessoa?")) {
@@ -720,7 +716,7 @@ function checkCurso() {
         if(btnCancelar){
             btnCancelar.addEventListener('click', function() {
                 window.location.href = '/verPessoas'; // Redireciona para a página de consulta ao clicar em Cancelar
-                console.log("CLICOU cancelar");
+                
             });
         }
         const selects = document.querySelectorAll('select[name="programas_sociais[]"]');
@@ -808,7 +804,7 @@ document.addEventListener("DOMContentLoaded", function() {
 });
 
 function carregarDados(){
-    console.log("CARREGAR DADOS EXECUTOU");
+    
     // Busca as opções para o Creas atual
     popularSelect({ url: "/opcoesCreasAtual", selectId: "creas_atual", addDefault: true, defaultText: "Selecione" });
     // Busca as opções para o Creas de origem
@@ -901,7 +897,7 @@ function carregarDados(){
 			
     // Função para buscar as opções TecRef com base no mse selecionado
     function buscarTecRefPorMse(mseSelecionado) {
-        console.log("FUNÇÃO CHAMADA", mseSelecionado);
+        
 
         fetch(`/opcoesTecRef?mse=${encodeURIComponent(mseSelecionado)}`)
             .then(response => response.json())
@@ -1173,7 +1169,7 @@ fetch('/opcoesProgramasSociais')
     });
 }
     function carregarDistritoServicoPorSas(idSas) {
-        console.log("carregarDistritoServicoPorSas chamada com:", idSas);
+        
         if (!idSas) {
             resetSelectField("distrito_servico");
             return;
@@ -1196,28 +1192,28 @@ document.addEventListener("change", function(e) {
 // Validação de obrigatoriedade – Unidade Acolhedora
 document.addEventListener('DOMContentLoaded', function () {
 
-    const camposUnidade = [
-        $("tipo_local"),
-        $("nome_unidade"),
-        $("responsavel_unidade"),
-        $("telefone_unidade"),
-        $("cep_unidade"),
-        $("tipo_logradouro"),
-        $("logradouro_unidade"),
-        $("numero_unidade"),
-        $("bairro_unidade"),
-        $("atividade_unidade"),
-        $("horario_inicio_unidade"),
-        $("horario_fim_unidade"),
-        $("horas_psc")
-    ].filter(Boolean);
-
-
-    const complemento = $("complemento_unidade");
     const checkboxesDias = document.querySelectorAll('#dias_semana input[type="checkbox"]');
 
+    function getCamposUnidade() {
+        return [
+            $("tipo_local"),
+            $("nome_unidade"),
+            $("responsavel_unidade"),
+            $("telefone_unidade"),
+            $("cep_unidade"),
+            $("tipo_logradouro"),
+            $("logradouro_unidade"),
+            $("numero_unidade"),
+            $("bairro_unidade"),
+            $("atividade_unidade"),
+            $("horario_inicio_unidade"),
+            $("horario_fim_unidade"),
+            $("horas_psc")
+        ].filter(Boolean);
+    }
+
     function existeAlgumCampoPreenchido() {
-        return camposUnidade.some(campo => campo.value && campo.value.trim() !== "");
+        return getCamposUnidade().some(campo => campo.value && campo.value.trim() !== "");
     }
 
     function existeAlgumDiaSelecionado() {
@@ -1225,32 +1221,34 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function atualizarObrigatoriedadeUnidade() {
-       
+        const camposUnidade = getCamposUnidade();
         const obrigatorio = existeAlgumCampoPreenchido() || existeAlgumDiaSelecionado();
 
-        camposUnidade.forEach(campo => {
-            campo.required = obrigatorio;
-        });
+        camposUnidade.forEach(campo => campo.required = obrigatorio);
 
+        const complemento = $("complemento_unidade");
         if (complemento) complemento.required = false;
 
         document.querySelectorAll('.unidade-obrigatorio').forEach(el => {
             el.style.display = obrigatorio ? 'inline' : 'none';
         });
     }
-  
-    camposUnidade.forEach(campo => {
-        campo.addEventListener('input', atualizarObrigatoriedadeUnidade);
-        campo.addEventListener('change', atualizarObrigatoriedadeUnidade);
+
+    document.addEventListener('input', function(e) {
+        if (e.target.closest('#unidade-acolhedora, [id$="_unidade"], #horas_psc, #tipo_local, #tipo_logradouro, #atividade_unidade')) {
+            atualizarObrigatoriedadeUnidade();
+        }
     });
 
-
-    checkboxesDias.forEach(chk => {
-        chk.addEventListener('change', atualizarObrigatoriedadeUnidade);
+    document.addEventListener('change', function(e) {
+        if (e.target.closest('[id$="_unidade"], #horas_psc, #tipo_local, #tipo_logradouro, #atividade_unidade, #dias_semana')) {
+            atualizarObrigatoriedadeUnidade();
+        }
     });
 
     atualizarObrigatoriedadeUnidade();
 });
+
 const inicio = $('horario_inicio_unidade');
 const fim = $('horario_fim_unidade');
 
@@ -1320,7 +1318,7 @@ document.addEventListener("DOMContentLoaded", function () {
         if (!btnCancelar) return;
 
         window.location.href = '/verPessoas'; // Redireciona para a página de consulta ao clicar em Cancelar
-        console.log("CLICOU cancelar");
+        
     });
 });
     
@@ -1341,7 +1339,7 @@ document.addEventListener("DOMContentLoaded", function () {
             alert("Formulário não encontrado");
             return;
         }
-        console.log("passou")
+        
 
         /* =====================================================
            FUNÇÃO AUXILIAR PARA SETAR VALOR + EVENTOS
@@ -1473,7 +1471,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 });
 
-console.log("FIM DO ARQUIVO EXECUTOU");
+
 
 
 /*-----CONFIRMAÇÃO DE LOGOUT----------------------------------------------------------------------------------------------------------*/

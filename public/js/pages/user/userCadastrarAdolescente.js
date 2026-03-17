@@ -1186,28 +1186,28 @@ document.addEventListener("change", function(e) {
 // Validação de obrigatoriedade – Unidade Acolhedora
 document.addEventListener('DOMContentLoaded', function () {
 
-    const camposUnidade = [
-        $("tipo_local"),
-        $("nome_unidade"),
-        $("responsavel_unidade"),
-        $("telefone_unidade"),
-        $("cep_unidade"),
-        $("tipo_logradouro"),
-        $("logradouro_unidade"),
-        $("numero_unidade"),
-        $("bairro_unidade"),
-        $("atividade_unidade"),
-        $("horario_inicio_unidade"),
-        $("horario_fim_unidade"),
-        $("horas_psc")
-    ].filter(Boolean);
-
-
-    const complemento = $("complemento_unidade");
     const checkboxesDias = document.querySelectorAll('#dias_semana input[type="checkbox"]');
 
+    function getCamposUnidade() {
+        return [
+            $("tipo_local"),
+            $("nome_unidade"),
+            $("responsavel_unidade"),
+            $("telefone_unidade"),
+            $("cep_unidade"),
+            $("tipo_logradouro"),
+            $("logradouro_unidade"),
+            $("numero_unidade"),
+            $("bairro_unidade"),
+            $("atividade_unidade"),
+            $("horario_inicio_unidade"),
+            $("horario_fim_unidade"),
+            $("horas_psc")
+        ].filter(Boolean);
+    }
+
     function existeAlgumCampoPreenchido() {
-        return camposUnidade.some(campo => campo.value && campo.value.trim() !== "");
+        return getCamposUnidade().some(campo => campo.value && campo.value.trim() !== "");
     }
 
     function existeAlgumDiaSelecionado() {
@@ -1215,28 +1215,29 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function atualizarObrigatoriedadeUnidade() {
-       
+        const camposUnidade = getCamposUnidade();
         const obrigatorio = existeAlgumCampoPreenchido() || existeAlgumDiaSelecionado();
 
-        camposUnidade.forEach(campo => {
-            campo.required = obrigatorio;
-        });
+        camposUnidade.forEach(campo => campo.required = obrigatorio);
 
+        const complemento = $("complemento_unidade");
         if (complemento) complemento.required = false;
 
         document.querySelectorAll('.unidade-obrigatorio').forEach(el => {
             el.style.display = obrigatorio ? 'inline' : 'none';
         });
     }
-  
-    camposUnidade.forEach(campo => {
-        campo.addEventListener('input', atualizarObrigatoriedadeUnidade);
-        campo.addEventListener('change', atualizarObrigatoriedadeUnidade);
+    
+    document.addEventListener('input', function(e) {
+        if (e.target.closest('#unidade-acolhedora, [id$="_unidade"], #horas_psc, #tipo_local, #tipo_logradouro, #atividade_unidade')) {
+            atualizarObrigatoriedadeUnidade();
+        }
     });
 
-
-    checkboxesDias.forEach(chk => {
-        chk.addEventListener('change', atualizarObrigatoriedadeUnidade);
+    document.addEventListener('change', function(e) {
+        if (e.target.closest('[id$="_unidade"], #horas_psc, #tipo_local, #tipo_logradouro, #atividade_unidade, #dias_semana')) {
+            atualizarObrigatoriedadeUnidade();
+        }
     });
 
     atualizarObrigatoriedadeUnidade();
