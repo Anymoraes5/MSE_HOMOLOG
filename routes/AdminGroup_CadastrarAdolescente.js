@@ -11,6 +11,7 @@ const { Script } = require('vm');
 function rota_adminCadastraPessoa(app) {
 
     app.get('/adminCadastraPessoa', (req, res) => {
+        
         console.log('Recebendo requisição de atualização de dados de pessoa:', req.body);
         if (req.session.adminAuthenticated) {
             let filePath = path.join(__dirname, '..', 'views', 'AdminGroup_CadastrarAdolescente.html');
@@ -21,6 +22,11 @@ function rota_adminCadastraPessoa(app) {
     });
 
     app.post('/adminCadastraPessoa', (req, res) => {
+        console.log("POST RECEBIDO — quantidade de chamadas");
+        console.log("CPF tipo:", typeof req.body.cpf, "valor:", req.body.cpf);
+        console.log("CREAS RECEBIDO:", req.body.creas_atual);
+        console.log("SAS RECEBIDA:", req.body.sas);
+        console.log("MSE RECEBIDO:", req.body.mse);
 
         // Obter a data atual
         let dataAtual = new Date();
@@ -191,8 +197,6 @@ function rota_adminCadastraPessoa(app) {
                     return res.status(500).json({ error: 'Erro ao verificar processo.' });
                 }
 
-                console.log("n_processo:", n_processo);
-                console.log("resultVerifica:", resultVerifica);
 
                 if (resultVerifica.length > 0) {
                     return res.status(400).json({ error: 'ER_DUP_ENTRY' });
@@ -216,7 +220,7 @@ function rota_adminCadastraPessoa(app) {
                     dias_semana = diasRaw.join(',');
                 }
 
-                console.log("dias_semana resolvido:", dias_semana);
+                
 
                 // Normaliza campos opcionais para null
                 gestante                    = utils.verificar_campos(gestante)                    ?? null;
@@ -263,7 +267,7 @@ function rota_adminCadastraPessoa(app) {
                 let idVaraDaInfancia, idTipoDeContato;
                 let idsProgramasSociais = [];
 
-                IdDescricaoRepository.getIdByDescricaoCadastro('creas', creas_atual, (e, id) => { if (id) idCreasAtual = id; });
+                idCreasAtual = creas_atual ? parseInt(creas_atual) : null;
                 IdDescricaoRepository.getIdByDescricaoCadastro('creas', creas_origem, (e, id) => { if (id) idCreasOrigem = id; });
                 IdDescricaoRepository.getIdByDescricaoCadastro('distrito', distrito_servico, (e, id) => { if (id) idDistritoServico = id; });
                 IdDescricaoRepository.getIdByDescricaoCadastro('ubs', ubs, (e, id) => { if (id) idUbs = id; });
@@ -271,7 +275,7 @@ function rota_adminCadastraPessoa(app) {
                 IdDescricaoRepository.getIdByDescricaoCadastro('estado_civil', estado_civil, (e, id) => { if (id) idEstadoCivil = id; });
                 IdDescricaoRepository.getIdByDescricaoCadastro('genero', genero, (e, id) => { if (id) idGenero = id; });
                 IdDescricaoRepository.getIdByDescricaoCadastro('medidas_mse', medidas_mse, (e, id) => { if (id) idMedidasMse = id; });
-                IdDescricaoRepository.getIdByDescricaoCadastro('mse', mse, (e, id) => { if (id) idMse = id; });
+                idMse = mse ? parseInt(mse) : null;
                 IdDescricaoRepository.getIdByDescricaoCadastro('nacionalidade', nacionalidade, (e, id) => { if (id) idNacionalidade = id; });
                 IdDescricaoRepository.getIdByDescricaoCadastro('orientacao_sexual', orientacao_sexual, (e, id) => { if (id) idOrientacaoSexual = id; });
                 IdDescricaoRepository.getIdByDescricaoCadastro('raca', raca, (e, id) => { if (id) idRaca = id; });
@@ -373,8 +377,7 @@ function rota_adminCadastraPessoa(app) {
                                     idDistritoPessoa, cep, bairro, rua, numero, complemento, cad_unico,
                                     ativo_inativo, idMedidasMse, dt_cadastro, dt_atualizacao, dt_desligamento, null,  listar_cursos];
 
-                                console.log("COLUNAS:", colunasInsert.length);
-                                console.log("VALORES:", valoresInsert.length);
+                                
 
                                 
 

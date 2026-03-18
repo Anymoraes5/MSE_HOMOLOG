@@ -27,7 +27,7 @@ function rota_listasCargaSelects(app) {
 
     //  rotas para preencher o select
     app.get('/opcoesCreasAtual', (req, res) => {
-        connection.query('SELECT descricao FROM creas WHERE ativo_inativo = 1 AND descricao NOT LIKE "%OUTRO MUNICÍPIO%" ORDER BY 1', (error, results, fields) => {
+        connection.query('SELECT ID, descricao FROM creas WHERE ativo_inativo = 1 AND descricao NOT LIKE "%OUTRO MUNICÍPIO%" ORDER BY 1', (error, results, fields) => {
             if (error) {
                 console.error('Erro ao buscar opções CREAS:', error);
                 res.status(500).send('Erro ao buscar opções CREAS.');
@@ -138,16 +138,48 @@ function rota_listasCargaSelects(app) {
         });
     });
 
-    //  rotas para preencher o select
     app.get('/opcoesMse', (req, res) => {
-        connection.query('SELECT descricao FROM mse WHERE ativo_inativo = 1 ORDER BY 1', (error, results, fields) => {
-            if (error) {
-                console.error('Erro ao buscar opções MSE:', error);
-                res.status(500).send('Erro ao buscar opções MSE.');
-                return;
+        connection.query(
+            'SELECT ID, descricao FROM mse WHERE ativo_inativo = 1 ORDER BY descricao',
+            (error, results) => {
+                if (error) {
+                    console.error('Erro ao buscar opções MSE:', error);
+                    res.status(500).send('Erro ao buscar opções MSE.');
+                    return;
+                }
+                res.json(results);
             }
+        );
+    });
+        app.get('/dadosMse/:id', (req, res) => {
+        const idMse = req.params.id;
+        console.log("BUSCANDO MSE ID:", idMse);
 
-            res.json(results); // Envia as opções Perfil como resposta em JSON
+        connection.query(`
+            SELECT 
+                m.fk_creas,
+                c.descricao AS creas_descricao,
+                c.ID        AS creas_id,
+                GROUP_CONCAT(ms.id_sas) AS sas_ids
+            FROM mse m
+            LEFT JOIN creas c ON c.ID = m.fk_creas
+            LEFT JOIN mse_sas ms ON ms.id_mse = m.ID
+            WHERE m.ID = ?
+            GROUP BY m.ID, m.fk_creas, c.descricao, c.ID
+        `, [idMse], (error, results) => {
+            if (error) {
+                console.error('Erro ao buscar dados do MSE:', error);
+                return res.status(500).json({ error: 'Erro ao buscar dados do MSE.' });
+            }
+            if (results.length === 0) {
+                return res.json({ creas_id: null, creas_descricao: null, sas_ids: [] });
+            }
+            const row = results[0];
+            res.json({
+                creas_id: row.creas_id,
+                creas_descricao: row.creas_descricao,
+                sas_ids: row.sas_ids ? row.sas_ids.split(',').map(Number) : []
+            });
         });
     });
 

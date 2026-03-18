@@ -282,40 +282,48 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 
-
-
-
-
-// Função genérica para validação de caracteres permitidos em campos de entrada
 function validarCaracteresPermitidos(elementId, allowedCharacters) {
     var element = $(elementId);
     if (!element) return;
 
     element.setAttribute('autocomplete', 'off');
 
-    // Ouvinte de evento para o evento de "paste" (colar)
-    element.addEventListener('paste', function(e) {
-        var clipboardData, pastedData;
+    // Escapa caracteres especiais de regex
+    const allowedEscaped = allowedCharacters.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&');
+    const regex = new RegExp('[^' + allowedEscaped + ']', 'g');
 
-        // Pega o texto colado do evento
-        clipboardData = e.clipboardData || window.clipboardData;
-        pastedData = clipboardData.getData('text');
+    // Bloqueia ao digitar
+    element.addEventListener('keydown', function(e) {
+        // Permite teclas de controle: backspace, delete, setas, tab, etc.
+        if (e.ctrlKey || e.metaKey || e.altKey) return;
+        if (['Backspace','Delete','ArrowLeft','ArrowRight','ArrowUp',
+             'ArrowDown','Tab','Enter','Home','End'].includes(e.key)) return;
 
-        // Remove caracteres não permitidos
-        pastedData = pastedData.replace(new RegExp('[^' + allowedCharacters + ']', 'g'), '');
-
-        // Define o texto colado modificado no campo de entrada
-        document.execCommand("insertText", false, pastedData);
-
-        // Previne a ação padrão de colar
-        e.preventDefault();
+        if (regex.test(e.key)) {
+            e.preventDefault();
+            regex.lastIndex = 0; // reset do lastIndex por ser regex global
+        }
+        regex.lastIndex = 0;
     });
 
-    // Ouvinte de evento para o evento de "keypress"
-    element.addEventListener('keypress', function(e) {
-        var chr = String.fromCharCode(e.which);
-        if (allowedCharacters.indexOf(chr) < 0) {
-            e.preventDefault();
+    // Bloqueia ao colar
+    element.addEventListener('paste', function(e) {
+        e.preventDefault();
+        const clipboardData = e.clipboardData || window.clipboardData;
+        let pastedData = clipboardData.getData('text');
+        pastedData = pastedData.replace(regex, '');
+        regex.lastIndex = 0;
+        document.execCommand('insertText', false, pastedData);
+    });
+
+    // Garante limpeza ao soltar o campo (fallback)
+    element.addEventListener('input', function() {
+        const pos = this.selectionStart;
+        const cleaned = this.value.replace(regex, '');
+        regex.lastIndex = 0;
+        if (this.value !== cleaned) {
+            this.value = cleaned;
+            this.setSelectionRange(pos - 1, pos - 1);
         }
     });
 }
@@ -562,36 +570,21 @@ function checkCurso() {
 
 /*--------------------------calcular idade----------------------------*/
 
-// const dtNascField = $('dt_nasc');
+function calculaIdade() {
+    const birthDate = new Date(document.getElementById('dt_nasc').value);
+    const today = new Date();
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const monthDiff = today.getMonth() - birthDate.getMonth();
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+        age--;
+    }
+    document.getElementById('idade').value = age;
+};
 
-// if (dtNascField) {
-//     dtNascField.addEventListener('change', function() {
-
-//         if (!this.value) return;
-
-//         const birthDate = new Date(this.value);
-//         const today = new Date();
-
-//         let age = today.getFullYear() - birthDate.getFullYear();
-//         const monthDiff = today.getMonth() - birthDate.getMonth();
-
-//         if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
-//             age--;
-//         }
-
-//         if (age < 12 || age > 21) {
-//             alert("A idade deve estar entre 12 e 21 anos.");
-
-//             this.value = "";          // limpa a data
-//             if ($('idade')) $('idade').value = "";
-
-//             this.focus();
-//             return;
-//         }
-
-//         if ($('idade')) $('idade').value = age;
-//     });
-// }
+const dtNascChange = document.getElementById('dt_nasc');
+if (dtNascChange) {
+    dtNascChange.addEventListener('change', calculaIdade);
+}
 
 /*-----CADASTRAR----------------------------------------------------------------------------------------------------------*/
 
@@ -599,12 +592,24 @@ function checkCurso() {
    document.addEventListener("submit", function(event){
 
     if(event.target && event.target.id === "editar-form"){
+        console.log("SUBMIT DISPAROU — MSE no DOM:", document.getElementById('mse').value);
         event.preventDefault();
+
+        document.getElementById('creas_atual')?.removeAttribute('disabled');
+        document.getElementById('sas')?.removeAttribute('disabled');
+        document.getElementById('mse')?.removeAttribute('disabled');
+
         
 
         const form = event.target;
         const formData = new FormData(form);
         const data = {};
+
+        console.log("MSE no data:", data.mse);
+        console.log("CREAS no data:", data.creas_atual);
+        console.log("SAS no data:", data.sas);
+
+        
 
         formData.forEach((value, key) => {
 
@@ -805,8 +810,8 @@ document.addEventListener("DOMContentLoaded", function() {
 
 function carregarDados(){
     
-    // Busca as opções para o Creas atual
-    popularSelect({ url: "/opcoesCreasAtual", selectId: "creas_atual", addDefault: true, defaultText: "Selecione" });
+    // // Busca as opções para o Creas atual
+    popularSelect({ url: "/opcoesCreasAtual", selectId: "creas_atual", valueKey: "ID", textKey: "descricao", addDefault: true, defaultText: "Selecione" });
     // Busca as opções para o Creas de origem
     popularSelect({ url: "/opcoesCreas", selectId: "creas_origem", addDefault: true, defaultText: "Selecione" });
     // Busca as opções deficiência
@@ -853,7 +858,7 @@ function carregarDados(){
         url: "/opcoesMse",
         selectId: "mse",
         textKey: "descricao",
-        valueKey: "descricao", // mantém como antes
+        valueKey: "ID", 
         addDefault: true,
         defaultText: "Selecione",
         filterFn: opcao => 
@@ -895,33 +900,6 @@ function carregarDados(){
         }
     });
 			
-    // Função para buscar as opções TecRef com base no mse selecionado
-    function buscarTecRefPorMse(mseSelecionado) {
-        
-
-        fetch(`/opcoesTecRef?mse=${encodeURIComponent(mseSelecionado)}`)
-            .then(response => response.json())
-            .then(opcoesTecRef => {
-                var selectTecRef = $('tec_ref');
-                selectTecRef.innerHTML = ''; // Limpa as opções existentes
-
-                opcoesTecRef.forEach(opcao => {
-                    var option = document.createElement('option');
-                    option.text = opcao.nome;
-                    selectTecRef.appendChild(option);
-                });
-            })
-            .catch(error => {
-                console.error('Erro ao buscar opções Técnico de Referência:', error);
-            });
-    }
-
-    // Adiciona um evento change ao select de MSE
-    document.addEventListener("change", function (e) {
-    if (e.target && e.target.id === "mse") {
-        buscarTecRefPorMse(e.target.value);
-    }
-});
 
 
 
@@ -1031,7 +1009,7 @@ fetch('/opcoesProgramasSociais')
 
                 const valorAtual = newSelect.value;
 
-                // 🚫 REGRA 12
+                
                 if (
                     selectedValues.includes(reencontro_block) &&
                     selectedValues.includes(reencontro_block1)
@@ -1041,7 +1019,7 @@ fetch('/opcoesProgramasSociais')
                     return;
                 }
 
-                // 🚫 REGRA 13
+                
                 const temBolsa = selectedValues.includes(BOLSA_TRABALHO);
                 const temBloqueado = selectedValues.some(v => BLOQUEADOS_COM_BOLSA.includes(v));
 
@@ -1051,7 +1029,7 @@ fetch('/opcoesProgramasSociais')
                     return;
                 }
 
-                // 🚫 DUPLICIDADE (sua regra original)
+                
                 if (selectedValues.filter(value => value === valorAtual).length > 1) {
                     alert('Este programa social já foi selecionado.');
                     newSelect.value = '';
@@ -1168,6 +1146,82 @@ fetch('/opcoesProgramasSociais')
         }
     });
 }
+ function buscarTecRefPorMse(idOuDescricao) {
+    console.log("FUNÇÃO CHAMADA buscarTecRefPorMse", idOuDescricao);
+
+    fetch(`/opcoesTecRef?mse=${encodeURIComponent(idOuDescricao)}`)
+        .then(response => response.json())
+        .then(opcoesTecRef => {
+            const selectTecRef = document.getElementById('tec_ref');
+            if (!selectTecRef) return;
+            selectTecRef.innerHTML = '';
+
+            opcoesTecRef.forEach(opcao => {
+                const option = document.createElement('option');
+                option.text = opcao.nome;
+                selectTecRef.appendChild(option);
+            });
+        })
+        .catch(error => {
+            console.error('Erro ao buscar opções Técnico de Referência:', error);
+        });
+}
+
+async function preencherCreasSasPorMse(idMse) {
+    if (!idMse) {
+        const selectCreas = document.getElementById('creas_atual');
+        const selectSas   = document.getElementById('sas');
+        if (selectCreas) { selectCreas.value = ''; selectCreas.disabled = false; }
+        if (selectSas)   { selectSas.value   = ''; selectSas.disabled   = false; }
+        resetSelectField('distrito_servico');
+        return;
+    }
+
+    try {
+        const response = await fetch(`/dadosMse/${idMse}`);
+        const dados    = await response.json();
+
+        console.log("DADOS DO MSE:", dados);
+
+        // // Aguarda o popularSelect do CREAS terminar antes de setar
+        // await popularSelect({ 
+        //     url: "/opcoesCreasAtual", 
+        //     selectId: "creas_atual", 
+        //     valueKey: "ID",
+        //     textKey: "descricao",
+        //     addDefault: true, 
+        //     defaultText: "Selecione" 
+        // });
+
+        const selectCreas = document.getElementById('creas_atual');
+        if (selectCreas && dados.creas_id) {
+            selectCreas.value    = dados.creas_id;
+            selectCreas.disabled = true;
+            console.log("CREAS SETADO PARA:", selectCreas.value);
+        }
+
+        const selectSas = document.getElementById('sas');
+        if (selectSas && dados.sas_ids.length > 0) {
+            selectSas.value    = dados.sas_ids[0];
+            selectSas.disabled = true;
+            console.log("SAS SETADA PARA:", selectSas.value);
+            selectSas.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+
+    } catch (err) {
+        console.error('Erro ao buscar dados do MSE:', err);
+    }
+}
+
+// Listener unificado do MSE
+document.addEventListener("change", function(e) {
+    if (e.target && e.target.id === "mse") {
+        const idMse = e.target.value;
+        const descricaoMse = e.target.options[e.target.selectedIndex].text; 
+        preencherCreasSasPorMse(idMse);
+        buscarTecRefPorMse(descricaoMse); 
+    }
+});
     function carregarDistritoServicoPorSas(idSas) {
         
         if (!idSas) {

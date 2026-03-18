@@ -27,7 +27,7 @@ app.use(session({
 app.use(bodyParser.urlencoded({ extended: true }));
 
 // Configura o body-parser para lidar com dados JSON
-app.use(bodyParser.json());
+// app.use(bodyParser.json());
 
 // Configura o middleware para servir arquivos estáticos
 app.use(express.static("public"));

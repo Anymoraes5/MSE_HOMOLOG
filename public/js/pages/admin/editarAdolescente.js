@@ -1,3 +1,6 @@
+import { toggleCampo, toggleCampoPorMultiplos } from "../../shared/formRules.js";
+
+
 console.log("JS CARREGANDO EDITAR EDIÇÃO");
 // Script para ajustar o scroll quando um link do menu lateral é clicado
 document.querySelectorAll('#menu-lateral a').forEach(anchor => {
@@ -1164,6 +1167,175 @@ if(btnSalvar){
     }
 })
 };
+//--------------------------validar campos
+document.addEventListener("formReady", () => {
+
+    $("sexo")?.addEventListener("change", checkSexo);
+    // $("cad_unico")?.addEventListener("change", checkCadUnico);
+    $("possui_deficiencia")?.addEventListener("change", checkDeficiencia);
+    $("matriculado")?.addEventListener("change", checkMatriculado);
+    $("curso")?.addEventListener("change", checkCurso);
+    $("possui_trabalho")?.addEventListener("change", checkTrabalho);
+    $("possui_familia_em_servico")?.addEventListener("change", checkFamiliar);
+    $("medicamentos_controlados")?.addEventListener("change", checkMedicamentosControlados);
+    $("faz_uso_de_medicamentos")?.addEventListener("change", checkMedicamentos);
+    $("possui_demanda_saude")?.addEventListener("change", checkDemandaSaude);
+    $("possui_demanda_saude_mental")?.addEventListener("change", checkDemandaSaudeMental);
+    $("tec_ref")?.addEventListener("change", checkTecRef);
+    $("alcool_ou_drogas")?.addEventListener("change", checkCaps);
+
+    // Garante que os asteriscos condicionais iniciem ocultos
+    const camposCondicionais = [
+        "listar_cursos",
+        "deficiencia",
+        "medicamentos",
+        "saude",
+        "saude_mental",
+        "servico_familia",
+        "trabalho",
+        "gestante",
+        "lactante",
+        "parceira_gestante",
+    ];
+
+    camposCondicionais.forEach(campoId => {
+        const label = document.querySelector(`label[for="${campoId}"]`);
+        const asterisco = label?.querySelector(".red-asterisk");
+        if (asterisco) asterisco.style.display = "none";
+    });
+
+    checkSexo();
+    checkDeficiencia();
+    checkMedicamentos();
+    checkMedicamentosControlados();
+    checkDemandaSaude();
+    checkCurso();
+    checkCaps();
+
+});
+
+function checkSexo() {
+    toggleCampo("sexo", "gestante", "F", true);
+    toggleCampo("sexo", "lactante", "F", true);
+    toggleCampo("sexo", "parceira_gestante", "M", true);
+}
+
+function checkDemandaSaude() {
+    toggleCampo("possui_demanda_saude", "saude", "1", true);
+}
+
+function checkDeficiencia() {
+    toggleCampo("possui_deficiencia", "deficiencia", "1", true);
+}
+
+function checkMedicamentos() {
+    toggleCampo("faz_uso_de_medicamentos", "medicamentos", "1", true);
+}
+
+function checkMedicamentosControlados() {
+    toggleCampo("medicamentos_controlados", "medicamentos_controlado", "1", true)
+}
+
+function checkDemandaSaudeMental() {
+    toggleCampo("possui_demanda_saude_mental", "saude_mental", "1", true);
+    checkCaps();
+}
+
+function checkCaps(){
+    const saudeMental = $("possui_demanda_saude_mental")?.value;
+    const alcool = $("alcool_ou_drogas")?.value;
+    const caps = $("caps");
+
+    if (!caps) return;
+
+    const ativar = 
+    saudeMental === "1" || (alcool && alcool != "Não") ;
+
+    if (ativar) {
+        caps.disabled = false;
+        caps.required = true;
+    } else {
+        caps.value = "";
+        caps.disabled = true;
+        caps.required = false;
+    }
+
+}
+// function checkCadUnico() {
+//     toggleCampo("cad_unico", "cad_unico", "1", true);
+// }
+function checkMatriculado() {
+
+    const campoMatriculado = $("matriculado");
+    if (!campoMatriculado) return;
+
+    const matriculado = campoMatriculado.value;
+
+    const tipoEscola = $("tipoEscola");
+    const ensinoModalidade = $("ensinoModalidade");
+    const cicloEstudo = $("cicloEstudo");
+    const frequenciaAula = $("frequenciaAula");
+    const concluiuCurso = $("concluiuCurso");
+    const paroudeEstudar = $("paroudeEstudar");
+
+    if (!tipoEscola || !ensinoModalidade || !cicloEstudo ||
+        !frequenciaAula || !concluiuCurso || !paroudeEstudar) return;
+
+    // Habilita tudo primeiro
+    tipoEscola.disabled = false;
+    ensinoModalidade.disabled = false;
+    cicloEstudo.disabled = false;
+    frequenciaAula.disabled = false;
+    concluiuCurso.disabled = false;
+    paroudeEstudar.disabled = false;
+
+    if (matriculado === "1") {
+
+        concluiuCurso.value = "";
+        paroudeEstudar.value = "";
+        concluiuCurso.disabled = true;
+        paroudeEstudar.disabled = true;
+
+    } else if (matriculado === "0") {
+
+        tipoEscola.value = "";
+        ensinoModalidade.value = "";
+        frequenciaAula.value = "";
+        tipoEscola.disabled = true;
+        ensinoModalidade.disabled = true;
+        frequenciaAula.disabled = true;
+    }
+}
+
+function checkTecRef() {
+
+    const campoMse = $("mse");
+    const tec_ref = $("tec_ref");
+
+    if (!campoMse || !tec_ref) return;
+
+    const mse = campoMse.value;
+
+    if (mse === "") {
+        tec_ref.value = "";
+        tec_ref.disabled = true;
+    } else {
+        tec_ref.disabled = false;
+    }
+}
+
+function checkTrabalho() {
+    toggleCampo("possui_trabalho", "trabalho", "1", true)
+}
+
+function checkFamiliar() {
+    toggleCampo("possui_familia_em_servico", "servico_familia", "1", true)
+}
+
+function checkCurso() {
+    toggleCampo("curso", "listar_cursos", "1", true);
+}
+
 	
 // ================= UNIDADE ACOLHEDORA =================
 
