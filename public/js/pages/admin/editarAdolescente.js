@@ -1,4 +1,5 @@
 import { toggleCampo, toggleCampoPorMultiplos } from "../../shared/formRules.js";
+import { $ } from "../../shared/helpers.js";
 
 
 console.log("JS CARREGANDO EDITAR EDIÇÃO");
@@ -1168,7 +1169,7 @@ if(btnSalvar){
 })
 };
 //--------------------------validar campos
-document.addEventListener("formReady", () => {
+document.dispatchEvent(new Event("formReady"));
 
     $("sexo")?.addEventListener("change", checkSexo);
     // $("cad_unico")?.addEventListener("change", checkCadUnico);
@@ -1212,9 +1213,26 @@ document.addEventListener("formReady", () => {
     checkCurso();
     checkCaps();
 
-});
 
 function checkSexo() {
+    const sexo = $("sexo")?.value;
+
+    const gestante = $("gestante");
+    const lactante = $("lactante");
+    const parceira = $("parceira_gestante");
+
+    if (!gestante || !lactante || !parceira) return;
+
+
+    gestante.disabled = true;
+    lactante.disabled = true;
+    parceira.disabled = true;
+
+    gestante.removeAttribute("required");
+    lactante.removeAttribute("required");
+    parceira.removeAttribute("required");
+
+
     toggleCampo("sexo", "gestante", "F", true);
     toggleCampo("sexo", "lactante", "F", true);
     toggleCampo("sexo", "parceira_gestante", "M", true);

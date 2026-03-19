@@ -283,48 +283,26 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
 function validarCaracteresPermitidos(elementId, allowedCharacters) {
-    var element = $(elementId);
-    if (!element) return;
+    // ← Substitua as chamadas de validarCaracteresPermitidos por isso:
+    const camposNome = ["nome", "nome_social", "nome_da_mae", "nome_do_pai",
+                        "nome_responsavel", "responsavel_unidade", "nome_do_contato"];
 
-    element.setAttribute('autocomplete', 'off');
+    const letrasPermitidas = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZàáâãäéêëíîïóôõöúüçñÀÁÂÃÄÉÊËÍÎÏÓÔÕÖÚÜÇÑ '-";
 
-    // Escapa caracteres especiais de regex
-    const allowedEscaped = allowedCharacters.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&');
-    const regex = new RegExp('[^' + allowedEscaped + ']', 'g');
-
-    // Bloqueia ao digitar
-    element.addEventListener('keydown', function(e) {
-        // Permite teclas de controle: backspace, delete, setas, tab, etc.
+    document.addEventListener('keydown', function(e) {
+        if (!camposNome.includes(e.target.id)) return;
         if (e.ctrlKey || e.metaKey || e.altKey) return;
         if (['Backspace','Delete','ArrowLeft','ArrowRight','ArrowUp',
-             'ArrowDown','Tab','Enter','Home','End'].includes(e.key)) return;
-
-        if (regex.test(e.key)) {
-            e.preventDefault();
-            regex.lastIndex = 0; // reset do lastIndex por ser regex global
-        }
-        regex.lastIndex = 0;
+            'ArrowDown','Tab','Enter','Home','End'].includes(e.key)) return;
+        if (!letrasPermitidas.includes(e.key)) e.preventDefault();
     });
 
-    // Bloqueia ao colar
-    element.addEventListener('paste', function(e) {
+    document.addEventListener('paste', function(e) {
+        if (!camposNome.includes(e.target.id)) return;
         e.preventDefault();
-        const clipboardData = e.clipboardData || window.clipboardData;
-        let pastedData = clipboardData.getData('text');
-        pastedData = pastedData.replace(regex, '');
-        regex.lastIndex = 0;
-        document.execCommand('insertText', false, pastedData);
-    });
-
-    // Garante limpeza ao soltar o campo (fallback)
-    element.addEventListener('input', function() {
-        const pos = this.selectionStart;
-        const cleaned = this.value.replace(regex, '');
-        regex.lastIndex = 0;
-        if (this.value !== cleaned) {
-            this.value = cleaned;
-            this.setSelectionRange(pos - 1, pos - 1);
-        }
+        const texto = (e.clipboardData || window.clipboardData).getData('text');
+        const limpo = texto.split('').filter(c => letrasPermitidas.includes(c)).join('');
+        document.execCommand('insertText', false, limpo);
     });
 }
 
@@ -365,38 +343,26 @@ function extrairTipoLogradouro(logradouroCompleto) {
 }
 
 // Aplicando a validação para cada campo de entrada
-const letras = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ ÀÁÂÃÉÊÍÓÔÕÚÇ()";
+const letras = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZàáâãäéêëíîïóôõöúüçñÀÁÂÃÄÉÊËÍÎÏÓÔÕÖÚÜÇÑ '-";
+const letrasComParenteses = letras + "()";
 const numeros = "0123456789";
-[
-    "nome",
-    "nome_social",
-    "nome_da_mae",
-    "nome_do_pai",
-    "responsavel_unidade",
-    "nome_responsavel",
-    "logradouro_unidade",
-    "saude",
-    "medicamentos",
-    "n_pt",
-    "bairro",
-    "bairro_unidade",
-    "rua",
-    "nome_do_contato",
+
+// Campos de nome — sem parênteses
+["nome", "nome_social", "nome_da_mae", "nome_do_pai",
+ "nome_responsavel", "responsavel_unidade", "nome_do_contato"
 ].forEach(id => validarCaracteresPermitidos(id, letras));
 
+// Campos de endereço/outros — com parênteses
+["logradouro_unidade", "saude", "medicamentos",
+ "n_pt", "bairro", "bairro_unidade", "rua"
+].forEach(id => validarCaracteresPermitidos(id, letrasComParenteses));
+
 [
-    "cpf",
-    "cartao_sus",
-    "numero_unidade",
-    "telefone_unidade",
-    "numero_unidade",
-    "cep_unidade",
-    "horas_psc",
-    "numeroRa",
-    "n_processo",
-    "n_processo_apuracao",
-    "numero",
-    "telefone",
+    "cpf", "cartao_sus", "numero_unidade",
+    "telefone_unidade","numero_unidade",
+    "cep_unidade", "horas_psc", "numeroRa",
+    "n_processo", "n_processo_apuracao",
+    "numero", "telefone",
 ].forEach(id => validarCaracteresPermitidos(id, numeros));
 
 /*----as funções de check são chamadas dentro da tag html com o evento que verifica mudanças no campo---*/
@@ -437,6 +403,7 @@ document.addEventListener("formReady", () => {
     });
 
     checkSexo();
+
     checkDeficiencia();
     checkMedicamentos();
     checkMedicamentosControlados();
@@ -569,22 +536,28 @@ function checkCurso() {
 }
 
 /*--------------------------calcular idade----------------------------*/
+document.addEventListener('change', function(e) {
+    
+    if (e.target.id === 'dt_nasc') {
+        
+        if (!e.target.value) return;
 
-function calculaIdade() {
-    const birthDate = new Date(document.getElementById('dt_nasc').value);
-    const today = new Date();
-    let age = today.getFullYear() - birthDate.getFullYear();
-    const monthDiff = today.getMonth() - birthDate.getMonth();
-    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
-        age--;
+        const birthDate = new Date(e.target.value);
+        const today = new Date();
+
+        let age = today.getFullYear() - birthDate.getFullYear();
+        const monthDiff = today.getMonth() - birthDate.getMonth();
+
+        if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+            age--;
+        }
+
+        const campoIdade = document.getElementById('idade');
+        if (campoIdade) {
+            campoIdade.value = age;
+        }
     }
-    document.getElementById('idade').value = age;
-};
-
-const dtNascChange = document.getElementById('dt_nasc');
-if (dtNascChange) {
-    dtNascChange.addEventListener('change', calculaIdade);
-}
+});
 
 /*-----CADASTRAR----------------------------------------------------------------------------------------------------------*/
 
@@ -603,7 +576,12 @@ if (dtNascChange) {
 
         const form = event.target;
         const formData = new FormData(form);
-        const data = {};
+        
+        const data = Object.fromEntries(formData.entries());
+
+        
+        data['programas_sociais[]'] = formData.getAll('programas_sociais[]');
+
 
         console.log("MSE no data:", data.mse);
         console.log("CREAS no data:", data.creas_atual);
@@ -611,18 +589,18 @@ if (dtNascChange) {
 
         
 
-        formData.forEach((value, key) => {
+        // formData.forEach((value, key) => {
 
-            if (data[key]) {
-                if (!Array.isArray(data[key])) {
-                    data[key] = [data[key]];
-                }
-                data[key].push(value);
-            } else {
-                data[key] = value;
-            }
+        //     if (data[key]) {
+        //         if (!Array.isArray(data[key])) {
+        //             data[key] = [data[key]];
+        //         }
+        //         data[key].push(value);
+        //     } else {
+        //         data[key] = value;
+        //     }
 
-        });
+        // });
 
         //=====================validar idade==================================
         const dt = document.getElementById("dt_nasc")?.value;

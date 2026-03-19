@@ -24,6 +24,11 @@ body {
     margin-top: 0.25em;
 }
 
+select:disabled,
+input:disabled {
+    background-color: #e9ecef !important;
+    cursor: not-allowed;
+}
 
 
 

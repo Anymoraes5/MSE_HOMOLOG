@@ -58,25 +58,26 @@ function rota_verPessoas(app) {
     });
 
     // Rota para filtrar usuários
-    app.post('/pessoasFiltro', (req, res) => {
+    app.post('/filtro', (req, res) => {
         const { ID, cpf, n_processo, nome, nome_social, nome_da_mae, dt_nasc, ativo_inativo, mse, tec_ref} = req.body;
-        let query = `SELECT
-                        P.ID,
-                        P.cpf,
-                        
-                        PRO.n_processo,
-                        P.nome,
-                        P.nome_social,
-                        P.nome_da_mae,
-                        P.dt_nasc,
-                        P.ativo_inativo,
-                        M.descricao AS 'mse',
-                        U.nome AS 'tec_ref'
-                        FROM pessoas P
-                        LEFT JOIN processos PRO ON PRO.ID = P.fk_processos
-                        LEFT JOIN mse M ON M.ID = P.fk_mse
-                        LEFT JOIN usuarios U ON U.ID = P.fk_tec_ref`;
-
+        let query = `
+            SELECT
+            P.ID,
+            P.cpf,
+            PRO.n_processo,
+            P.nome,
+            P.nome_social,
+            P.nome_da_mae,
+            P.dt_nasc,
+            P.ativo_inativo,
+            M.descricao AS 'mse',
+            U.nome AS 'tec_ref'
+            FROM pessoas P
+            LEFT JOIN processos PRO ON PRO.ID = P.fk_processos
+            LEFT JOIN mse M ON M.ID = P.fk_mse
+            LEFT JOIN usuarios U ON U.ID = P.fk_tec_ref
+            WHERE 1=1
+            `;
         const queryParams = []; // Parâmetros da consulta
 
         if (ID) {
@@ -119,18 +120,18 @@ function rota_verPessoas(app) {
             queryParams.push(dt_nasc);
         }
 
-        if (ativo_inativo) {
-            query += ` AND P.ativo_inativo = ?`;
+        if (ativo_inativo !== undefined && ativo_inativo !== "") {
+            query += ` AND U.ativo_inativo = ?`;
             queryParams.push(ativo_inativo);
         }
 
         if (mse) {
-            query += ` AND M.descricao = ?`;
+            query += ` AND P.fk_mse = ?`;
             queryParams.push(mse);
         }
         
         if (tec_ref) {
-            query += ` AND U.nome = ?`;
+            query += ` AND P.fk_tec_ref = ?`;
             queryParams.push(tec_ref);
         }
 

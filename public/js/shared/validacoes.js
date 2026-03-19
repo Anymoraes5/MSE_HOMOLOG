@@ -182,8 +182,11 @@ export function verificarComprimentoNProcesso() {
 export function validarNome(nome) {
     // Obter o valor do input, remover espaços em branco extras e converter para maiúsculas
     var nome = nome.trim().toUpperCase();
-    return /^[A-ZÀ-ÿ\s'()-]{2,100}$/.test(nome);
+    return /^[A-ZÁÀÂÃÉÊÍÓÔÕÚÜÇÑ\s'()-]{2,100}$/.test(nome);
 }
+
+
+
 export function validarCep(cep) {
     if (!cep) return false;
 

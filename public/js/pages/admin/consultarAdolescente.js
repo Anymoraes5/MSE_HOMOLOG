@@ -87,24 +87,6 @@ function validarCaracteresPermitidos(elementId, allowedCharacters) {
 
     element.setAttribute('autocomplete', 'off');
 
-    // Ouvinte de evento para o evento de "paste" (colar)
-    // element.addEventListener('paste', function(e) {
-    //     var clipboardData, pastedData;
-
-    //     // Pega o texto colado do evento
-    //     clipboardData = e.clipboardData || window.clipboardData;
-    //     pastedData = clipboardData.getData('text');
-
-    //     // Remove caracteres não permitidos
-    //     pastedData = pastedData.replace(new RegExp('[^' + allowedCharacters + ']', 'g'), '');
-
-    //     // Define o texto colado modificado no campo de entrada
-    //     document.execCommand("insertText", false, pastedData);
-
-    //     // Previne a ação padrão de colar
-    //     e.preventDefault();
-    // });
-
     // Ouvinte de evento para o evento de "keypress"
     element.addEventListener('keypress', function(e) {
         var chr = String.fromCharCode(e.which);
@@ -231,7 +213,7 @@ window.onload = function() {
         var tec_ref = document.getElementById('tec_ref').value;
 
         // Realiza uma requisição fetch para filtrar as pessoas com base nos dados fornecidos
-        fetch('/pessoasFiltro', {
+        fetch('/filtro', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -314,6 +296,7 @@ function carregarDados() {
             // Verifica se a descrição NÃO é 'Administradores' antes de adicionar a opção
             if (opcao.descricao !== 'ADMINISTRADORES DO SISTEMA') {
                 var option = document.createElement('option');
+                option.value = opcao.ID;
                 option.text = opcao.descricao;
                 selectMSE.appendChild(option);
             }
@@ -343,7 +326,7 @@ function carregarDados() {
                 opcoesTecRef.forEach(opcao => {
                     var option = document.createElement('option');
                     option.text = opcao.nome;
-                    option.value = opcao.nome; // Adiciona o valor da opção
+                    option.value = opcao.ID; // Adiciona o valor da opção
                     console.log("Opção adicionada:", opcao.nome, opcao.nome);
                     selectTecRef.appendChild(option);
                 });

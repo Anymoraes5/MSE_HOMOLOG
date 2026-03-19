@@ -36,7 +36,7 @@ function rota_consulta(app) {
                         FROM usuarios U 
                         LEFT JOIN mse M ON M.ID = U.fk_mse 
                         LEFT JOIN perfil P ON P.ID = U.fk_tipo_perfil 
-                        WHERE 1 = 1 `, (error, results, fields) => {
+                        WHERE 1 = 1`, (error, results, fields) => {
             if (error) {
                 console.error('Erro ao consultar dados:', error);
                 res.status(500).send('Erro ao consultar dados.');
@@ -90,7 +90,7 @@ function rota_consulta(app) {
             queryParams.push(`%${login}%`);
         }
     
-        if (ativo_inativo) {
+        if (ativo_inativo !== undefined && ativo_inativo !== "") {
             query += ` AND U.ativo_inativo = ?`;
             queryParams.push(ativo_inativo);
         }
@@ -101,15 +101,15 @@ function rota_consulta(app) {
         }
     
         if (mse) {
-            query += ` AND M.descricao = ?`;
+            query += ` AND U.fk_mse = ?`;
             queryParams.push(mse);
         }
     
         if (perfil) {
             query += ` AND P.descricao = ?`;
             queryParams.push(perfil);
-        }
-    
+        }   
+
         // Executa a consulta no banco de dados com os parâmetros
         connection.query(query, queryParams, (error, results, fields) => {
             if (error) {

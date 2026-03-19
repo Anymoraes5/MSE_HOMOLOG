@@ -45,7 +45,7 @@ Esta permitindo gravar processos duplicados? Pode isso? (Número do processo de 
  Sobre as demandas MSE que estamos implementando temos as seguintes tarefas:
 
 
-
+- opção todos na consulta(padrão)
 
 
 

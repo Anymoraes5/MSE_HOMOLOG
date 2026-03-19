@@ -283,40 +283,48 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 
-
-
-
-
-// Função genérica para validação de caracteres permitidos em campos de entrada
 function validarCaracteresPermitidos(elementId, allowedCharacters) {
     var element = $(elementId);
     if (!element) return;
 
     element.setAttribute('autocomplete', 'off');
 
-    // Ouvinte de evento para o evento de "paste" (colar)
-    element.addEventListener('paste', function(e) {
-        var clipboardData, pastedData;
+    // Escapa caracteres especiais de regex
+    const allowedEscaped = allowedCharacters.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&');
+    const regex = new RegExp('[^' + allowedEscaped + ']', 'g');
 
-        // Pega o texto colado do evento
-        clipboardData = e.clipboardData || window.clipboardData;
-        pastedData = clipboardData.getData('text');
+    // Bloqueia ao digitar
+    element.addEventListener('keydown', function(e) {
+        // Permite teclas de controle: backspace, delete, setas, tab, etc.
+        if (e.ctrlKey || e.metaKey || e.altKey) return;
+        if (['Backspace','Delete','ArrowLeft','ArrowRight','ArrowUp',
+             'ArrowDown','Tab','Enter','Home','End'].includes(e.key)) return;
 
-        // Remove caracteres não permitidos
-        pastedData = pastedData.replace(new RegExp('[^' + allowedCharacters + ']', 'g'), '');
-
-        // Define o texto colado modificado no campo de entrada
-        document.execCommand("insertText", false, pastedData);
-
-        // Previne a ação padrão de colar
-        e.preventDefault();
+        if (regex.test(e.key)) {
+            e.preventDefault();
+            regex.lastIndex = 0; // reset do lastIndex por ser regex global
+        }
+        regex.lastIndex = 0;
     });
 
-    // Ouvinte de evento para o evento de "keypress"
-    element.addEventListener('keypress', function(e) {
-        var chr = String.fromCharCode(e.which);
-        if (allowedCharacters.indexOf(chr) < 0) {
-            e.preventDefault();
+    // Bloqueia ao colar
+    element.addEventListener('paste', function(e) {
+        e.preventDefault();
+        const clipboardData = e.clipboardData || window.clipboardData;
+        let pastedData = clipboardData.getData('text');
+        pastedData = pastedData.replace(regex, '');
+        regex.lastIndex = 0;
+        document.execCommand('insertText', false, pastedData);
+    });
+
+    // Garante limpeza ao soltar o campo (fallback)
+    element.addEventListener('input', function() {
+        const pos = this.selectionStart;
+        const cleaned = this.value.replace(regex, '');
+        regex.lastIndex = 0;
+        if (this.value !== cleaned) {
+            this.value = cleaned;
+            this.setSelectionRange(pos - 1, pos - 1);
         }
     });
 }
@@ -356,46 +364,44 @@ function extrairTipoLogradouro(logradouroCompleto) {
         nome: logradouroUpper
     };
 }
-document.addEventListener("DOMContentLoaded", () => {
 
-    const letras = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ ÀÁÂÃÉÊÍÓÔÕÚÇ()";
-    const numeros = "0123456789";
+// Aplicando a validação para cada campo de entrada
+const letras = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ ÀÁÂÃÉÊÍÓÔÕÚÇ()";
+const numeros = "0123456789";
+[
+    "nome",
+    "nome_social",
+    "nome_da_mae",
+    "nome_do_pai",
+    "responsavel_unidade",
+    "nome_responsavel",
+    "logradouro_unidade",
+    "saude",
+    "medicamentos",
+    "n_pt",
+    "bairro",
+    "bairro_unidade",
+    "rua",
+    "nome_do_contato",
+].forEach(id => validarCaracteresPermitidos(id, letras));
 
-    [
-        "nome",
-        "nome_social",
-        "nome_da_mae",
-        "nome_do_pai",
-        "responsavel_unidade",
-        "nome_responsavel",
-        "logradouro_unidade",
-        "saude",
-        "medicamentos",
-        "n_pt",
-        "bairro",
-        "bairro_unidade",
-        "rua",
-        "nome_do_contato",
-    ].forEach(id => validarCaracteresPermitidos(id, letras));
-
-    [
-        "cpf",
-        "cartao_sus",
-        "numero_unidade",
-        "telefone_unidade",
-        "cep_unidade",
-        "horas_psc",
-        "numeroRa",
-        "n_processo",
-        "n_processo_apuracao",
-        "numero",
-        "telefone",
-    ].forEach(id => validarCaracteresPermitidos(id, numeros));
-
-});
+[
+    "cpf",
+    "cartao_sus",
+    "numero_unidade",
+    "telefone_unidade",
+    "numero_unidade",
+    "cep_unidade",
+    "horas_psc",
+    "numeroRa",
+    "n_processo",
+    "n_processo_apuracao",
+    "numero",
+    "telefone",
+].forEach(id => validarCaracteresPermitidos(id, numeros));
 
 /*----as funções de check são chamadas dentro da tag html com o evento que verifica mudanças no campo---*/
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("formReady", () => {
 
     $("sexo")?.addEventListener("change", checkSexo);
     // $("cad_unico")?.addEventListener("change", checkCadUnico);
@@ -432,6 +438,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     checkSexo();
+
     checkDeficiencia();
     checkMedicamentos();
     checkMedicamentosControlados();
@@ -486,11 +493,7 @@ function checkCaps(){
         caps.disabled = true;
         caps.required = false;
     }
-    console.log({
-    saudeMental,
-    alcool,
-    ativar
-    });
+
 }
 // function checkCadUnico() {
 //     toggleCampo("cad_unico", "cad_unico", "1", true);
@@ -568,37 +571,28 @@ function checkCurso() {
 }
 
 /*--------------------------calcular idade----------------------------*/
+document.addEventListener('change', function(e) {
+    
+    if (e.target.id === 'dt_nasc') {
+        
+        if (!e.target.value) return;
 
-// const dtNascField = $('dt_nasc');
+        const birthDate = new Date(e.target.value);
+        const today = new Date();
 
-// if (dtNascField) {
-//     dtNascField.addEventListener('change', function() {
+        let age = today.getFullYear() - birthDate.getFullYear();
+        const monthDiff = today.getMonth() - birthDate.getMonth();
 
-//         if (!this.value) return;
+        if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+            age--;
+        }
 
-//         const birthDate = new Date(this.value);
-//         const today = new Date();
-
-//         let age = today.getFullYear() - birthDate.getFullYear();
-//         const monthDiff = today.getMonth() - birthDate.getMonth();
-
-//         if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
-//             age--;
-//         }
-
-//         if (age < 12 || age > 21) {
-//             alert("A idade deve estar entre 12 e 21 anos.");
-
-//             this.value = "";          // limpa a data
-//             if ($('idade')) $('idade').value = "";
-
-//             this.focus();
-//             return;
-//         }
-
-//         if ($('idade')) $('idade').value = age;
-//     });
-// }
+        const campoIdade = document.getElementById('idade');
+        if (campoIdade) {
+            campoIdade.value = age;
+        }
+    }
+});
 
 /*-----CADASTRAR----------------------------------------------------------------------------------------------------------*/
 
@@ -606,12 +600,42 @@ function checkCurso() {
    document.addEventListener("submit", function(event){
 
     if(event.target && event.target.id === "editar-form"){
+        console.log("SUBMIT DISPAROU — MSE no DOM:", document.getElementById('mse').value);
         event.preventDefault();
-        console.log("SUBMIT DISPAROU");
+
+        document.getElementById('creas_atual')?.removeAttribute('disabled');
+        document.getElementById('sas')?.removeAttribute('disabled');
+        document.getElementById('mse')?.removeAttribute('disabled');
+
+        
 
         const form = event.target;
         const formData = new FormData(form);
+        
         const data = Object.fromEntries(formData.entries());
+
+        
+        data['programas_sociais[]'] = formData.getAll('programas_sociais[]');
+
+
+        console.log("MSE no data:", data.mse);
+        console.log("CREAS no data:", data.creas_atual);
+        console.log("SAS no data:", data.sas);
+
+        
+
+        // formData.forEach((value, key) => {
+
+        //     if (data[key]) {
+        //         if (!Array.isArray(data[key])) {
+        //             data[key] = [data[key]];
+        //         }
+        //         data[key].push(value);
+        //     } else {
+        //         data[key] = value;
+        //     }
+
+        // });
 
         //=====================validar idade==================================
         const dt = document.getElementById("dt_nasc")?.value;
@@ -697,7 +721,7 @@ function checkCurso() {
         //======================validar campos obrigatorios================
         
         //======================pegar campos do form ===================
-        console.log(form)
+        
 
 
         if (!confirm("Tem certeza que deseja cadastrar a pessoa?")) {
@@ -710,7 +734,7 @@ function checkCurso() {
         if(btnCancelar){
             btnCancelar.addEventListener('click', function() {
                 window.location.href = '/verPessoas'; // Redireciona para a página de consulta ao clicar em Cancelar
-                console.log("CLICOU cancelar");
+                
             });
         }
         const selects = document.querySelectorAll('select[name="programas_sociais[]"]');
@@ -798,9 +822,9 @@ document.addEventListener("DOMContentLoaded", function() {
 });
 
 function carregarDados(){
-    console.log("CARREGAR DADOS EXECUTOU");
-    // Busca as opções para o Creas atual
-    popularSelect({ url: "/opcoesCreasAtual", selectId: "creas_atual", addDefault: true, defaultText: "Selecione" });
+    
+    // // Busca as opções para o Creas atual
+    popularSelect({ url: "/opcoesCreasAtual", selectId: "creas_atual", valueKey: "ID", textKey: "descricao", addDefault: true, defaultText: "Selecione" });
     // Busca as opções para o Creas de origem
     popularSelect({ url: "/opcoesCreas", selectId: "creas_origem", addDefault: true, defaultText: "Selecione" });
     // Busca as opções deficiência
@@ -847,7 +871,7 @@ function carregarDados(){
         url: "/opcoesMse",
         selectId: "mse",
         textKey: "descricao",
-        valueKey: "descricao", // mantém como antes
+        valueKey: "ID", 
         addDefault: true,
         defaultText: "Selecione",
         filterFn: opcao => 
@@ -889,33 +913,6 @@ function carregarDados(){
         }
     });
 			
-    // Função para buscar as opções TecRef com base no mse selecionado
-    function buscarTecRefPorMse(mseSelecionado) {
-        console.log("FUNÇÃO CHAMADA", mseSelecionado);
-
-        fetch(`/opcoesTecRef?mse=${encodeURIComponent(mseSelecionado)}`)
-            .then(response => response.json())
-            .then(opcoesTecRef => {
-                var selectTecRef = $('tec_ref');
-                selectTecRef.innerHTML = ''; // Limpa as opções existentes
-
-                opcoesTecRef.forEach(opcao => {
-                    var option = document.createElement('option');
-                    option.text = opcao.nome;
-                    selectTecRef.appendChild(option);
-                });
-            })
-            .catch(error => {
-                console.error('Erro ao buscar opções Técnico de Referência:', error);
-            });
-    }
-
-    // Adiciona um evento change ao select de MSE
-    document.addEventListener("change", function (e) {
-    if (e.target && e.target.id === "mse") {
-        buscarTecRefPorMse(e.target.value);
-    }
-});
 
 
 
@@ -1025,7 +1022,7 @@ fetch('/opcoesProgramasSociais')
 
                 const valorAtual = newSelect.value;
 
-                // 🚫 REGRA 12
+                
                 if (
                     selectedValues.includes(reencontro_block) &&
                     selectedValues.includes(reencontro_block1)
@@ -1035,7 +1032,7 @@ fetch('/opcoesProgramasSociais')
                     return;
                 }
 
-                // 🚫 REGRA 13
+                
                 const temBolsa = selectedValues.includes(BOLSA_TRABALHO);
                 const temBloqueado = selectedValues.some(v => BLOQUEADOS_COM_BOLSA.includes(v));
 
@@ -1045,7 +1042,7 @@ fetch('/opcoesProgramasSociais')
                     return;
                 }
 
-                // 🚫 DUPLICIDADE (sua regra original)
+                
                 if (selectedValues.filter(value => value === valorAtual).length > 1) {
                     alert('Este programa social já foi selecionado.');
                     newSelect.value = '';
@@ -1162,8 +1159,84 @@ fetch('/opcoesProgramasSociais')
         }
     });
 }
+ function buscarTecRefPorMse(idOuDescricao) {
+    console.log("FUNÇÃO CHAMADA buscarTecRefPorMse", idOuDescricao);
+
+    fetch(`/opcoesTecRef?mse=${encodeURIComponent(idOuDescricao)}`)
+        .then(response => response.json())
+        .then(opcoesTecRef => {
+            const selectTecRef = document.getElementById('tec_ref');
+            if (!selectTecRef) return;
+            selectTecRef.innerHTML = '';
+
+            opcoesTecRef.forEach(opcao => {
+                const option = document.createElement('option');
+                option.text = opcao.nome;
+                selectTecRef.appendChild(option);
+            });
+        })
+        .catch(error => {
+            console.error('Erro ao buscar opções Técnico de Referência:', error);
+        });
+}
+
+async function preencherCreasSasPorMse(idMse) {
+    if (!idMse) {
+        const selectCreas = document.getElementById('creas_atual');
+        const selectSas   = document.getElementById('sas');
+        if (selectCreas) { selectCreas.value = ''; selectCreas.disabled = false; }
+        if (selectSas)   { selectSas.value   = ''; selectSas.disabled   = false; }
+        resetSelectField('distrito_servico');
+        return;
+    }
+
+    try {
+        const response = await fetch(`/dadosMse/${idMse}`);
+        const dados    = await response.json();
+
+        console.log("DADOS DO MSE:", dados);
+
+        // // Aguarda o popularSelect do CREAS terminar antes de setar
+        // await popularSelect({ 
+        //     url: "/opcoesCreasAtual", 
+        //     selectId: "creas_atual", 
+        //     valueKey: "ID",
+        //     textKey: "descricao",
+        //     addDefault: true, 
+        //     defaultText: "Selecione" 
+        // });
+
+        const selectCreas = document.getElementById('creas_atual');
+        if (selectCreas && dados.creas_id) {
+            selectCreas.value    = dados.creas_id;
+            selectCreas.disabled = true;
+            console.log("CREAS SETADO PARA:", selectCreas.value);
+        }
+
+        const selectSas = document.getElementById('sas');
+        if (selectSas && dados.sas_ids.length > 0) {
+            selectSas.value    = dados.sas_ids[0];
+            selectSas.disabled = true;
+            console.log("SAS SETADA PARA:", selectSas.value);
+            selectSas.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+
+    } catch (err) {
+        console.error('Erro ao buscar dados do MSE:', err);
+    }
+}
+
+// Listener unificado do MSE
+document.addEventListener("change", function(e) {
+    if (e.target && e.target.id === "mse") {
+        const idMse = e.target.value;
+        const descricaoMse = e.target.options[e.target.selectedIndex].text; 
+        preencherCreasSasPorMse(idMse);
+        buscarTecRefPorMse(descricaoMse); 
+    }
+});
     function carregarDistritoServicoPorSas(idSas) {
-        console.log("carregarDistritoServicoPorSas chamada com:", idSas);
+        
         if (!idSas) {
             resetSelectField("distrito_servico");
             return;
@@ -1227,7 +1300,7 @@ document.addEventListener('DOMContentLoaded', function () {
             el.style.display = obrigatorio ? 'inline' : 'none';
         });
     }
-    
+
     document.addEventListener('input', function(e) {
         if (e.target.closest('#unidade-acolhedora, [id$="_unidade"], #horas_psc, #tipo_local, #tipo_logradouro, #atividade_unidade')) {
             atualizarObrigatoriedadeUnidade();
@@ -1242,6 +1315,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     atualizarObrigatoriedadeUnidade();
 });
+
 const inicio = $('horario_inicio_unidade');
 const fim = $('horario_fim_unidade');
 
@@ -1311,7 +1385,7 @@ document.addEventListener("DOMContentLoaded", function () {
         if (!btnCancelar) return;
 
         window.location.href = '/verPessoas'; // Redireciona para a página de consulta ao clicar em Cancelar
-        console.log("CLICOU cancelar");
+        
     });
 });
     
@@ -1332,7 +1406,7 @@ document.addEventListener("DOMContentLoaded", function () {
             alert("Formulário não encontrado");
             return;
         }
-        console.log("passou")
+        
 
         /* =====================================================
            FUNÇÃO AUXILIAR PARA SETAR VALOR + EVENTOS
@@ -1464,7 +1538,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 });
 
-console.log("FIM DO ARQUIVO EXECUTOU");
+
 
 
 /*-----CONFIRMAÇÃO DE LOGOUT----------------------------------------------------------------------------------------------------------*/
