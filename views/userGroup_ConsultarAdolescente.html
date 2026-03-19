@@ -28,16 +28,7 @@
                     </select>
                 </div>
             </div>
-            <div class="form-row">
-                <div class="form-group col-md-6">
-                    <label for="nis">NIS:</label>
-                    <input type="text" id="nis" name="nis" class="form-control" maxlength="11" minlength="11">
-                </div>
-                <div class="form-group col-md-6">
-                    <label for="n_processo">Número do processo de execução:</label>
-                    <input type="text" id="n_processo" name="n_processo" class="form-control" maxlength="25">
-                </div>
-            </div>
+            
             <div class="form-row">
                 <div class="form-group col-md-6">
                     <label for="nome">Nome:</label>
@@ -58,9 +49,15 @@
                     <input type="date" id="dt_nasc" name="dt_nasc" class="form-control" min="1900-01-01" max="">
                 </div>
             </div>
-                <div class="form-group col-md-12">
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    <label for="n_processo">Número do processo de execução:</label>
+                    <input type="text" id="n_processo" name="n_processo" class="form-control" maxlength="25">
+                </div>
+                <div class="form-group col-md-6">
                     <label for="tec_ref" class="form-label">Técnico de referência:</label>
                     <select id="tec_ref" name="tec_ref" class="form-select"></select>
+                </div>
             </div>
             <div class="form-row">
                 <div class="form-group col-md-12 d-flex justify-content-end">
@@ -74,7 +71,6 @@
             <thead class="thead-dark">
                 <tr>
                     <th>CPF</th>
-                    <th>NIS</th>
                     <th>Nº Processo de execução</th>
                     <th>Nome</th>
                     <th>Nome Social</th>

@@ -1,3 +1,6 @@
+import { toggleCampo, toggleCampoPorMultiplos } from "../../shared/formRules.js";
+import { $ } from "../../shared/helpers.js";
+
 console.log("JS CARREGANDO EDITAR EDIÇÃO");
 // Script para ajustar o scroll quando um link do menu lateral é clicado
 document.querySelectorAll('#menu-lateral a').forEach(anchor => {
@@ -60,17 +63,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
         // Validação ao sair do campo
         input.addEventListener('blur', function () {
-			if (this.value && !telefoneCompleto(this.value)) {
-				alert("Informe um telefone completo. Ex: (11) 91234-5678");
-				this.value = "";
+            if (this.value && !telefoneCompleto(this.value)) {
+                alert("Informe um telefone completo. Ex: (11) 91234-5678");
+                this.value = "";
 
-				// FORÇA REAVALIAÇÃO DA OBRIGATORIEDADE
-				this.dispatchEvent(new Event('change'));
-				this.dispatchEvent(new Event('input'));
+                // FORÇA REAVALIAÇÃO DA OBRIGATORIEDADE
+                this.dispatchEvent(new Event('change'));
+                this.dispatchEvent(new Event('input'));
 
-				this.focus();
-			}
-		});
+                this.focus();
+            }
+        });
 
     });
 
@@ -132,11 +135,11 @@ document.addEventListener('DOMContentLoaded', function() {
     const rua = document.getElementById('rua');
     const complemento = document.getElementById('complemento');
     const nome_do_contato = document.getElementById('nome_do_contato');
-	
-	    aplicarMascaraCEP("cep_unidade");
-		aplicarMascaraCEP("cep");
+    
+        aplicarMascaraCEP("cep_unidade");
+        aplicarMascaraCEP("cep");
 
-		
+        
     function formatarCEP(valor) {
         if (!valor) return "";
         
@@ -267,7 +270,7 @@ function validarNome(inputNome) {
     // Obter o valor do input, remover espaços em branco extras e converter para maiúsculas
     var nome = inputNome.value.trim().toUpperCase();
     // Verificar se o nome contém apenas letras, espaços, apóstrofos, hifens e parênteses, e tem entre 2 e 100 caracteres
-	if (/^[A-ZÀ-ÿ\s'()-]{2,100}$/.test(nome)) {
+    if (/^[A-ZÀ-ÿ\s'()-]{2,100}$/.test(nome)) {
         // Se o nome for válido, retorná-lo
         return nome;
     } else {
@@ -393,23 +396,23 @@ document.addEventListener('DOMContentLoaded', function() {
 //     return result;
 // }
 
-		aplicarMascaraCEP("cep_unidade");
-		aplicarMascaraCEP("cep");
+        aplicarMascaraCEP("cep_unidade");
+        aplicarMascaraCEP("cep");
 
-		function aplicarMascaraCEP(idCampo) {
-		const campo = document.getElementById(idCampo);
-		if (!campo) return;
+        function aplicarMascaraCEP(idCampo) {
+        const campo = document.getElementById(idCampo);
+        if (!campo) return;
 
-		campo.addEventListener("input", function () {
-			let v = this.value.replace(/\D/g, '');
+        campo.addEventListener("input", function () {
+            let v = this.value.replace(/\D/g, '');
 
-			if (v.length > 5) {
-				v = v.replace(/^(\d{5})(\d)/, "$1-$2");
-			}
+            if (v.length > 5) {
+                v = v.replace(/^(\d{5})(\d)/, "$1-$2");
+            }
 
-			this.value = v.slice(0, 9);
-		});
-	}
+            this.value = v.slice(0, 9);
+        });
+    }
 
 // Função para validar o campo de CEP
 /*function validarCEP(cep) {
@@ -891,7 +894,7 @@ if(btnSalvar){
             event.preventDefault()
             return;
         }
-         	 
+             
          var curso = document.getElementById('curso').value;
          if (!curso) {
             alert('Curso profissionalizante inválido. Por favor, verifique e tente novamente.');
@@ -952,7 +955,7 @@ if(btnSalvar){
          var ubs = document.getElementById('ubs').value;
          var cep = document.getElementById('cep').value;
         
-		 
+         
         /* var cep = validarCEP(document.getElementById('cep')).replace(/-/g, "");
         if (!cep) {
             // Se o cep não for válido, interrompe o processo de cadastro
@@ -1014,48 +1017,47 @@ if(btnSalvar){
             programasSociaisSelecionados.push(select.value || null);            
         });
        
-		var nome_unidade = document.getElementById('nome_unidade').value;
-		var tipo_local = document.getElementById('tipo_local').value;
-		var atividade_unidade = document.getElementById('atividade_unidade').value;
-		var tipo_logradouro = document.getElementById('tipo_logradouro').value;
-		var logradouro_unidade = document.getElementById('logradouro_unidade').value;	
-		var numero_unidade = document.getElementById('numero_unidade').value;
-		var complemento_unidade = document.getElementById('complemento_unidade').value;
-		var bairro_unidade = document.getElementById('bairro_unidade').value;
-		var telefone_unidade = document.getElementById('telefone_unidade').value;
-		var responsavel_unidade = document.getElementById('responsavel_unidade').value;
-		var horario_inicio_unidade = document.getElementById('horario_inicio_unidade').value;
-		var horario_fim_unidade = document.getElementById('horario_fim_unidade').value;
-		var cep_unidade = document.getElementById('cep_unidade').value;
+        var nome_unidade = document.getElementById('nome_unidade').value;
+        var tipo_local = document.getElementById('tipo_local').value;
+        var atividade_unidade = document.getElementById('atividade_unidade').value;
+        var tipo_logradouro = document.getElementById('tipo_logradouro').value;
+        var logradouro_unidade = document.getElementById('logradouro_unidade').value;	
+        var numero_unidade = document.getElementById('numero_unidade').value;
+        var complemento_unidade = document.getElementById('complemento_unidade').value;
+        var bairro_unidade = document.getElementById('bairro_unidade').value;
+        var telefone_unidade = document.getElementById('telefone_unidade').value;
+        var responsavel_unidade = document.getElementById('responsavel_unidade').value;
+        var horario_inicio_unidade = document.getElementById('horario_inicio_unidade').value;
+        var horario_fim_unidade = document.getElementById('horario_fim_unidade').value;
+        var cep_unidade = document.getElementById('cep_unidade').value;
 
-		// dias da semana (checkbox)
-		var dias_semana = Array
-			.from(document.querySelectorAll('input[name="dias[]"]:checked'))
-			.map(el => el.value)
-			.join(',');
-			
+        // dias da semana (checkbox)
+        var dias_semana = Array
+            .from(document.querySelectorAll('input[name="dias[]"]:checked'))
+            .map(el => el.value)
+            .join(',');
 
-		// Envia uma requisição AJAX para atualizar os dados do usuário
+        // Envia uma requisição AJAX para atualizar os dados do usuário
         fetch(`/editandoPessoas/${ID}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({				
-				nome_unidade: nome_unidade,
-				tipo_local: tipo_local,
+                nome_unidade: nome_unidade,
+                tipo_local: tipo_local,
                 cep_unidade : cep_unidade,
-				atividade_unidade: atividade_unidade,
-				tipo_logradouro: tipo_logradouro,
-				logradouro_unidade: logradouro_unidade,
-				numero_unidade: numero_unidade,
-				complemento_unidade: complemento_unidade,
-				bairro_unidade: bairro_unidade,
-				telefone_unidade: telefone_unidade,
-				responsavel_unidade: responsavel_unidade,
-				horario_inicio_unidade: horario_inicio_unidade,
-				horario_fim_unidade: horario_fim_unidade,
-				dias_semana: dias_semana,
+                atividade_unidade: atividade_unidade,
+                tipo_logradouro: tipo_logradouro,
+                logradouro_unidade: logradouro_unidade,
+                numero_unidade: numero_unidade,
+                complemento_unidade: complemento_unidade,
+                bairro_unidade: bairro_unidade,
+                telefone_unidade: telefone_unidade,
+                responsavel_unidade: responsavel_unidade,
+                horario_inicio_unidade: horario_inicio_unidade,
+                horario_fim_unidade: horario_fim_unidade,
+                dias_semana: dias_semana,
                 ID: ID,
                 ativo_inativo: ativo_inativo, 
                 dt_cadastro: dt_cadastro, 
@@ -1141,6 +1143,7 @@ if(btnSalvar){
                 dt_desligamento: dt_desligamento,
             })
         })
+        
         .then(response => response.json())
         .then(data => {
             alert('Dados atualizados com sucesso!');
@@ -1158,14 +1161,203 @@ if(btnSalvar){
                 window.history.back(); // Volta para a página anterior em caso de erro
             }
         });
+
+        // Após carregar usuario.dias_semana
+       
     }
 })
 };
-	
+//--------------------------validar campos
+document.dispatchEvent(new Event("formReady"));
+
+    $("sexo")?.addEventListener("change", checkSexo);
+    // $("cad_unico")?.addEventListener("change", checkCadUnico);
+    $("possui_deficiencia")?.addEventListener("change", checkDeficiencia);
+    $("matriculado")?.addEventListener("change", checkMatriculado);
+    $("curso")?.addEventListener("change", checkCurso);
+    $("possui_trabalho")?.addEventListener("change", checkTrabalho);
+    $("possui_familia_em_servico")?.addEventListener("change", checkFamiliar);
+    $("medicamentos_controlados")?.addEventListener("change", checkMedicamentosControlados);
+    $("faz_uso_de_medicamentos")?.addEventListener("change", checkMedicamentos);
+    $("possui_demanda_saude")?.addEventListener("change", checkDemandaSaude);
+    $("possui_demanda_saude_mental")?.addEventListener("change", checkDemandaSaudeMental);
+    $("tec_ref")?.addEventListener("change", checkTecRef);
+    $("alcool_ou_drogas")?.addEventListener("change", checkCaps);
+
+    // Garante que os asteriscos condicionais iniciem ocultos
+    const camposCondicionais = [
+        "listar_cursos",
+        "deficiencia",
+        "medicamentos",
+        "saude",
+        "saude_mental",
+        "servico_familia",
+        "trabalho",
+        "gestante",
+        "lactante",
+        "parceira_gestante",
+    ];
+
+    camposCondicionais.forEach(campoId => {
+        const label = document.querySelector(`label[for="${campoId}"]`);
+        const asterisco = label?.querySelector(".red-asterisk");
+        if (asterisco) asterisco.style.display = "none";
+    });
+
+    checkSexo();
+    checkDeficiencia();
+    checkMedicamentos();
+    checkMedicamentosControlados();
+    checkDemandaSaude();
+    checkCurso();
+    checkCaps();
+
+
+function checkSexo() {
+    const sexo = $("sexo")?.value;
+
+    const gestante = $("gestante");
+    const lactante = $("lactante");
+    const parceira = $("parceira_gestante");
+
+    if (!gestante || !lactante || !parceira) return;
+
+
+    gestante.disabled = true;
+    lactante.disabled = true;
+    parceira.disabled = true;
+
+    gestante.removeAttribute("required");
+    lactante.removeAttribute("required");
+    parceira.removeAttribute("required");
+
+
+    toggleCampo("sexo", "gestante", "F", true);
+    toggleCampo("sexo", "lactante", "F", true);
+    toggleCampo("sexo", "parceira_gestante", "M", true);
+}
+
+function checkDemandaSaude() {
+    toggleCampo("possui_demanda_saude", "saude", "1", true);
+}
+
+function checkDeficiencia() {
+    toggleCampo("possui_deficiencia", "deficiencia", "1", true);
+}
+
+function checkMedicamentos() {
+    toggleCampo("faz_uso_de_medicamentos", "medicamentos", "1", true);
+}
+
+function checkMedicamentosControlados() {
+    toggleCampo("medicamentos_controlados", "medicamentos_controlado", "1", true)
+}
+
+function checkDemandaSaudeMental() {
+    toggleCampo("possui_demanda_saude_mental", "saude_mental", "1", true);
+    checkCaps();
+}
+
+function checkCaps(){
+    const saudeMental = $("possui_demanda_saude_mental")?.value;
+    const alcool = $("alcool_ou_drogas")?.value;
+    const caps = $("caps");
+
+    if (!caps) return;
+
+    const ativar = 
+    saudeMental === "1" || (alcool && alcool != "Não") ;
+
+    if (ativar) {
+        caps.disabled = false;
+        caps.required = true;
+    } else {
+        caps.value = "";
+        caps.disabled = true;
+        caps.required = false;
+    }
+
+}
+// function checkCadUnico() {
+//     toggleCampo("cad_unico", "cad_unico", "1", true);
+// }
+function checkMatriculado() {
+
+    const campoMatriculado = $("matriculado");
+    if (!campoMatriculado) return;
+
+    const matriculado = campoMatriculado.value;
+
+    const tipoEscola = $("tipoEscola");
+    const ensinoModalidade = $("ensinoModalidade");
+    const cicloEstudo = $("cicloEstudo");
+    const frequenciaAula = $("frequenciaAula");
+    const concluiuCurso = $("concluiuCurso");
+    const paroudeEstudar = $("paroudeEstudar");
+
+    if (!tipoEscola || !ensinoModalidade || !cicloEstudo ||
+        !frequenciaAula || !concluiuCurso || !paroudeEstudar) return;
+
+    // Habilita tudo primeiro
+    tipoEscola.disabled = false;
+    ensinoModalidade.disabled = false;
+    cicloEstudo.disabled = false;
+    frequenciaAula.disabled = false;
+    concluiuCurso.disabled = false;
+    paroudeEstudar.disabled = false;
+
+    if (matriculado === "1") {
+
+        concluiuCurso.value = "";
+        paroudeEstudar.value = "";
+        concluiuCurso.disabled = true;
+        paroudeEstudar.disabled = true;
+
+    } else if (matriculado === "0") {
+
+        tipoEscola.value = "";
+        ensinoModalidade.value = "";
+        frequenciaAula.value = "";
+        tipoEscola.disabled = true;
+        ensinoModalidade.disabled = true;
+        frequenciaAula.disabled = true;
+    }
+}
+
+function checkTecRef() {
+
+    const campoMse = $("mse");
+    const tec_ref = $("tec_ref");
+
+    if (!campoMse || !tec_ref) return;
+
+    const mse = campoMse.value;
+
+    if (mse === "") {
+        tec_ref.value = "";
+        tec_ref.disabled = true;
+    } else {
+        tec_ref.disabled = false;
+    }
+}
+
+function checkTrabalho() {
+    toggleCampo("possui_trabalho", "trabalho", "1", true)
+}
+
+function checkFamiliar() {
+    toggleCampo("possui_familia_em_servico", "servico_familia", "1", true)
+}
+
+function checkCurso() {
+    toggleCampo("curso", "listar_cursos", "1", true);
+}
+
+    
 // ================= UNIDADE ACOLHEDORA =================
+
 const checkboxesDias = document.querySelectorAll('#dias_semana input[type="checkbox"]');
 
-// ✅ função que busca os campos toda vez
 function getCamposUnidade() {
     return [
         document.getElementById("tipo_local"),
@@ -1203,7 +1395,7 @@ function atualizarObrigatoriedadeUnidade() {
 
 window.atualizarObrigatoriedadeUnidade = atualizarObrigatoriedadeUnidade;
 
-// ✅ event delegation — não depende de quando os campos são populados
+
 document.addEventListener('input', function(e) {
     const ids = ["tipo_local","nome_unidade","responsavel_unidade","telefone_unidade",
                  "cep_unidade","tipo_logradouro","logradouro_unidade","numero_unidade",
@@ -1258,7 +1450,7 @@ if (btnBuscarCepPessoa) {
             alert("CEP inválido. Digite um CEP com 8 números.");
             return;
         }
-        console.log(cepPessoa)
+        
 
         fetch(`https://viacep.com.br/ws/${cepPessoa}/json/`)
             .then(response => response.json())
@@ -1318,9 +1510,7 @@ if (btnBuscarCepPessoa) {
 
 
 
-
-
-// Buscar CEP
+// Buscar CEP unidade
 const btnBuscarCep = document.getElementById("buscar_cep");
 
 if (btnBuscarCep) {
@@ -1330,15 +1520,15 @@ if (btnBuscarCep) {
 
         if (!campoCep) return;
 
-        let cep = campoCep.value.replace(/\D/g, "");
+        let cep_unidade = campoCep.value.replace(/\D/g, "");
 
-        if (cep.length !== 8) {
+        if (cep_unidade.length !== 8) {
             alert("CEP inválido. Digite um CEP com 8 números.");
             return;
         }
-        console.log(cep)
+        
 
-        fetch(`https://viacep.com.br/ws/${cep}/json/`)
+        fetch(`https://viacep.com.br/ws/${cep_unidade}/json/`)
             .then(response => response.json())
             .then(data => {
                 if (data.erro === true) {

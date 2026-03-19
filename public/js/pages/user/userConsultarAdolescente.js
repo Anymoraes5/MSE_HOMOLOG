@@ -115,7 +115,6 @@ function validarCaracteresPermitidos(elementId, allowedCharacters) {
 
 // Aplicando a validação para cada campo de entrada
 validarCaracteresPermitidos("cpf", "0123456789");
-validarCaracteresPermitidos("nis", "0123456789");
 validarCaracteresPermitidos("n_processo", "01234.-56789");
 validarCaracteresPermitidos("nome", "qwertyuiopçlkjhgfdsazxcvbnm QWERTYUIOPÇLKJHGFDSAZXCVBNM");
 validarCaracteresPermitidos("nome_social", "qwertyuiopçlkjhgfdsazxcvbnm QWERTYUIOPÇLKJHGFDSAZXCVBNM");
@@ -206,7 +205,6 @@ window.onload = function() {
         event.preventDefault();
         // Obtém os valores dos campos do formulário
         var cpf = document.getElementById('cpf').value;
-        // var nis = document.getElementById('nis').value;
         var n_processo = document.getElementById('n_processo').value;
         var nome = document.getElementById('nome').value;
         var nome_social = document.getElementById('nome_social').value;
@@ -221,7 +219,7 @@ window.onload = function() {
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ cpf: cpf, nis: nis, n_processo: n_processo, nome: nome, nome_social: nome_social, nome_da_mae: nome_da_mae,  dt_nasc: dt_nasc, ativo_inativo: ativo_inativo, tec_ref: tec_ref  })
+            body: JSON.stringify({ cpf: cpf, n_processo: n_processo, nome: nome, nome_social: nome_social, nome_da_mae: nome_da_mae,  dt_nasc: dt_nasc, ativo_inativo: ativo_inativo, tec_ref: tec_ref  })
         })
         .then(response => response.json())
         .then(data => {
@@ -241,7 +239,7 @@ window.onload = function() {
 
                 tr.innerHTML = `
                     <td>${pessoa.cpf}</td>
-                    <td>${pessoa.nis}</td>
+                    
                     <td>${pessoa.n_processo}</td>
                     <td>${pessoa.nome}</td>
                     <td>${pessoa.nome_social}</td>
@@ -318,7 +316,7 @@ function carregarDados() {
             data.forEach(function(resultado) { 
                 // Substitui valores NULL por strings vazias ou "--"
                 var cpf = resultado.cpf || ' -- ';
-                var nis = resultado.nis || ' -- ';
+                
                 var n_processo = resultado.n_processo || ' -- ';
                 var nome = resultado.nome;
                 var nome_social = resultado.nome_social || ' -- ';
@@ -330,7 +328,6 @@ function carregarDados() {
                 var tr = document.createElement('tr');
                 tr.innerHTML = `
                     <td>${cpf}</td>
-                    <td>${nis}</td>
                     <td>${n_processo}</td>
                     <td>${nome}</td>
                     <td>${nome_social}</td>

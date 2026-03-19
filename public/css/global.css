@@ -14,7 +14,7 @@ h1 {
     color: #00000096; /* Cor do texto principal */
     text-shadow: 2px 2px 4px rgba(0,0,0,0.4); /* Sombra para o efeito de profundidade */
 }
-.tittle{
+.title{
     text-align: center;
     margin-top: 3rem; 
     font-size: 2em;
