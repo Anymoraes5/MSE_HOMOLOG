@@ -63,17 +63,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
         // Validação ao sair do campo
         input.addEventListener('blur', function () {
-            if (this.value && !telefoneCompleto(this.value)) {
-                alert("Informe um telefone completo. Ex: (11) 91234-5678");
-                this.value = "";
+			if (this.value && !telefoneCompleto(this.value)) {
+				alert("Informe um telefone completo. Ex: (11) 91234-5678");
+				this.value = "";
 
-                // FORÇA REAVALIAÇÃO DA OBRIGATORIEDADE
-                this.dispatchEvent(new Event('change'));
-                this.dispatchEvent(new Event('input'));
+				// FORÇA REAVALIAÇÃO DA OBRIGATORIEDADE
+				this.dispatchEvent(new Event('change'));
+				this.dispatchEvent(new Event('input'));
 
-                this.focus();
-            }
-        });
+				this.focus();
+			}
+		});
 
     });
 
@@ -135,11 +135,11 @@ document.addEventListener('DOMContentLoaded', function() {
     const rua = document.getElementById('rua');
     const complemento = document.getElementById('complemento');
     const nome_do_contato = document.getElementById('nome_do_contato');
-    
-        aplicarMascaraCEP("cep_unidade");
-        aplicarMascaraCEP("cep");
+	
+	    aplicarMascaraCEP("cep_unidade");
+		aplicarMascaraCEP("cep");
 
-        
+		
     function formatarCEP(valor) {
         if (!valor) return "";
         
@@ -242,6 +242,56 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 });
+(function inicializarValidacao() {
+
+ 
+  const regrasPorCampo = new Map();
+
+  
+  const teclasEspeciais = new Set([
+    'Backspace','Delete','ArrowLeft','ArrowRight',
+    'ArrowUp','ArrowDown','Tab','Enter','Home','End'
+  ]);
+
+  
+  document.addEventListener('keydown', function(e) {
+    const regra = regrasPorCampo.get(e.target.id);
+    if (!regra) return;                          // campo não monitorado
+    if (e.ctrlKey || e.metaKey || e.altKey) return; // atalhos do sistema
+    if (teclasEspeciais.has(e.key)) return;      // navegação/edição
+    if (!regra.has(e.key)) e.preventDefault();
+  });
+  document.addEventListener('input', function(e) {
+    const regra = regrasPorCampo.get(e.target.id);
+    if (!regra) return;
+
+    const el       = e.target;
+    const original = el.value;
+    const cursor   = el.selectionStart;
+
+    // 1. Remove caracteres não permitidos
+    let limpo = [...original].filter(c => regra.has(c)).join('');
+
+    // 2. Colapsa espaços múltiplos (só se espaço for permitido no campo)
+    if (regra.has(' ')) limpo = limpo.replace(/ {2,}/g, ' ');
+
+    // 3. Só atualiza o DOM se mudou algo (evita loop)
+    if (limpo !== original) {
+      const removidosAntesCursor = [...original.slice(0, cursor)]
+        .filter(c => !regra.has(c)).length;
+
+      el.value = limpo;
+      const novoCursor = Math.max(0, cursor - removidosAntesCursor);
+      el.setSelectionRange(novoCursor, novoCursor);
+    }
+  });
+
+
+  window.validarCaracteresPermitidos = function(elementId, allowedCharacters) {
+    regrasPorCampo.set(elementId, new Set(allowedCharacters));
+  };
+
+})();
 
 // Obtém a data atual
 var hoje = new Date();
@@ -270,7 +320,7 @@ function validarNome(inputNome) {
     // Obter o valor do input, remover espaços em branco extras e converter para maiúsculas
     var nome = inputNome.value.trim().toUpperCase();
     // Verificar se o nome contém apenas letras, espaços, apóstrofos, hifens e parênteses, e tem entre 2 e 100 caracteres
-    if (/^[A-ZÀ-ÿ\s'()-]{2,100}$/.test(nome)) {
+	if (/^[A-ZÀ-ÿ\s'()-]{2,100}$/.test(nome)) {
         // Se o nome for válido, retorná-lo
         return nome;
     } else {
@@ -396,23 +446,23 @@ document.addEventListener('DOMContentLoaded', function() {
 //     return result;
 // }
 
-        aplicarMascaraCEP("cep_unidade");
-        aplicarMascaraCEP("cep");
+		aplicarMascaraCEP("cep_unidade");
+		aplicarMascaraCEP("cep");
 
-        function aplicarMascaraCEP(idCampo) {
-        const campo = document.getElementById(idCampo);
-        if (!campo) return;
+		function aplicarMascaraCEP(idCampo) {
+		const campo = document.getElementById(idCampo);
+		if (!campo) return;
 
-        campo.addEventListener("input", function () {
-            let v = this.value.replace(/\D/g, '');
+		campo.addEventListener("input", function () {
+			let v = this.value.replace(/\D/g, '');
 
-            if (v.length > 5) {
-                v = v.replace(/^(\d{5})(\d)/, "$1-$2");
-            }
+			if (v.length > 5) {
+				v = v.replace(/^(\d{5})(\d)/, "$1-$2");
+			}
 
-            this.value = v.slice(0, 9);
-        });
-    }
+			this.value = v.slice(0, 9);
+		});
+	}
 
 // Função para validar o campo de CEP
 /*function validarCEP(cep) {
@@ -526,35 +576,40 @@ function validarCaracteresPermitidos(elementId, allowedCharacters) {
     });
 }
 
-// Aplicando a validação para cada campo de entrada
-validarCaracteresPermitidos("nome", "qwertyuioplkjhgfdsazxcvbnm QWERTYUIOPLKJHGFDSAZXCVBNM");
-validarCaracteresPermitidos("nome_social", "qwertyuioplkjhgfdsazxcvbnm QWERTYUIOPLKJHGFDSAZXCVBNM");
-validarCaracteresPermitidos("cpf", "0123456789");
-validarCaracteresPermitidos("nis", "0123456789");
-validarCaracteresPermitidos("cartao_sus", "0123456789"); 
-validarCaracteresPermitidos("nome_da_mae", "qwertyuioplkjhgfdsazxcvbnm QWERTYUIOPLKJHGFDSAZXCVBNM");
-validarCaracteresPermitidos("nome_do_pai", "qwertyuioplkjhgfdsazxcvbnm QWERTYUIOPLKJHGFDSAZXCVBNM");
-validarCaracteresPermitidos("responsavel_unidade","qwertyuioplkjhgfdsazxcvbnm QWERTYUIOPLKJHGFDSAZXCVBNM");
-validarCaracteresPermitidos("numero_unidade", "0123456789");
-validarCaracteresPermitidos("telefone_unidade", "0123456789");
-validarCaracteresPermitidos("numero_unidade", "0123456789");
-validarCaracteresPermitidos("nome_responsavel", "qwertyuioplkjhgfdsazxcvbnm QWERTYUIOPLKJHGFDSAZXCVBNM");
-validarCaracteresPermitidos("cep_unidade", "0123456789");
-validarCaracteresPermitidos("logradouro_unidade","qwertyuioplkjhgfdsazxcvbnm QWERTYUIOPLKJHGFDSAZXCVBNMÀÁÂÃÉÊÍÓÔÕÚÇàáâãéêíóôõúç");
-validarCaracteresPermitidos("horas_psc", "0123456789");
-validarCaracteresPermitidos("numeroRa", "01234.-56789");
-validarCaracteresPermitidos("saude", "()-qwertyuioplkjhgfdsazxcvbnm QWERTYUIOPLKJHGFDSAZXCVBNM 0123456789/");
-validarCaracteresPermitidos("medicamentos", "()-qwertyuioplkjhgfdsazxcvbnm QWERTYUIOPLKJHGFDSAZXCVBNM 0123456789/");
-validarCaracteresPermitidos("n_processo", "01234.-56789");
-validarCaracteresPermitidos("n_processo_apuracao", "01234.-56789");
-validarCaracteresPermitidos("n_pt", "0123456789.qwertyuioplkjhgfdsazxcvbnm-QWERTYUIOPLKJHGFDSAZXCVBNM");
-validarCaracteresPermitidos("cep", "0123456789");
-validarCaracteresPermitidos("bairro", "qwertyuioplkjhgfdsazxcvbnm QWERTYUIOPLKJHGFDSAZXCVBNM()"); 
-validarCaracteresPermitidos("bairro_unidade","abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ ÀÁÂÃÉÊÍÓÔÕÚÇ()");
-validarCaracteresPermitidos("rua", "qwertyuioplkjhgfdsazxcvbnm QWERTYUIOPLKJHGFDSAZXCVBNM");
-validarCaracteresPermitidos("numero", "0123456789");
-validarCaracteresPermitidos("nome_do_contato", "qwertyuioplkjhgfdsazxcvbnm QWERTYUIOPLKJHGFDSAZXCVBNM");
-validarCaracteresPermitidos("telefone", "0123456789");
+//valida caracteres permitidos
+
+const letras = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ" +
+               "àáâãäéêëíîïóôõöúüçñÀÁÂÃÄÉÊËÍÎÏÓÔÕÖÚÜÇÑ";
+const letrasComEspaco            = letras + " ";
+const letrasComParentesesEEspaco = letras + "() ";
+const numeros                    = "0123456789";
+const numerosComParenteses = numeros + "()-"
+
+console.log({
+    validarCaracteresPermitidos,
+    letrasComEspaco,
+    letrasComParentesesEEspaco,
+    numeros,
+    numerosComParenteses
+});
+
+
+["nome", "nome_social", "nome_da_mae", "nome_do_pai",
+ "nome_responsavel", "responsavel_unidade", "nome_do_contato"
+].forEach(id => validarCaracteresPermitidos(id, letrasComEspaco));
+
+["logradouro_unidade", "saude", "medicamentos",
+ "bairro", "bairro_unidade", "rua"
+].forEach(id => validarCaracteresPermitidos(id, letrasComParentesesEEspaco));
+
+["cpf", "cartao_sus", "numero_unidade", "telefone_unidade",
+ "cep_unidade", "horas_psc", "numeroRa", "n_processo",
+ "n_processo_apuracao", "numero", "telefone", "n_pt"
+].forEach(id => validarCaracteresPermitidos(id, numeros));
+
+["telefone_unidade",
+ "telefone"
+].forEach(id => validarCaracteresPermitidos(id, numerosComParenteses));
 
 /*---------------verifica se a dt_nasc mudou e altera a idade----------------------*/
 const dtNascChange = document.getElementById('dt_nasc');
@@ -894,7 +949,7 @@ if(btnSalvar){
             event.preventDefault()
             return;
         }
-             
+         	 
          var curso = document.getElementById('curso').value;
          if (!curso) {
             alert('Curso profissionalizante inválido. Por favor, verifique e tente novamente.');
@@ -955,7 +1010,7 @@ if(btnSalvar){
          var ubs = document.getElementById('ubs').value;
          var cep = document.getElementById('cep').value;
         
-         
+		 
         /* var cep = validarCEP(document.getElementById('cep')).replace(/-/g, "");
         if (!cep) {
             // Se o cep não for válido, interrompe o processo de cadastro
@@ -1017,47 +1072,47 @@ if(btnSalvar){
             programasSociaisSelecionados.push(select.value || null);            
         });
        
-        var nome_unidade = document.getElementById('nome_unidade').value;
-        var tipo_local = document.getElementById('tipo_local').value;
-        var atividade_unidade = document.getElementById('atividade_unidade').value;
-        var tipo_logradouro = document.getElementById('tipo_logradouro').value;
-        var logradouro_unidade = document.getElementById('logradouro_unidade').value;	
-        var numero_unidade = document.getElementById('numero_unidade').value;
-        var complemento_unidade = document.getElementById('complemento_unidade').value;
-        var bairro_unidade = document.getElementById('bairro_unidade').value;
-        var telefone_unidade = document.getElementById('telefone_unidade').value;
-        var responsavel_unidade = document.getElementById('responsavel_unidade').value;
-        var horario_inicio_unidade = document.getElementById('horario_inicio_unidade').value;
-        var horario_fim_unidade = document.getElementById('horario_fim_unidade').value;
-        var cep_unidade = document.getElementById('cep_unidade').value;
+		var nome_unidade = document.getElementById('nome_unidade').value;
+		var tipo_local = document.getElementById('tipo_local').value;
+		var atividade_unidade = document.getElementById('atividade_unidade').value;
+		var tipo_logradouro = document.getElementById('tipo_logradouro').value;
+		var logradouro_unidade = document.getElementById('logradouro_unidade').value;	
+		var numero_unidade = document.getElementById('numero_unidade').value;
+		var complemento_unidade = document.getElementById('complemento_unidade').value;
+		var bairro_unidade = document.getElementById('bairro_unidade').value;
+		var telefone_unidade = document.getElementById('telefone_unidade').value;
+		var responsavel_unidade = document.getElementById('responsavel_unidade').value;
+		var horario_inicio_unidade = document.getElementById('horario_inicio_unidade').value;
+		var horario_fim_unidade = document.getElementById('horario_fim_unidade').value;
+		var cep_unidade = document.getElementById('cep_unidade').value;
 
         // dias da semana (checkbox)
-        var dias_semana = Array
-            .from(document.querySelectorAll('input[name="dias[]"]:checked'))
-            .map(el => el.value)
-            .join(',');
+		var dias_semana = Array
+			.from(document.querySelectorAll('input[name="dias[]"]:checked'))
+			.map(el => el.value)
+			.join(',');
 
-        // Envia uma requisição AJAX para atualizar os dados do usuário
+		// Envia uma requisição AJAX para atualizar os dados do usuário
         fetch(`/editandoPessoas/${ID}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({				
-                nome_unidade: nome_unidade,
-                tipo_local: tipo_local,
+				nome_unidade: nome_unidade,
+				tipo_local: tipo_local,
                 cep_unidade : cep_unidade,
-                atividade_unidade: atividade_unidade,
-                tipo_logradouro: tipo_logradouro,
-                logradouro_unidade: logradouro_unidade,
-                numero_unidade: numero_unidade,
-                complemento_unidade: complemento_unidade,
-                bairro_unidade: bairro_unidade,
-                telefone_unidade: telefone_unidade,
-                responsavel_unidade: responsavel_unidade,
-                horario_inicio_unidade: horario_inicio_unidade,
-                horario_fim_unidade: horario_fim_unidade,
-                dias_semana: dias_semana,
+				atividade_unidade: atividade_unidade,
+				tipo_logradouro: tipo_logradouro,
+				logradouro_unidade: logradouro_unidade,
+				numero_unidade: numero_unidade,
+				complemento_unidade: complemento_unidade,
+				bairro_unidade: bairro_unidade,
+				telefone_unidade: telefone_unidade,
+				responsavel_unidade: responsavel_unidade,
+				horario_inicio_unidade: horario_inicio_unidade,
+				horario_fim_unidade: horario_fim_unidade,
+				dias_semana: dias_semana,
                 ID: ID,
                 ativo_inativo: ativo_inativo, 
                 dt_cadastro: dt_cadastro, 
@@ -1177,7 +1232,7 @@ document.dispatchEvent(new Event("formReady"));
     $("curso")?.addEventListener("change", checkCurso);
     $("possui_trabalho")?.addEventListener("change", checkTrabalho);
     $("possui_familia_em_servico")?.addEventListener("change", checkFamiliar);
-    $("medicamentos_controlados")?.addEventListener("change", checkMedicamentosControlados);
+    $("faz_uso_de_medicamentos_controlados")?.addEventListener("change", checkMedicamentosControlados);
     $("faz_uso_de_medicamentos")?.addEventListener("change", checkMedicamentos);
     $("possui_demanda_saude")?.addEventListener("change", checkDemandaSaude);
     $("possui_demanda_saude_mental")?.addEventListener("change", checkDemandaSaudeMental);
@@ -1250,7 +1305,7 @@ function checkMedicamentos() {
 }
 
 function checkMedicamentosControlados() {
-    toggleCampo("medicamentos_controlados", "medicamentos_controlado", "1", true)
+    toggleCampo("faz_uso_de_medicamentos_controlados", "medicamentos_controlados", "1", true)
 }
 
 function checkDemandaSaudeMental() {
@@ -1353,7 +1408,7 @@ function checkCurso() {
     toggleCampo("curso", "listar_cursos", "1", true);
 }
 
-    
+	
 // ================= UNIDADE ACOLHEDORA =================
 
 const checkboxesDias = document.querySelectorAll('#dias_semana input[type="checkbox"]');

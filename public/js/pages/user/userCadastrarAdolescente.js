@@ -221,10 +221,25 @@ var mm = String(hoje.getMonth() + 1).padStart(2, '0'); // Janeiro é 0!
 var yyyy = hoje.getFullYear();
 // Define o valor do atributo max para a data atual
 // $("dt_nasc").max = yyyy + '-' + mm + '-' + dd;
+
 const dtNasc = $("dt_nasc");
 if (dtNasc) {
     dtNasc.max = `${yyyy}-${mm}-${dd}`;
+
+    dtNasc.addEventListener("input", () => {
+        const valor = dtNasc.value;
+
+        const formatoValido = /^\d{4}-\d{2}-\d{2}$/;
+
+        if (!formatoValido.test(valor) && valor.length > 0) {
+            dtNasc.setCustomValidity("Use o formato YYYY-MM-DD");
+        } else {
+            dtNasc.setCustomValidity("");
+        }
+    });
 }
+
+ 
 const dtInterpretacao= $("dt_interpretacao_medida");
 if (dtInterpretacao) {
     dtInterpretacao.max = `${yyyy}-${mm}-${dd}`;
@@ -283,51 +298,56 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 
-function validarCaracteresPermitidos(elementId, allowedCharacters) {
-    var element = $(elementId);
-    if (!element) return;
+(function inicializarValidacao() {
 
-    element.setAttribute('autocomplete', 'off');
+ 
+  const regrasPorCampo = new Map();
 
-    // Escapa caracteres especiais de regex
-    const allowedEscaped = allowedCharacters.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&');
-    const regex = new RegExp('[^' + allowedEscaped + ']', 'g');
+  
+  const teclasEspeciais = new Set([
+    'Backspace','Delete','ArrowLeft','ArrowRight',
+    'ArrowUp','ArrowDown','Tab','Enter','Home','End'
+  ]);
 
-    // Bloqueia ao digitar
-    element.addEventListener('keydown', function(e) {
-        // Permite teclas de controle: backspace, delete, setas, tab, etc.
-        if (e.ctrlKey || e.metaKey || e.altKey) return;
-        if (['Backspace','Delete','ArrowLeft','ArrowRight','ArrowUp',
-             'ArrowDown','Tab','Enter','Home','End'].includes(e.key)) return;
+  
+  document.addEventListener('keydown', function(e) {
+    const regra = regrasPorCampo.get(e.target.id);
+    if (!regra) return;                          // campo não monitorado
+    if (e.ctrlKey || e.metaKey || e.altKey) return; // atalhos do sistema
+    if (teclasEspeciais.has(e.key)) return;      // navegação/edição
+    if (!regra.has(e.key)) e.preventDefault();
+  });
+  document.addEventListener('input', function(e) {
+    const regra = regrasPorCampo.get(e.target.id);
+    if (!regra) return;
 
-        if (regex.test(e.key)) {
-            e.preventDefault();
-            regex.lastIndex = 0; // reset do lastIndex por ser regex global
-        }
-        regex.lastIndex = 0;
-    });
+    const el       = e.target;
+    const original = el.value;
+    const cursor   = el.selectionStart;
 
-    // Bloqueia ao colar
-    element.addEventListener('paste', function(e) {
-        e.preventDefault();
-        const clipboardData = e.clipboardData || window.clipboardData;
-        let pastedData = clipboardData.getData('text');
-        pastedData = pastedData.replace(regex, '');
-        regex.lastIndex = 0;
-        document.execCommand('insertText', false, pastedData);
-    });
+    // 1. Remove caracteres não permitidos
+    let limpo = [...original].filter(c => regra.has(c)).join('');
 
-    // Garante limpeza ao soltar o campo (fallback)
-    element.addEventListener('input', function() {
-        const pos = this.selectionStart;
-        const cleaned = this.value.replace(regex, '');
-        regex.lastIndex = 0;
-        if (this.value !== cleaned) {
-            this.value = cleaned;
-            this.setSelectionRange(pos - 1, pos - 1);
-        }
-    });
-}
+    // 2. Colapsa espaços múltiplos (só se espaço for permitido no campo)
+    if (regra.has(' ')) limpo = limpo.replace(/ {2,}/g, ' ');
+
+    // 3. Só atualiza o DOM se mudou algo (evita loop)
+    if (limpo !== original) {
+      const removidosAntesCursor = [...original.slice(0, cursor)]
+        .filter(c => !regra.has(c)).length;
+
+      el.value = limpo;
+      const novoCursor = Math.max(0, cursor - removidosAntesCursor);
+      el.setSelectionRange(novoCursor, novoCursor);
+    }
+  });
+
+
+  window.validarCaracteresPermitidos = function(elementId, allowedCharacters) {
+    regrasPorCampo.set(elementId, new Set(allowedCharacters));
+  };
+
+})();
 
 function extrairTipoLogradouro(logradouroCompleto) {
 
@@ -365,40 +385,38 @@ function extrairTipoLogradouro(logradouroCompleto) {
     };
 }
 
-// Aplicando a validação para cada campo de entrada
-const letras = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ ÀÁÂÃÉÊÍÓÔÕÚÇ()";
-const numeros = "0123456789";
-[
-    "nome",
-    "nome_social",
-    "nome_da_mae",
-    "nome_do_pai",
-    "responsavel_unidade",
-    "nome_responsavel",
-    "logradouro_unidade",
-    "saude",
-    "medicamentos",
-    "n_pt",
-    "bairro",
-    "bairro_unidade",
-    "rua",
-    "nome_do_contato",
-].forEach(id => validarCaracteresPermitidos(id, letras));
+const letras = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ" +
+               "àáâãäéêëíîïóôõöúüçñÀÁÂÃÄÉÊËÍÎÏÓÔÕÖÚÜÇÑ";
+const letrasComEspaco            = letras + " ";
+const letrasComParentesesEEspaco = letras + "() ";
+const numeros                    = "0123456789";
+const numerosComParenteses = numeros + "()-"
 
-[
-    "cpf",
-    "cartao_sus",
-    "numero_unidade",
-    "telefone_unidade",
-    "numero_unidade",
-    "cep_unidade",
-    "horas_psc",
-    "numeroRa",
-    "n_processo",
-    "n_processo_apuracao",
-    "numero",
-    "telefone",
+console.log({
+    validarCaracteresPermitidos,
+    letrasComEspaco,
+    letrasComParentesesEEspaco,
+    numeros,
+    numerosComParenteses
+});
+
+
+["nome", "nome_social", "nome_da_mae", "nome_do_pai",
+ "nome_responsavel", "responsavel_unidade", "nome_do_contato"
+].forEach(id => validarCaracteresPermitidos(id, letrasComEspaco));
+
+["logradouro_unidade", "saude", "medicamentos",
+ "bairro", "bairro_unidade", "rua"
+].forEach(id => validarCaracteresPermitidos(id, letrasComParentesesEEspaco));
+
+["cpf", "cartao_sus", "numero_unidade", "telefone_unidade",
+ "cep_unidade", "horas_psc", "numeroRa", "n_processo",
+ "n_processo_apuracao", "numero", "telefone", "n_pt"
 ].forEach(id => validarCaracteresPermitidos(id, numeros));
+
+["telefone_unidade",
+ "telefone"
+].forEach(id => validarCaracteresPermitidos(id, numerosComParenteses));
 
 /*----as funções de check são chamadas dentro da tag html com o evento que verifica mudanças no campo---*/
 document.addEventListener("formReady", () => {
@@ -410,7 +428,7 @@ document.addEventListener("formReady", () => {
     $("curso")?.addEventListener("change", checkCurso);
     $("possui_trabalho")?.addEventListener("change", checkTrabalho);
     $("possui_familia_em_servico")?.addEventListener("change", checkFamiliar);
-    $("medicamentos_controlados")?.addEventListener("change", checkMedicamentosControlados);
+    $("faz_uso_de_medicamentos_controlados")?.addEventListener("change", checkMedicamentosControlados);
     $("faz_uso_de_medicamentos")?.addEventListener("change", checkMedicamentos);
     $("possui_demanda_saude")?.addEventListener("change", checkDemandaSaude);
     $("possui_demanda_saude_mental")?.addEventListener("change", checkDemandaSaudeMental);
@@ -438,7 +456,6 @@ document.addEventListener("formReady", () => {
     });
 
     checkSexo();
-
     checkDeficiencia();
     checkMedicamentos();
     checkMedicamentosControlados();
@@ -467,7 +484,7 @@ function checkMedicamentos() {
 }
 
 function checkMedicamentosControlados() {
-    toggleCampo("medicamentos_controlados", "medicamentos_controlado", "1", true)
+    toggleCampo("faz_uso_de_medicamentos_controlados", "medicamentos_controlados", "1", true)
 }
 
 function checkDemandaSaudeMental() {
@@ -1552,5 +1569,3 @@ function confirmLogout() {
         // Você pode adicionar algum feedback aqui se preferir
     }
 }
-
-

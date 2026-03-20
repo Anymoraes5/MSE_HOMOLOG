@@ -243,6 +243,56 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 });
+(function inicializarValidacao() {
+
+ 
+  const regrasPorCampo = new Map();
+
+  
+  const teclasEspeciais = new Set([
+    'Backspace','Delete','ArrowLeft','ArrowRight',
+    'ArrowUp','ArrowDown','Tab','Enter','Home','End'
+  ]);
+
+  
+  document.addEventListener('keydown', function(e) {
+    const regra = regrasPorCampo.get(e.target.id);
+    if (!regra) return;                          // campo não monitorado
+    if (e.ctrlKey || e.metaKey || e.altKey) return; // atalhos do sistema
+    if (teclasEspeciais.has(e.key)) return;      // navegação/edição
+    if (!regra.has(e.key)) e.preventDefault();
+  });
+  document.addEventListener('input', function(e) {
+    const regra = regrasPorCampo.get(e.target.id);
+    if (!regra) return;
+
+    const el       = e.target;
+    const original = el.value;
+    const cursor   = el.selectionStart;
+
+    // 1. Remove caracteres não permitidos
+    let limpo = [...original].filter(c => regra.has(c)).join('');
+
+    // 2. Colapsa espaços múltiplos (só se espaço for permitido no campo)
+    if (regra.has(' ')) limpo = limpo.replace(/ {2,}/g, ' ');
+
+    // 3. Só atualiza o DOM se mudou algo (evita loop)
+    if (limpo !== original) {
+      const removidosAntesCursor = [...original.slice(0, cursor)]
+        .filter(c => !regra.has(c)).length;
+
+      el.value = limpo;
+      const novoCursor = Math.max(0, cursor - removidosAntesCursor);
+      el.setSelectionRange(novoCursor, novoCursor);
+    }
+  });
+
+
+  window.validarCaracteresPermitidos = function(elementId, allowedCharacters) {
+    regrasPorCampo.set(elementId, new Set(allowedCharacters));
+  };
+
+})();
 
 // Obtém a data atual
 var hoje = new Date();
@@ -527,35 +577,40 @@ function validarCaracteresPermitidos(elementId, allowedCharacters) {
     });
 }
 
-// Aplicando a validação para cada campo de entrada
-validarCaracteresPermitidos("nome", "qwertyuioplkjhgfdsazxcvbnm QWERTYUIOPLKJHGFDSAZXCVBNM");
-validarCaracteresPermitidos("nome_social", "qwertyuioplkjhgfdsazxcvbnm QWERTYUIOPLKJHGFDSAZXCVBNM");
-validarCaracteresPermitidos("cpf", "0123456789");
-validarCaracteresPermitidos("nis", "0123456789");
-validarCaracteresPermitidos("cartao_sus", "0123456789"); 
-validarCaracteresPermitidos("nome_da_mae", "qwertyuioplkjhgfdsazxcvbnm QWERTYUIOPLKJHGFDSAZXCVBNM");
-validarCaracteresPermitidos("nome_do_pai", "qwertyuioplkjhgfdsazxcvbnm QWERTYUIOPLKJHGFDSAZXCVBNM");
-validarCaracteresPermitidos("responsavel_unidade","qwertyuioplkjhgfdsazxcvbnm QWERTYUIOPLKJHGFDSAZXCVBNM");
-validarCaracteresPermitidos("numero_unidade", "0123456789");
-validarCaracteresPermitidos("telefone_unidade", "0123456789");
-validarCaracteresPermitidos("numero_unidade", "0123456789");
-validarCaracteresPermitidos("nome_responsavel", "qwertyuioplkjhgfdsazxcvbnm QWERTYUIOPLKJHGFDSAZXCVBNM");
-validarCaracteresPermitidos("cep_unidade", "0123456789");
-validarCaracteresPermitidos("logradouro_unidade","qwertyuioplkjhgfdsazxcvbnm QWERTYUIOPLKJHGFDSAZXCVBNMÀÁÂÃÉÊÍÓÔÕÚÇàáâãéêíóôõúç");
-validarCaracteresPermitidos("horas_psc", "0123456789");
-validarCaracteresPermitidos("numeroRa", "01234.-56789");
-validarCaracteresPermitidos("saude", "()-qwertyuioplkjhgfdsazxcvbnm QWERTYUIOPLKJHGFDSAZXCVBNM 0123456789/");
-validarCaracteresPermitidos("medicamentos", "()-qwertyuioplkjhgfdsazxcvbnm QWERTYUIOPLKJHGFDSAZXCVBNM 0123456789/");
-validarCaracteresPermitidos("n_processo", "01234.-56789");
-validarCaracteresPermitidos("n_processo_apuracao", "01234.-56789");
-validarCaracteresPermitidos("n_pt", "0123456789.qwertyuioplkjhgfdsazxcvbnm-QWERTYUIOPLKJHGFDSAZXCVBNM");
-validarCaracteresPermitidos("cep", "0123456789");
-validarCaracteresPermitidos("bairro", "qwertyuioplkjhgfdsazxcvbnm QWERTYUIOPLKJHGFDSAZXCVBNM()"); 
-validarCaracteresPermitidos("bairro_unidade","abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ ÀÁÂÃÉÊÍÓÔÕÚÇ()");
-validarCaracteresPermitidos("rua", "qwertyuioplkjhgfdsazxcvbnm QWERTYUIOPLKJHGFDSAZXCVBNM");
-validarCaracteresPermitidos("numero", "0123456789");
-validarCaracteresPermitidos("nome_do_contato", "qwertyuioplkjhgfdsazxcvbnm QWERTYUIOPLKJHGFDSAZXCVBNM");
-validarCaracteresPermitidos("telefone", "0123456789");
+//valida caracteres permitidos
+
+const letras = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ" +
+               "àáâãäéêëíîïóôõöúüçñÀÁÂÃÄÉÊËÍÎÏÓÔÕÖÚÜÇÑ";
+const letrasComEspaco            = letras + " ";
+const letrasComParentesesEEspaco = letras + "() ";
+const numeros                    = "0123456789";
+const numerosComParenteses = numeros + "()-"
+
+console.log({
+    validarCaracteresPermitidos,
+    letrasComEspaco,
+    letrasComParentesesEEspaco,
+    numeros,
+    numerosComParenteses
+});
+
+
+["nome", "nome_social", "nome_da_mae", "nome_do_pai",
+ "nome_responsavel", "responsavel_unidade", "nome_do_contato"
+].forEach(id => validarCaracteresPermitidos(id, letrasComEspaco));
+
+["logradouro_unidade", "saude", "medicamentos",
+ "bairro", "bairro_unidade", "rua"
+].forEach(id => validarCaracteresPermitidos(id, letrasComParentesesEEspaco));
+
+["cpf", "cartao_sus", "numero_unidade", "telefone_unidade",
+ "cep_unidade", "horas_psc", "numeroRa", "n_processo",
+ "n_processo_apuracao", "numero", "telefone", "n_pt"
+].forEach(id => validarCaracteresPermitidos(id, numeros));
+
+["telefone_unidade",
+ "telefone"
+].forEach(id => validarCaracteresPermitidos(id, numerosComParenteses));
 
 /*---------------verifica se a dt_nasc mudou e altera a idade----------------------*/
 const dtNascChange = document.getElementById('dt_nasc');
@@ -1178,7 +1233,7 @@ document.dispatchEvent(new Event("formReady"));
     $("curso")?.addEventListener("change", checkCurso);
     $("possui_trabalho")?.addEventListener("change", checkTrabalho);
     $("possui_familia_em_servico")?.addEventListener("change", checkFamiliar);
-    $("medicamentos_controlados")?.addEventListener("change", checkMedicamentosControlados);
+    $("faz_uso_de_medicamentos_controlados")?.addEventListener("change", checkMedicamentosControlados);
     $("faz_uso_de_medicamentos")?.addEventListener("change", checkMedicamentos);
     $("possui_demanda_saude")?.addEventListener("change", checkDemandaSaude);
     $("possui_demanda_saude_mental")?.addEventListener("change", checkDemandaSaudeMental);
@@ -1251,7 +1306,7 @@ function checkMedicamentos() {
 }
 
 function checkMedicamentosControlados() {
-    toggleCampo("medicamentos_controlados", "medicamentos_controlado", "1", true)
+    toggleCampo("faz_uso_de_medicamentos_controlados", "medicamentos_controlados", "1", true)
 }
 
 function checkDemandaSaudeMental() {
