@@ -342,7 +342,13 @@ document.addEventListener('DOMContentLoaded', function() {
     let limpo = [...original].filter(c => regra.has(c)).join('');
 
     // 2. Colapsa espaços múltiplos (só se espaço for permitido no campo)
-    if (regra.has(' ')) limpo = limpo.replace(/ {2,}/g, ' ');
+    if (regra.has(' ')) {
+        limpo = limpo.replace(/ {2,}/g, ' ');
+        limpo = limpo.replace(/^ /, '');
+
+    }
+
+        
 
     // 3. Só atualiza o DOM se mudou algo (evita loop)
     if (limpo !== original) {
@@ -359,6 +365,13 @@ document.addEventListener('DOMContentLoaded', function() {
   window.validarCaracteresPermitidos = function(elementId, allowedCharacters) {
     regrasPorCampo.set(elementId, new Set(allowedCharacters));
   };
+          // Adicione isso dentro da IIFE, junto aos outros listeners
+    document.addEventListener('blur', function(e) {
+        const regra = regrasPorCampo.get(e.target.id);
+        if (!regra || !regra.has(' ')) return;
+
+        e.target.value = e.target.value.trim();
+    }, true); 
 
 })();
 
@@ -422,12 +435,18 @@ console.log({
  "bairro", "bairro_unidade", "rua"
 ].forEach(id => validarCaracteresPermitidos(id, letrasComParentesesEEspaco));
 
-["cpf", "cartao_sus", "numero_unidade", "telefone_unidade",
- "cep_unidade", "horas_psc", "numeroRa", "n_processo",
- "n_processo_apuracao", "numero", "telefone", "n_pt"
+["cpf", "cartao_sus", "numero_unidade",
+ , "horas_psc", "numeroRa", "n_processo",
+ "n_processo_apuracao", "numero", "n_pt"
 ].forEach(id => validarCaracteresPermitidos(id, numeros));
 
-["telefone_unidade",
+[
+    "cep_unidade", "cep",
+].forEach(id => validarCaracteresPermitidos(id, numeros + "-"));
+
+
+
+["telefone_unidade", 
  "telefone"
 ].forEach(id => validarCaracteresPermitidos(id, numerosComParenteses));
 
@@ -481,7 +500,7 @@ document.addEventListener("formReady", () => {
 function checkSexo() {
     toggleCampo("sexo", "gestante", "F", true);
     toggleCampo("sexo", "lactante", "F", true);
-    toggleCampo("sexo", "parceira_gestante", "M", true);
+    
 }
 
 function checkDemandaSaude() {
