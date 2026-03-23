@@ -71,8 +71,8 @@ on("cep_unidade", "change", function() {
     $("tipo_logradouro").value = "";
     $("logradouro_unidade").value = "";
     $("bairro_unidade").value = "";
-	$("numero_unidade").value = "";
-	$("complemento_unidade").value = "";
+    $("numero_unidade").value = "";
+    $("complemento_unidade").value = "";
 
     bloquearCamposEndereco(false);
 });
@@ -151,18 +151,18 @@ document.addEventListener('DOMContentLoaded', function() {
     const nome_da_mae = $('nome_da_mae');
     const nome_do_pai = $('nome_do_pai');
     const nome_responsavel = $('nome_responsavel');
-	const responsavel_unidade = $('responsavel_unidade');
+    const responsavel_unidade = $('responsavel_unidade');
     const bairro = $('bairro');
     const rua = $('rua');
     const complemento = $('complemento');
     const nome_do_contato = $('nome_do_contato');
 
-		aplicarMascaraCEP("cep_unidade");
-		aplicarMascaraCEP("cep");
+    
 
-		
-	
-	
+
+        
+    
+    
     function formatarNome(inputElement) {
         if (!inputElement) return; // ← proteção
 
@@ -185,7 +185,7 @@ document.addEventListener('DOMContentLoaded', function() {
     formatarNome(nome_da_mae);
     formatarNome(nome_do_pai);
     formatarNome(nome_responsavel);
-	formatarNome(responsavel_unidade);
+    formatarNome(responsavel_unidade);
     formatarNome(bairro);
     formatarNome(rua);
     formatarNome(complemento);
@@ -274,26 +274,27 @@ function checkDrogas() {
 
 
 
-
 document.addEventListener('DOMContentLoaded', function() {
-    var errorMessage = $('error-message-processo');
 
     var nProcessoInput = $('n_processo');
-    if (nProcessoInput){
-        nProcessoInput.addEventListener('input', function(){
-            var nProcessoValue = this.value;
-            var nProcessoValido = verificarComprimentoNProcesso(nProcessoValue);
+    var errorMessage = $('error-message-processo');
 
-            if (!nProcessoValido) {
-                // Exibir uma mensagem de erro
-                errorMessage.textContent = 'Processo inválido. Por favor, verifique e tente novamente.';
-                //event.preventDefault();
+    if (nProcessoInput){
+
+        nProcessoInput.addEventListener('input', function(){
+
+            // aplica máscara
+            this.value = aplicarMascaraProcesso(this.value);
+
+            // valida
+            var valido = verificarComprimentoNProcesso(this.value);
+
+            if (!valido) {
+                errorMessage.textContent = 'Formato inválido. Use: 0000000-00.0000.0.00.0000';
             } else {
-                // Limpar a mensagem de erro se o CPF for válido
                 errorMessage.textContent = '';
             }
-
-        })
+        });
     }
 });
 
@@ -329,7 +330,13 @@ document.addEventListener('DOMContentLoaded', function() {
     let limpo = [...original].filter(c => regra.has(c)).join('');
 
     // 2. Colapsa espaços múltiplos (só se espaço for permitido no campo)
-    if (regra.has(' ')) limpo = limpo.replace(/ {2,}/g, ' ');
+    if (regra.has(' ')) {
+        limpo = limpo.replace(/ {2,}/g, ' ');
+        limpo = limpo.replace(/^ /, '');
+
+    }
+
+        
 
     // 3. Só atualiza o DOM se mudou algo (evita loop)
     if (limpo !== original) {
@@ -346,6 +353,13 @@ document.addEventListener('DOMContentLoaded', function() {
   window.validarCaracteresPermitidos = function(elementId, allowedCharacters) {
     regrasPorCampo.set(elementId, new Set(allowedCharacters));
   };
+          // Adicione isso dentro da IIFE, junto aos outros listeners
+    document.addEventListener('blur', function(e) {
+        const regra = regrasPorCampo.get(e.target.id);
+        if (!regra || !regra.has(' ')) return;
+
+        e.target.value = e.target.value.trim();
+    }, true); 
 
 })();
 
@@ -405,21 +419,34 @@ console.log({
  "nome_responsavel", "responsavel_unidade", "nome_do_contato"
 ].forEach(id => validarCaracteresPermitidos(id, letrasComEspaco));
 
-["logradouro_unidade", "saude", "medicamentos",
+["medicamentos", "medicamentos_controlados"] .forEach(id => validarCaracteresPermitidos(id, letrasComParentesesEEspaco + numerosComParenteses));
+
+["logradouro_unidade", "saude", 
  "bairro", "bairro_unidade", "rua"
 ].forEach(id => validarCaracteresPermitidos(id, letrasComParentesesEEspaco));
 
-["cpf", "cartao_sus", "numero_unidade", "telefone_unidade",
- "cep_unidade", "horas_psc", "numeroRa", "n_processo",
- "n_processo_apuracao", "numero", "telefone", "n_pt"
+["cpf", "cartao_sus", "numero_unidade",
+ , "horas_psc", "numeroRa", "n_processo",
+ "n_processo_apuracao", "numero", "n_pt"
 ].forEach(id => validarCaracteresPermitidos(id, numeros));
 
-["telefone_unidade",
+[
+    "cep_unidade", "cep",
+].forEach(id => validarCaracteresPermitidos(id, numeros + "-"));
+
+
+
+["telefone_unidade", 
  "telefone"
 ].forEach(id => validarCaracteresPermitidos(id, numerosComParenteses));
 
 /*----as funções de check são chamadas dentro da tag html com o evento que verifica mudanças no campo---*/
 document.addEventListener("formReady", () => {
+    aplicarMascaraCEP("cep_unidade");
+    aplicarMascaraCEP("cep");
+    iniciarMascaraTelefone("telefone");
+    iniciarMascaraTelefone("telefone_unidade");
+
 
     $("sexo")?.addEventListener("change", checkSexo);
     // $("cad_unico")?.addEventListener("change", checkCadUnico);
@@ -468,7 +495,7 @@ document.addEventListener("formReady", () => {
 function checkSexo() {
     toggleCampo("sexo", "gestante", "F", true);
     toggleCampo("sexo", "lactante", "F", true);
-    toggleCampo("sexo", "parceira_gestante", "M", true);
+    
 }
 
 function checkDemandaSaude() {
@@ -679,9 +706,9 @@ document.addEventListener('change', function(e) {
         }
        
         if (!validarDiasUnidadeAcolhedora()) {
-			event.preventDefault();
-			return;
-		}
+            event.preventDefault();
+            return;
+        }
         //====================valida data de relatorio
         const dtInterpretacao = $("dt_interpretacao_medida")?.value;
         const dtRelatorio = $("dt_ultimo_relatorio_enviado")?.value;
@@ -894,8 +921,8 @@ function carregarDados(){
         filterFn: opcao => 
             opcao.descricao !== "ADMINISTRADORES DO SISTEMA"
     });
-	
-	// Carrega os tipos de local
+    
+    // Carrega os tipos de local
     popularSelect({
         url: "/opcoesTipoLocal",
         selectId: "tipo_local",
@@ -905,7 +932,7 @@ function carregarDados(){
         textKey: "descricao"
     });
 
-	 // Carrega os tipos de logradouro
+     // Carrega os tipos de logradouro
      popularSelect({
         url: "/opcoesTipoLogradouro",
         selectId: "tipo_logradouro",
@@ -915,8 +942,8 @@ function carregarDados(){
         textKey: "descricao"
     });
 
-	// Carrega as atividades da unidade
-	popularSelect({
+    // Carrega as atividades da unidade
+    popularSelect({
         url: "/opcoesAtividadeUnidade",
         selectId: "atividade_unidade",
         addDefault: true,        // adiciona option vazia
@@ -929,7 +956,7 @@ function carregarDados(){
             return a.descricao.localeCompare(b.descricao);
         }
     });
-			
+            
 
 
 

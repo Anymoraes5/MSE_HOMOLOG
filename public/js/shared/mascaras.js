@@ -1,55 +1,91 @@
-import { $ } from "./helpers.js";
 
 export function aplicarMascaraCEP(idCampo) {
-		const campo = $(idCampo);
-		if (!campo) return;
+    const campo = document.getElementById(idCampo); // ← sem #
+    console.log("campo encontrado:", campo);
+    if (!campo) return;
 
-		campo.addEventListener("input", function () {
-			let v = this.value.replace(/\D/g, '');
-
-			if (v.length > 5) {
-				v = v.replace(/^(\d{5})(\d)/, "$1-$2");
-			}
-
-			this.value = v.slice(0, 9);
-	});
+    campo.addEventListener("input", function () {
+        let v = this.value.replace(/\D/g, '');
+        if (v.length > 5) {
+            v = v.replace(/^(\d{5})(\d)/, "$1-$2");
+        }
+        this.value = v.slice(0, 9);
+    });
 }
 
 //--------------------------------mascara processo--------------------
-export function aplicarMascaraProcesso(input){
+// Recebe o VALOR e retorna o valor formatado
+export function aplicarMascaraProcesso(valor) {
+    if (!valor) return '';
+    
     const formato = '0000000-00.0000.0.00.0000';
+    valor = valor.replace(/\D/g, '');
+    
+    let valorFormatado = '';
+    let indiceFormato = 0;
+    let indiceDigitado = 0;
 
-    if (!input) return;
+    while (indiceDigitado < valor.length && indiceFormato < formato.length) {
+        const caractereFormato = formato[indiceFormato];
 
-    input.addEventListener('input', function(){
-        let valorDigitado = this.value.replace(/[^\d]/g, ''); // Remove tudo que não é dígito
-        let valorFormatado = '';
-        let indiceFormato = 0;
-        let indiceDigitado = 0;
-
-        while (indiceDigitado < valorDigitado.length && indiceFormato < formato.length) {
-            const caractereFormato = formato[indiceFormato];
-            const caractereDigitado = valorDigitado[indiceDigitado];
-
-            if (/[0-9]/.test(caractereFormato)) {
-                if (caractereDigitado) {
-                    valorFormatado += caractereDigitado;
-                    indiceDigitado++;
-                }
-                indiceFormato++;
-            } else {
-                valorFormatado += caractereFormato;
-                indiceFormato++;
-            }
+        if (/[0-9]/.test(caractereFormato)) {
+            valorFormatado += valor[indiceDigitado];
+            indiceDigitado++;
+        } else {
+            valorFormatado += caractereFormato;
         }
-
-        this.value = valorFormatado;
-
-        // Trunca o valor se exceder o tamanho da máscara
-        if (this.value.length > formato.length) {
-            this.value = this.value.slice(0, formato.length);
-        }
+        indiceFormato++;
     }
-)};
+
+    return valorFormatado;
+}
+
+// Recebe o ID e conecta o evento ao campo
+export function iniciarMascaraProcesso(id) {
+    const campo = document.getElementById(id);
+    if (!campo) return;
+
+    campo.addEventListener("input", function () {
+        this.value = aplicarMascaraProcesso(this.value);
+    });
+}
+//--------------------------------mascara telefone--------------------
+export function iniciarMascaraTelefone(id) {
+    const campo = document.getElementById(id);
+    if (!campo) return;
+
+    campo.addEventListener("input", function () {
+        this.value = aplicarMascaraTelefone(this.value);
+    });
+
+    campo.addEventListener("blur", function () {
+        if (this.value && !telefoneCompleto(this.value)) {
+            alert("Informe um telefone completo. Ex: (11) 91234-5678");
+            this.value = "";
+            this.focus();
+        }
+    });
+}
+
+export function aplicarMascaraTelefone(valor) {
+    valor = valor.replace(/\D/g, '');
+    if (valor.length <= 10) {
+        return valor
+            .replace(/^(\d{2})(\d)/, '($1) $2')
+            .replace(/(\d{4})(\d)/, '$1-$2')
+            .replace(/(-\d{4})\d+?$/, '$1');
+    } else {
+        return valor
+            .replace(/^(\d{2})(\d)/, '($1) $2')
+            .replace(/(\d{5})(\d)/, '$1-$2')
+            .replace(/(-\d{4})\d+?$/, '$1');
+    }
+}
+
+export function telefoneCompleto(valor) {
+    const fixo = /^\(\d{2}\) \d{4}-\d{4}$/;
+    const celular = /^\(\d{2}\) \d{5}-\d{4}$/;
+    return fixo.test(valor) || celular.test(valor);
+}
 
         

@@ -1,5 +1,6 @@
-/*-configurações padrões---------------------------------------------------------------------------------------------*/
 
+
+/*-configurações padrões---------------------------------------------------------------------------------------------*/
 let fs = require('fs');
 let path = require('path');
 let IdDescricaoRepository = require('../repository/IdDescricaoRepository');
@@ -7,6 +8,17 @@ let utils = require('../utils/validacoes');
 
 let { connection } = require('../db/db');
 const { Script } = require('vm');
+
+
+function normalizarTexto(str) {
+    if (!str) return str;
+    return str
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .toUpperCase()
+        .replace(/\s+/g, ' ')
+        .trim();
+}
 
 function rota_adminCadastraPessoa(app) {
 
@@ -140,6 +152,12 @@ function rota_adminCadastraPessoa(app) {
             nome_do_contato,
             email,
         } = req.body;
+        nome            = normalizarTexto(nome);
+        nome_social     = normalizarTexto(nome_social);
+        nome_da_mae     = normalizarTexto(nome_da_mae);
+        nome_do_pai     = normalizarTexto(nome_do_pai);
+        nome_responsavel = normalizarTexto(nome_responsavel);
+        nome_do_contato = normalizarTexto(nome_do_contato);
 
         
 

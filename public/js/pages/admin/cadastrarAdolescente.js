@@ -1,6 +1,6 @@
 import { $, $$, on, somenteLetras, somenteNumeros, upperTrim, validarObrigatoriosAutomatico, limparCampos, validarDocumento } from "../../shared/helpers.js";
 import { toggleCampo, toggleCampoPorMultiplos } from "../../shared/formRules.js";
-import { aplicarMascaraCEP } from "../../shared/mascaras.js";
+import { aplicarMascaraCEP, iniciarMascaraTelefone, iniciarMascaraProcesso} from "../../shared/mascaras.js";
 import { 
     validarCPF, 
     validaCartao_sus, 
@@ -156,8 +156,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const complemento = $('complemento');
     const nome_do_contato = $('nome_do_contato');
 
-		aplicarMascaraCEP("cep_unidade");
-		aplicarMascaraCEP("cep");
+	
+
 
 		
 	
@@ -272,19 +272,6 @@ function checkDrogas() {
 
 
 
-function aplicarMascaraProcesso(valor) {
-    // remove tudo que não é número
-    valor = valor.replace(/\D/g, '');
-
-    // aplica a máscara progressivamente
-    valor = valor.replace(/^(\d{7})(\d)/, '$1-$2');
-    valor = valor.replace(/^(\d{7}-\d{2})(\d)/, '$1.$2');
-    valor = valor.replace(/^(\d{7}-\d{2}\.\d{4})(\d)/, '$1.$2');
-    valor = valor.replace(/^(\d{7}-\d{2}\.\d{4}\.\d)(\d)/, '$1.$2');
-    valor = valor.replace(/^(\d{7}-\d{2}\.\d{4}\.\d\.\d{2})(\d)/, '$1.$2');
-
-    return valor;
-}
 
 document.addEventListener('DOMContentLoaded', function() {
 
@@ -431,7 +418,9 @@ console.log({
  "nome_responsavel", "responsavel_unidade", "nome_do_contato"
 ].forEach(id => validarCaracteresPermitidos(id, letrasComEspaco));
 
-["logradouro_unidade", "saude", "medicamentos",
+["medicamentos", "medicamentos_controlados"] .forEach(id => validarCaracteresPermitidos(id, letrasComParentesesEEspaco + numerosComParenteses));
+
+["logradouro_unidade", "saude", 
  "bairro", "bairro_unidade", "rua"
 ].forEach(id => validarCaracteresPermitidos(id, letrasComParentesesEEspaco));
 
@@ -452,6 +441,11 @@ console.log({
 
 /*----as funções de check são chamadas dentro da tag html com o evento que verifica mudanças no campo---*/
 document.addEventListener("formReady", () => {
+    aplicarMascaraCEP("cep_unidade");
+	aplicarMascaraCEP("cep");
+    iniciarMascaraTelefone("telefone");
+    iniciarMascaraTelefone("telefone_unidade");
+
 
     $("sexo")?.addEventListener("change", checkSexo);
     // $("cad_unico")?.addEventListener("change", checkCadUnico);

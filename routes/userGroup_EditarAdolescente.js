@@ -6,6 +6,17 @@ let path = require('path');
 let IdDescricaoRepository = require('../repository/IdDescricaoRepository');
 let utils = require('../utils/validacoes');
 
+function normalizarTexto(str) {
+    if (!str) return str;
+    return str
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .toUpperCase()
+        .replace(/\s+/g, ' ')
+        .trim();
+}
+
+
 //Importa a conexão com o banco de dados
 let { connection } = require('../db/db');
 
@@ -321,6 +332,13 @@ function rota_editarPessoas(app) {
            nome_do_contato,    //: nome_do_contato,  
            email,    //: email 
        } = req.body;
+
+       nome            = normalizarTexto(nome);
+        nome_social     = normalizarTexto(nome_social);
+        nome_da_mae     = normalizarTexto(nome_da_mae);
+        nome_do_pai     = normalizarTexto(nome_do_pai);
+        nome_responsavel = normalizarTexto(nome_responsavel);
+        nome_do_contato = normalizarTexto(nome_do_contato);
 
        var dt_desligamento = req.body.dt_desligamento;
        // Se estiver inativo (ativo_inativo == 0)

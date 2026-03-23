@@ -1,4 +1,5 @@
 import { toggleCampo, toggleCampoPorMultiplos } from "../../shared/formRules.js";
+import { aplicarMascaraCEP, iniciarMascaraTelefone } from "../../shared/mascaras.js";
 import { $ } from "../../shared/helpers.js";
 
 
@@ -137,43 +138,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const complemento = document.getElementById('complemento');
     const nome_do_contato = document.getElementById('nome_do_contato');
 	
-	    aplicarMascaraCEP("cep_unidade");
-		aplicarMascaraCEP("cep");
-
-		
-    function formatarCEP(valor) {
-        if (!valor) return "";
-        
-        let v = valor.replace(/\D/g, '');
-        
-        if (v.length > 5) {
-            v = v.replace(/^(\d{5})(\d)/, "$1-$2");
-        }
-
-        return v.substring(0, 9);
-    }
-
-    function aplicarMascaraCEP(idCampo) {
-        const campo = document.getElementById(idCampo);
-        if (!campo) return;
-
-        // 🔹 Sempre que digitar
-        campo.addEventListener("input", function () {
-            this.value = formatarCEP(this.value);
-        });
-
-        // 🔹 Observa mudanças feitas via JS (backend, AJAX, etc.)
-        const observer = new MutationObserver(() => {
-            campo.value = formatarCEP(campo.value);
-        });
-
-        observer.observe(campo, { attributes: true, attributeFilter: ['value'] });
-
-        // 🔹 Pequeno delay para garantir que o valor já foi inserido
-        setTimeout(() => {
-            campo.value = formatarCEP(campo.value);
-        }, 300);
-    }
 
 
 
@@ -447,23 +411,6 @@ document.addEventListener('DOMContentLoaded', function() {
 //     return result;
 // }
 
-		aplicarMascaraCEP("cep_unidade");
-		aplicarMascaraCEP("cep");
-
-		function aplicarMascaraCEP(idCampo) {
-		const campo = document.getElementById(idCampo);
-		if (!campo) return;
-
-		campo.addEventListener("input", function () {
-			let v = this.value.replace(/\D/g, '');
-
-			if (v.length > 5) {
-				v = v.replace(/^(\d{5})(\d)/, "$1-$2");
-			}
-
-			this.value = v.slice(0, 9);
-		});
-	}
 
 // Função para validar o campo de CEP
 /*function validarCEP(cep) {
@@ -603,6 +550,8 @@ console.log({
  "bairro", "bairro_unidade", "rua"
 ].forEach(id => validarCaracteresPermitidos(id, letrasComParentesesEEspaco));
 
+["medicamentos", "medicamentos_controlados"] .forEach(id => validarCaracteresPermitidos(id, letrasComParentesesEEspaco + numerosComParenteses));
+
 ["cpf", "cartao_sus", "numero_unidade", "telefone_unidade",
  "cep_unidade", "horas_psc", "numeroRa", "n_processo",
  "n_processo_apuracao", "numero", "telefone", "n_pt"
@@ -652,6 +601,9 @@ const btnSalvar = document.getElementById('salvar');
 if(btnSalvar){
 
     btnSalvar.addEventListener('click', function(event) {
+    document.getElementById('caps')?.removeAttribute('disabled');
+    document.getElementById('curso')?.removeAttribute('disabled');
+
     if (!confirm("Tem certeza que deseja cadastrar o usuário?")) {
         alert("Operação cancelada");
         event.preventDefault()
@@ -1225,6 +1177,10 @@ if(btnSalvar){
 };
 //--------------------------validar campos
 document.dispatchEvent(new Event("formReady"));
+    aplicarMascaraCEP("cep_unidade");
+    aplicarMascaraCEP("cep");
+    iniciarMascaraTelefone("telefone");
+    iniciarMascaraTelefone("telefone_unidade");
 
     $("sexo")?.addEventListener("change", checkSexo);
     // $("cad_unico")?.addEventListener("change", checkCadUnico);
