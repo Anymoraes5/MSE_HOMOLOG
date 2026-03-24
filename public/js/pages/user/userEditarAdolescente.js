@@ -29,6 +29,7 @@ document.querySelectorAll('#menu-lateral a').forEach(anchor => {
     });
 });
 
+
 /*-----VALIDAÇÕES----------------------------------------------------------------------------------------------------------*/
 
 //Validação do campo de telefone
@@ -138,43 +139,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const complemento = document.getElementById('complemento');
     const nome_do_contato = document.getElementById('nome_do_contato');
     
-        aplicarMascaraCEP("cep_unidade");
-        aplicarMascaraCEP("cep");
-
-        
-    function formatarCEP(valor) {
-        if (!valor) return "";
-        
-        let v = valor.replace(/\D/g, '');
-        
-        if (v.length > 5) {
-            v = v.replace(/^(\d{5})(\d)/, "$1-$2");
-        }
-
-        return v.substring(0, 9);
-    }
-
-    function aplicarMascaraCEP(idCampo) {
-        const campo = document.getElementById(idCampo);
-        if (!campo) return;
-
-        // 🔹 Sempre que digitar
-        campo.addEventListener("input", function () {
-            this.value = formatarCEP(this.value);
-        });
-
-        // 🔹 Observa mudanças feitas via JS (backend, AJAX, etc.)
-        const observer = new MutationObserver(() => {
-            campo.value = formatarCEP(campo.value);
-        });
-
-        observer.observe(campo, { attributes: true, attributeFilter: ['value'] });
-
-        // 🔹 Pequeno delay para garantir que o valor já foi inserido
-        setTimeout(() => {
-            campo.value = formatarCEP(campo.value);
-        }, 300);
-    }
 
 
 
@@ -448,23 +412,6 @@ document.addEventListener('DOMContentLoaded', function() {
 //     return result;
 // }
 
-        aplicarMascaraCEP("cep_unidade");
-        aplicarMascaraCEP("cep");
-
-        function aplicarMascaraCEP(idCampo) {
-        const campo = document.getElementById(idCampo);
-        if (!campo) return;
-
-        campo.addEventListener("input", function () {
-            let v = this.value.replace(/\D/g, '');
-
-            if (v.length > 5) {
-                v = v.replace(/^(\d{5})(\d)/, "$1-$2");
-            }
-
-            this.value = v.slice(0, 9);
-        });
-    }
 
 // Função para validar o campo de CEP
 /*function validarCEP(cep) {
@@ -586,7 +533,6 @@ const letrasComEspaco            = letras + " ";
 const letrasComParentesesEEspaco = letras + "() ";
 const numeros                    = "0123456789";
 const numerosComParenteses = numeros + "()-"
-
 console.log({
     validarCaracteresPermitidos,
     letrasComEspaco,
@@ -595,12 +541,13 @@ console.log({
     numerosComParenteses
 });
 
-
 ["nome", "nome_social", "nome_da_mae", "nome_do_pai",
  "nome_responsavel", "responsavel_unidade", "nome_do_contato"
 ].forEach(id => validarCaracteresPermitidos(id, letrasComEspaco));
 
-["logradouro_unidade", "saude", "medicamentos",
+["medicamentos", "medicamentos_controlados"] .forEach(id => validarCaracteresPermitidos(id, letrasComParentesesEEspaco + numerosComParenteses));
+
+["logradouro_unidade", "saude",
  "bairro", "bairro_unidade", "rua"
 ].forEach(id => validarCaracteresPermitidos(id, letrasComParentesesEEspaco));
 
@@ -655,6 +602,10 @@ const btnSalvar = document.getElementById('salvar');
 if(btnSalvar){
 
     btnSalvar.addEventListener('click', function(event) {
+    document.querySelectorAll("input:disabled, select:disabled").forEach(el => {
+        el.disabled = false;
+    });
+
     if (!confirm("Tem certeza que deseja cadastrar o usuário?")) {
         alert("Operação cancelada");
         event.preventDefault()
@@ -1206,7 +1157,8 @@ if(btnSalvar){
         .then(response => response.json())
         .then(data => {
             alert('Dados atualizados com sucesso!');
-            window.location.href = '/verPessoas'; // Redireciona para a página de consulta
+            window.location.href = '/verPessoas'; 
+            // Redireciona para a página de consulta
         })
         .catch(error => {
             console.error('Erro capturado:', error);
@@ -1226,6 +1178,23 @@ if(btnSalvar){
     }
 })
 };
+// No final do arquivo, fora de tudo:
+document.addEventListener("DOMContentLoaded", function () {
+    checkSexo();
+    checkDeficiencia();
+    checkMedicamentos();
+    checkMedicamentosControlados();
+    checkDemandaSaude();
+    checkDemandaSaudeMental();
+    checkCurso();
+    checkTrabalho();
+    checkFamiliar();
+    checkCaps();
+    checkMatriculado();
+    checkTecRef();
+
+    document.dispatchEvent(new Event("formReady"));
+});
 //--------------------------validar campos
 document.dispatchEvent(new Event("formReady"));
     aplicarMascaraCEP("cep_unidade");
@@ -1267,37 +1236,19 @@ document.dispatchEvent(new Event("formReady"));
         if (asterisco) asterisco.style.display = "none";
     });
 
-    checkSexo();
-    checkDeficiencia();
-    checkMedicamentos();
-    checkMedicamentosControlados();
-    checkDemandaSaude();
-    checkCurso();
-    checkCaps();
+
 
 
 function checkSexo() {
-    const sexo = $("sexo")?.value;
-
-    const gestante = $("gestante");
-    const lactante = $("lactante");
-    const parceira = $("parceira_gestante");
-
-    if (!gestante || !lactante || !parceira) return;
-
-
-    gestante.disabled = true;
-    lactante.disabled = true;
-    parceira.disabled = true;
-
-    gestante.removeAttribute("required");
-    lactante.removeAttribute("required");
-    parceira.removeAttribute("required");
-
-
     toggleCampo("sexo", "gestante", "F", true);
     toggleCampo("sexo", "lactante", "F", true);
-    toggleCampo("sexo", "parceira_gestante", "M", true);
+
+    const sexo = $("sexo")?.value;
+    if (sexo !== "F") {
+        $("gestante").value = "0";
+        $("lactante").value = "0";
+    }
+
 }
 
 function checkDemandaSaude() {
@@ -1378,9 +1329,9 @@ function checkMatriculado() {
 
     } else if (matriculado === "0") {
 
-        tipoEscola.value = "";
-        ensinoModalidade.value = "";
-        frequenciaAula.value = "";
+        tipoEscola.value = "1";
+        ensinoModalidade.value = "0";
+        frequenciaAula.value = "0";
         tipoEscola.disabled = true;
         ensinoModalidade.disabled = true;
         frequenciaAula.disabled = true;

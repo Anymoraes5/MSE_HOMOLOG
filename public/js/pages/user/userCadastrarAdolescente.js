@@ -495,6 +495,12 @@ document.addEventListener("formReady", () => {
 function checkSexo() {
     toggleCampo("sexo", "gestante", "F", true);
     toggleCampo("sexo", "lactante", "F", true);
+
+    const sexo = $("sexo")?.value;
+    if (sexo !== "F") {
+        $("gestante").value = "0";
+        $("lactante").value = "0";
+    }
     
 }
 
@@ -526,8 +532,7 @@ function checkCaps(){
 
     if (!caps) return;
 
-    const ativar = 
-    saudeMental === "1" || (alcool && alcool != "Não") ;
+    const ativar = saudeMental === "1" || (alcool && alcool != "Não") ;
 
     if (ativar) {
         caps.disabled = false;
@@ -576,9 +581,9 @@ function checkMatriculado() {
 
     } else if (matriculado === "0") {
 
-        tipoEscola.value = "";
-        ensinoModalidade.value = "";
-        frequenciaAula.value = "";
+        tipoEscola.value = "1";
+        ensinoModalidade.value = "0";
+        frequenciaAula.value = "0";
         tipoEscola.disabled = true;
         ensinoModalidade.disabled = true;
         frequenciaAula.disabled = true;
@@ -644,7 +649,9 @@ document.addEventListener('change', function(e) {
    document.addEventListener("submit", function(event){
 
     if(event.target && event.target.id === "editar-form"){
-        console.log("SUBMIT DISPAROU — MSE no DOM:", document.getElementById('mse').value);
+        this.querySelectorAll("input:disabled, select:disabled").forEach(el => {
+            el.disabled = false;
+        });
         event.preventDefault();
 
         document.getElementById('creas_atual')?.removeAttribute('disabled');
@@ -667,20 +674,6 @@ document.addEventListener('change', function(e) {
         console.log("SAS no data:", data.sas);
 
         
-
-        // formData.forEach((value, key) => {
-
-        //     if (data[key]) {
-        //         if (!Array.isArray(data[key])) {
-        //             data[key] = [data[key]];
-        //         }
-        //         data[key].push(value);
-        //     } else {
-        //         data[key] = value;
-        //     }
-
-        // });
-
         //=====================validar idade==================================
         const dt = document.getElementById("dt_nasc")?.value;
         
@@ -1240,16 +1233,6 @@ async function preencherCreasSasPorMse(idMse) {
 
         console.log("DADOS DO MSE:", dados);
 
-        // // Aguarda o popularSelect do CREAS terminar antes de setar
-        // await popularSelect({ 
-        //     url: "/opcoesCreasAtual", 
-        //     selectId: "creas_atual", 
-        //     valueKey: "ID",
-        //     textKey: "descricao",
-        //     addDefault: true, 
-        //     defaultText: "Selecione" 
-        // });
-
         const selectCreas = document.getElementById('creas_atual');
         if (selectCreas && dados.creas_id) {
             selectCreas.value    = dados.creas_id;
@@ -1596,3 +1579,5 @@ function confirmLogout() {
         // Você pode adicionar algum feedback aqui se preferir
     }
 }
+
+

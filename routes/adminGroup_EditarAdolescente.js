@@ -243,6 +243,9 @@ function rota_adminEditaPessoa(app) {
         let cartao_sus = req.body.cartao_sus.replace(/[.-]/g, '');
         let cep = req.body.cep.replace(/-/g, "")
         let telefone = req.body.telefone.replace(/\D/g, '')
+
+
+        console.log("cad_unico vindo do front:", req.body.cad_unico);
         var {
 			tipo_local,
 			nome_unidade,
@@ -336,6 +339,9 @@ function rota_adminEditaPessoa(app) {
             nome_do_contato,    //: nome_do_contato, 
             email,    //: email 
         } = req.body;
+
+        console.log("cad_unico vindo do back:", req.body.cad_unico);
+        console.log(req.body);
 
         nome            = normalizarTexto(nome);
         nome_social     = normalizarTexto(nome_social);
@@ -613,8 +619,10 @@ function rota_adminEditaPessoa(app) {
             if (utils.verificar_campos(caps) == null) {
                 caps = null
             }
-            if (utils.verificar_campos(cad_unico) == null) {
-                cad_unico = null
+            if (cad_unico === undefined) {
+                // NÃO altera (mantém valor atual no banco)
+            } else if (utils.verificar_campos(cad_unico) == null) {
+                cad_unico = null;
             }
             if (utils.verificar_campos(curso) == null) {
                 curso = null

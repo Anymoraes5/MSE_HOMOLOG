@@ -29,6 +29,7 @@ document.querySelectorAll('#menu-lateral a').forEach(anchor => {
     });
 });
 
+
 /*-----VALIDAÇÕES----------------------------------------------------------------------------------------------------------*/
 
 //Validação do campo de telefone
@@ -532,7 +533,6 @@ const letrasComEspaco            = letras + " ";
 const letrasComParentesesEEspaco = letras + "() ";
 const numeros                    = "0123456789";
 const numerosComParenteses = numeros + "()-"
-
 console.log({
     validarCaracteresPermitidos,
     letrasComEspaco,
@@ -541,12 +541,13 @@ console.log({
     numerosComParenteses
 });
 
-
 ["nome", "nome_social", "nome_da_mae", "nome_do_pai",
  "nome_responsavel", "responsavel_unidade", "nome_do_contato"
 ].forEach(id => validarCaracteresPermitidos(id, letrasComEspaco));
 
-["logradouro_unidade", "saude", "medicamentos",
+["medicamentos", "medicamentos_controlados"] .forEach(id => validarCaracteresPermitidos(id, letrasComParentesesEEspaco + numerosComParenteses));
+
+["logradouro_unidade", "saude",
  "bairro", "bairro_unidade", "rua"
 ].forEach(id => validarCaracteresPermitidos(id, letrasComParentesesEEspaco));
 
@@ -601,8 +602,9 @@ const btnSalvar = document.getElementById('salvar');
 if(btnSalvar){
 
     btnSalvar.addEventListener('click', function(event) {
-    document.getElementById('caps')?.removeAttribute('disabled');
-    document.getElementById('curso')?.removeAttribute('disabled');
+    document.querySelectorAll("input:disabled, select:disabled").forEach(el => {
+        el.disabled = false;
+    });
 
     if (!confirm("Tem certeza que deseja cadastrar o usuário?")) {
         alert("Operação cancelada");
@@ -1038,6 +1040,7 @@ if(btnSalvar){
 		var horario_inicio_unidade = document.getElementById('horario_inicio_unidade').value;
 		var horario_fim_unidade = document.getElementById('horario_fim_unidade').value;
 		var cep_unidade = document.getElementById('cep_unidade').value;
+		var cad_unico = document.getElementById('cad_unico').value;
 
         // dias da semana (checkbox)
 		var dias_semana = Array
@@ -1045,6 +1048,9 @@ if(btnSalvar){
 			.map(el => el.value)
 			.join(',');
 
+        
+        console.log("TIPO:", typeof cad_unico);
+        console.log("VALOR:", cad_unico);
 		// Envia uma requisição AJAX para atualizar os dados do usuário
         fetch(`/editandoPessoas/${ID}`, {
             method: 'PUT',
@@ -1081,6 +1087,7 @@ if(btnSalvar){
                 nome_social: nome_social, 
                 dt_nasc: dt_nasc, 
                 cpf: cpfValue, 
+                cad_unico: cad_unico,
                 // nis: nisValue, 
                 cartao_sus: cartao_susValue,
                 medidas_mse: medidas_mse, 
@@ -1155,7 +1162,8 @@ if(btnSalvar){
         .then(response => response.json())
         .then(data => {
             alert('Dados atualizados com sucesso!');
-            window.location.href = '/verPessoas'; // Redireciona para a página de consulta
+            window.location.href = '/verPessoas'; 
+            // Redireciona para a página de consulta
         })
         .catch(error => {
             console.error('Erro capturado:', error);
@@ -1175,6 +1183,24 @@ if(btnSalvar){
     }
 })
 };
+// No final do arquivo, fora de tudo:
+document.addEventListener("DOMContentLoaded", function () {
+    checkSexo();
+    checkDeficiencia();
+    checkMedicamentos();
+    checkMedicamentosControlados();
+    checkDemandaSaude();
+    checkDemandaSaudeMental();
+    checkCurso();
+    checkTrabalho();
+    checkFamiliar();
+    checkCaps();
+    checkMatriculado();
+    checkTecRef();
+    checkDtDesligamento();
+
+    document.dispatchEvent(new Event("formReady"));
+});
 //--------------------------validar campos
 document.dispatchEvent(new Event("formReady"));
     aplicarMascaraCEP("cep_unidade");
@@ -1195,7 +1221,8 @@ document.dispatchEvent(new Event("formReady"));
     $("possui_demanda_saude_mental")?.addEventListener("change", checkDemandaSaudeMental);
     $("tec_ref")?.addEventListener("change", checkTecRef);
     $("alcool_ou_drogas")?.addEventListener("change", checkCaps);
-
+    $("ativo_inativo")?.addEventListener("change", checkDtDesligamento);
+    
     // Garante que os asteriscos condicionais iniciem ocultos
     const camposCondicionais = [
         "listar_cursos",
@@ -1216,37 +1243,22 @@ document.dispatchEvent(new Event("formReady"));
         if (asterisco) asterisco.style.display = "none";
     });
 
-    checkSexo();
-    checkDeficiencia();
-    checkMedicamentos();
-    checkMedicamentosControlados();
-    checkDemandaSaude();
-    checkCurso();
-    checkCaps();
+
 
 
 function checkSexo() {
-    const sexo = $("sexo")?.value;
-
-    const gestante = $("gestante");
-    const lactante = $("lactante");
-    const parceira = $("parceira_gestante");
-
-    if (!gestante || !lactante || !parceira) return;
-
-
-    gestante.disabled = true;
-    lactante.disabled = true;
-    parceira.disabled = true;
-
-    gestante.removeAttribute("required");
-    lactante.removeAttribute("required");
-    parceira.removeAttribute("required");
-
-
     toggleCampo("sexo", "gestante", "F", true);
     toggleCampo("sexo", "lactante", "F", true);
-    toggleCampo("sexo", "parceira_gestante", "M", true);
+
+    const sexo = $("sexo")?.value;
+    if (sexo !== "F") {
+        $("gestante").value = "0";
+        $("lactante").value = "0";
+    }
+
+}
+function checkDtDesligamento() {
+    toggleCampo("ativo_inativo", "dt_desligamento", "0", true);
 }
 
 function checkDemandaSaude() {
@@ -1327,9 +1339,9 @@ function checkMatriculado() {
 
     } else if (matriculado === "0") {
 
-        tipoEscola.value = "";
-        ensinoModalidade.value = "";
-        frequenciaAula.value = "";
+        tipoEscola.value = "1";
+        ensinoModalidade.value = "0";
+        frequenciaAula.value = "0";
         tipoEscola.disabled = true;
         ensinoModalidade.disabled = true;
         frequenciaAula.disabled = true;

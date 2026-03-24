@@ -60,6 +60,7 @@ function rota_adminCadastraPessoa(app) {
         let cartao_sus = req.body.cartao_sus.replace(/[.-]/g, '');
         let cep = req.body.cep.replace(/-/g, "");
         let telefone = req.body.telefone.replace(/\D/g, '');
+        
 
         var {
             tipo_logradouro,
@@ -161,10 +162,7 @@ function rota_adminCadastraPessoa(app) {
 
         
 
-        // ================================================
-        // VALIDAÇÕES SÍNCRONAS
-        // ================================================
-
+    
         telefone = telefone.replace(/\D/g, '');
         if (telefone.length < 10 || telefone.length > 11) {
             return res.status(400).json({ error: 'Telefone inválido! Deve ter 10 ou 11 dígitos.' });
@@ -203,9 +201,7 @@ function rota_adminCadastraPessoa(app) {
             return res.status(400).json({ error: 'Tipo de logradouro inválido.' });
         }
 
-        // ================================================
-        // VERIFICAÇÃO DE PROCESSO DUPLICADO (back-end)
-        // ================================================
+
         connection.query(
             "SELECT 1 FROM processos WHERE n_processo = ? LIMIT 1",
             [n_processo],
@@ -220,10 +216,7 @@ function rota_adminCadastraPessoa(app) {
                     return res.status(400).json({ error: 'ER_DUP_ENTRY' });
                 }
 
-                // ================================================
-                // A PARTIR DAQUI: processo não existe, pode salvar
-                // ================================================
-
+               
                 var dt_desligamento = (ativo_inativo == 0) ? `${ano}-${mes}-${dia}` : null;
 
                 const cep_unidade_limpo = cep_unidade ? cep_unidade.replace(/\D/g, '') : null;
@@ -337,9 +330,7 @@ function rota_adminCadastraPessoa(app) {
                     });
                 }
 
-                // ================================================
-                // AGUARDA AS CONSULTAS ASSÍNCRONAS E INICIA TRANSACTION
-                // ================================================
+      
                 setTimeout(() => {
 
                     connection.beginTransaction((err) => {

@@ -1,3 +1,4 @@
+
 console.log("JS CARREGANDO EDITAR CARGA");
 /*-----AUTENTICAÇÃO---------------------------------------------------------------------------------------------------------*/
 
@@ -8,6 +9,53 @@ if (!isAuthenticated) {
     window.location.href = '/'; // Supondo que a página de login esteja em '/'
 }
 /*-----VALIDAÇÕES----------------------------------------------------------------------------------------------------------*/
+async function popularSelect({
+    url,
+    selectId,
+    valueKey = "descricao",
+    textKey = "descricao",
+    addDefault = false,
+    defaultText = "",
+    filterFn = null,
+    sortFn = null
+}) {
+
+
+    try {
+        const response = await fetch(url);
+
+        let dados = await response.json();
+
+        if (filterFn) dados = dados.filter(filterFn);
+        if (sortFn) dados.sort(sortFn);
+
+        const select = document.getElementById(selectId);
+
+        if (!select) {
+            console.warn("Select não encontrado:", selectId);
+            return;
+        }
+
+        select.innerHTML = "";
+
+        if (addDefault) {
+            const option = document.createElement("option");
+            option.value = "";
+            option.textContent = defaultText;
+            select.appendChild(option);
+        }
+
+        dados.forEach(item => {
+            const option = document.createElement("option");
+            option.value = item[valueKey] ?? "";
+            option.textContent = item[textKey] ?? "";
+            select.appendChild(option);
+        });
+
+    } catch (error) {
+        console.error("Erro ao carregar:", url, error);
+    }
+}
 
 function formatarData(data) {
     // Extrai apenas a parte da data (sem a parte da hora e do fuso horário)
@@ -679,12 +727,44 @@ async function buscarTecRefPorMse(mseSelecionado) {
         console.error('Erro ao buscar opções Técnico de Referência:', error);
     }
 }
+async function preencherCreasSasPorMse(idMse) {
+    if (!idMse) {
+        const selectCreas = document.getElementById('creas_atual');
+        const selectSas   = document.getElementById('sas');
+        if (selectCreas) { selectCreas.value = ''; selectCreas.disabled = false; }
+        if (selectSas)   { selectSas.value   = ''; selectSas.disabled   = false; }
+        resetSelectField('distrito_servico');
+        return;
+    }
 
-// Adiciona um evento change ao select de MSE
-document.getElementById('mse').addEventListener('change', function() {
-    var mseSelecionado = this.value; // Obtém o valor selecionado no select mse
-    buscarTecRefPorMse(mseSelecionado); // Chama a função para buscar TecRef com base no mse
-});
+    try {
+        const response = await fetch(`/dadosMse/${idMse}`);
+        const dados    = await response.json();
+
+        console.log("DADOS DO MSE:", dados);
+
+        const selectCreas = document.getElementById('creas_atual');
+        if (selectCreas && dados.creas_id) {
+            selectCreas.value    = dados.creas_id;
+            selectCreas.disabled = true;
+            console.log("CREAS SETADO PARA:", selectCreas.value);
+        }
+
+        const selectSas = document.getElementById('sas');
+        if (selectSas && dados.sas_ids.length > 0) {
+            selectSas.value    = dados.sas_ids[0];
+            selectSas.disabled = true;
+            console.log("SAS SETADA PARA:", selectSas.value);
+            selectSas.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+
+    } catch (err) {
+        console.error('Erro ao buscar dados do MSE:', err);
+    }
+}
+
+
+
 
 // Função assíncrona para carregar os dados do usuário e preencher o formulário
 async function carregarDadosDoUsuario(ID) {
@@ -809,12 +889,15 @@ async function carregarDadosDoUsuario(ID) {
             'email': data['email'] || '',
             'dt_desligamento': formatarData(data['dt_desligamento']),
         };
+        console.log("DADOS COMPLETOS:", data);
+        console.log("cad_unico:", data.cad_unico);
+        
 		
         // Preencher os campos do formulário
         Object.keys(elements).forEach(id => {
             const element = document.getElementById(id);
             if (element) {
-                element.value = elements[id] || ''; // Preenche com o valor ou string vazia
+                element.value = elements[id] ?? ''; // Preenche com o valor ou string vazia
             } else {
                 console.error(`Elemento com ID '${id}' não encontrado.`);
             }
