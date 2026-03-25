@@ -1040,6 +1040,7 @@ if(btnSalvar){
         var horario_inicio_unidade = document.getElementById('horario_inicio_unidade').value;
         var horario_fim_unidade = document.getElementById('horario_fim_unidade').value;
         var cep_unidade = document.getElementById('cep_unidade').value;
+        var cad_unico = document.getElementById('cad_unico').value;
 
         // dias da semana (checkbox)
         var dias_semana = Array
@@ -1047,6 +1048,9 @@ if(btnSalvar){
             .map(el => el.value)
             .join(',');
 
+        
+        console.log("TIPO:", typeof cad_unico);
+        console.log("VALOR:", cad_unico);
         // Envia uma requisição AJAX para atualizar os dados do usuário
         fetch(`/editandoPessoas/${ID}`, {
             method: 'PUT',
@@ -1083,6 +1087,7 @@ if(btnSalvar){
                 nome_social: nome_social, 
                 dt_nasc: dt_nasc, 
                 cpf: cpfValue, 
+                cad_unico: cad_unico,
                 // nis: nisValue, 
                 cartao_sus: cartao_susValue,
                 medidas_mse: medidas_mse, 
@@ -1192,6 +1197,7 @@ document.addEventListener("DOMContentLoaded", function () {
     checkCaps();
     checkMatriculado();
     checkTecRef();
+    checkDtDesligamento();
 
     document.dispatchEvent(new Event("formReady"));
 });
@@ -1215,7 +1221,8 @@ document.dispatchEvent(new Event("formReady"));
     $("possui_demanda_saude_mental")?.addEventListener("change", checkDemandaSaudeMental);
     $("tec_ref")?.addEventListener("change", checkTecRef);
     $("alcool_ou_drogas")?.addEventListener("change", checkCaps);
-
+    $("ativo_inativo")?.addEventListener("change", checkDtDesligamento);
+    
     // Garante que os asteriscos condicionais iniciem ocultos
     const camposCondicionais = [
         "listar_cursos",
@@ -1249,6 +1256,9 @@ function checkSexo() {
         $("lactante").value = "0";
     }
 
+}
+function checkDtDesligamento() {
+    toggleCampo("ativo_inativo", "dt_desligamento", "0", true);
 }
 
 function checkDemandaSaude() {
@@ -1329,9 +1339,9 @@ function checkMatriculado() {
 
     } else if (matriculado === "0") {
 
-        tipoEscola.value = "1";
-        ensinoModalidade.value = "0";
-        frequenciaAula.value = "0";
+        tipoEscola.value = "";
+        ensinoModalidade.value = "";
+        frequenciaAula.value = "";
         tipoEscola.disabled = true;
         ensinoModalidade.disabled = true;
         frequenciaAula.disabled = true;
@@ -1440,7 +1450,7 @@ if (btnCancelar){
 /*-----CONFIRMAÇÃO DE LOGOUT----------------------------------------------------------------------------------------------------------*/
 
 // Função para confirmar logout
-function confirmLogout() {
+window.confirmLogout = function() {
     if (confirm("Tem certeza que deseja encerrar a sessão?")) {
         window.location.href = '/logout'; // Redireciona para a rota de logout se o usuário confirmar
     } else {

@@ -1049,8 +1049,6 @@ if(btnSalvar){
 			.join(',');
 
         
-        console.log("TIPO:", typeof cad_unico);
-        console.log("VALOR:", cad_unico);
 		// Envia uma requisição AJAX para atualizar os dados do usuário
         fetch(`/editandoPessoas/${ID}`, {
             method: 'PUT',
@@ -1450,7 +1448,7 @@ if (btnCancelar){
 /*-----CONFIRMAÇÃO DE LOGOUT----------------------------------------------------------------------------------------------------------*/
 
 // Função para confirmar logout
-function confirmLogout() {
+window.confirmLogout = function() {
     if (confirm("Tem certeza que deseja encerrar a sessão?")) {
         window.location.href = '/logout'; // Redireciona para a rota de logout se o usuário confirmar
     } else {

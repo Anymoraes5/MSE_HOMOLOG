@@ -71,8 +71,8 @@ on("cep_unidade", "change", function() {
     $("tipo_logradouro").value = "";
     $("logradouro_unidade").value = "";
     $("bairro_unidade").value = "";
-    $("numero_unidade").value = "";
-    $("complemento_unidade").value = "";
+	$("numero_unidade").value = "";
+	$("complemento_unidade").value = "";
 
     bloquearCamposEndereco(false);
 });
@@ -151,18 +151,18 @@ document.addEventListener('DOMContentLoaded', function() {
     const nome_da_mae = $('nome_da_mae');
     const nome_do_pai = $('nome_do_pai');
     const nome_responsavel = $('nome_responsavel');
-    const responsavel_unidade = $('responsavel_unidade');
+	const responsavel_unidade = $('responsavel_unidade');
     const bairro = $('bairro');
     const rua = $('rua');
     const complemento = $('complemento');
     const nome_do_contato = $('nome_do_contato');
 
-    
+	
 
 
-        
-    
-    
+		
+	
+	
     function formatarNome(inputElement) {
         if (!inputElement) return; // ← proteção
 
@@ -185,7 +185,7 @@ document.addEventListener('DOMContentLoaded', function() {
     formatarNome(nome_da_mae);
     formatarNome(nome_do_pai);
     formatarNome(nome_responsavel);
-    formatarNome(responsavel_unidade);
+	formatarNome(responsavel_unidade);
     formatarNome(bairro);
     formatarNome(rua);
     formatarNome(complemento);
@@ -443,9 +443,9 @@ console.log({
 /*----as funções de check são chamadas dentro da tag html com o evento que verifica mudanças no campo---*/
 document.addEventListener("formReady", () => {
     aplicarMascaraCEP("cep_unidade");
-    aplicarMascaraCEP("cep");
-    iniciarMascaraTelefone("telefone");
-    iniciarMascaraTelefone("telefone_unidade");
+	aplicarMascaraCEP("cep");
+    // iniciarMascaraTelefone("telefone");
+    // iniciarMascaraTelefone("telefone_unidade");
 
 
     $("sexo")?.addEventListener("change", checkSexo);
@@ -537,8 +537,9 @@ function checkCaps(){
     if (ativar) {
         caps.disabled = false;
         caps.required = true;
-    } else {
         caps.value = "";
+    } else {
+        caps.value = "0";
         caps.disabled = true;
         caps.required = false;
     }
@@ -581,9 +582,9 @@ function checkMatriculado() {
 
     } else if (matriculado === "0") {
 
-        tipoEscola.value = "1";
-        ensinoModalidade.value = "0";
-        frequenciaAula.value = "0";
+        tipoEscola.value = "";
+        ensinoModalidade.value = "";
+        frequenciaAula.value = "";
         tipoEscola.disabled = true;
         ensinoModalidade.disabled = true;
         frequenciaAula.disabled = true;
@@ -649,14 +650,12 @@ document.addEventListener('change', function(e) {
    document.addEventListener("submit", function(event){
 
     if(event.target && event.target.id === "editar-form"){
-        this.querySelectorAll("input:disabled, select:disabled").forEach(el => {
-            el.disabled = false;
-        });
         event.preventDefault();
 
         document.getElementById('creas_atual')?.removeAttribute('disabled');
         document.getElementById('sas')?.removeAttribute('disabled');
         document.getElementById('mse')?.removeAttribute('disabled');
+        document.getElementById('caps')?.removeAttribute('disabled');
 
         
 
@@ -669,9 +668,6 @@ document.addEventListener('change', function(e) {
         data['programas_sociais[]'] = formData.getAll('programas_sociais[]');
 
 
-        console.log("MSE no data:", data.mse);
-        console.log("CREAS no data:", data.creas_atual);
-        console.log("SAS no data:", data.sas);
 
         
         //=====================validar idade==================================
@@ -699,9 +695,9 @@ document.addEventListener('change', function(e) {
         }
        
         if (!validarDiasUnidadeAcolhedora()) {
-            event.preventDefault();
-            return;
-        }
+			event.preventDefault();
+			return;
+		}
         //====================valida data de relatorio
         const dtInterpretacao = $("dt_interpretacao_medida")?.value;
         const dtRelatorio = $("dt_ultimo_relatorio_enviado")?.value;
@@ -914,8 +910,8 @@ function carregarDados(){
         filterFn: opcao => 
             opcao.descricao !== "ADMINISTRADORES DO SISTEMA"
     });
-    
-    // Carrega os tipos de local
+	
+	// Carrega os tipos de local
     popularSelect({
         url: "/opcoesTipoLocal",
         selectId: "tipo_local",
@@ -925,7 +921,7 @@ function carregarDados(){
         textKey: "descricao"
     });
 
-     // Carrega os tipos de logradouro
+	 // Carrega os tipos de logradouro
      popularSelect({
         url: "/opcoesTipoLogradouro",
         selectId: "tipo_logradouro",
@@ -935,8 +931,8 @@ function carregarDados(){
         textKey: "descricao"
     });
 
-    // Carrega as atividades da unidade
-    popularSelect({
+	// Carrega as atividades da unidade
+	popularSelect({
         url: "/opcoesAtividadeUnidade",
         selectId: "atividade_unidade",
         addDefault: true,        // adiciona option vazia
@@ -949,7 +945,7 @@ function carregarDados(){
             return a.descricao.localeCompare(b.descricao);
         }
     });
-            
+			
 
 
 
@@ -1197,7 +1193,7 @@ fetch('/opcoesProgramasSociais')
     });
 }
  function buscarTecRefPorMse(idOuDescricao) {
-    console.log("FUNÇÃO CHAMADA buscarTecRefPorMse", idOuDescricao);
+    
 
     fetch(`/opcoesTecRef?mse=${encodeURIComponent(idOuDescricao)}`)
         .then(response => response.json())
@@ -1231,20 +1227,20 @@ async function preencherCreasSasPorMse(idMse) {
         const response = await fetch(`/dadosMse/${idMse}`);
         const dados    = await response.json();
 
-        console.log("DADOS DO MSE:", dados);
+
 
         const selectCreas = document.getElementById('creas_atual');
         if (selectCreas && dados.creas_id) {
             selectCreas.value    = dados.creas_id;
             selectCreas.disabled = true;
-            console.log("CREAS SETADO PARA:", selectCreas.value);
+            
         }
 
         const selectSas = document.getElementById('sas');
         if (selectSas && dados.sas_ids.length > 0) {
             selectSas.value    = dados.sas_ids[0];
             selectSas.disabled = true;
-            console.log("SAS SETADA PARA:", selectSas.value);
+            
             selectSas.dispatchEvent(new Event('change', { bubbles: true }));
         }
 
@@ -1571,7 +1567,7 @@ document.addEventListener("DOMContentLoaded", function () {
 /*-----CONFIRMAÇÃO DE LOGOUT----------------------------------------------------------------------------------------------------------*/
 
 // Função para confirmar logout
-function confirmLogout() {
+window.confirmLogout = function() {
     if (confirm("Tem certeza que deseja encerrar a sessão?")) {
         window.location.href = '/logout'; // Redireciona para a rota de logout se o usuário confirmar
     } else {
@@ -1579,5 +1575,3 @@ function confirmLogout() {
         // Você pode adicionar algum feedback aqui se preferir
     }
 }
-
-

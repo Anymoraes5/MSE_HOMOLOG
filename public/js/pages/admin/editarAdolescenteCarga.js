@@ -741,20 +741,20 @@ async function preencherCreasSasPorMse(idMse) {
         const response = await fetch(`/dadosMse/${idMse}`);
         const dados    = await response.json();
 
-        console.log("DADOS DO MSE:", dados);
+        
 
         const selectCreas = document.getElementById('creas_atual');
         if (selectCreas && dados.creas_id) {
             selectCreas.value    = dados.creas_id;
             selectCreas.disabled = true;
-            console.log("CREAS SETADO PARA:", selectCreas.value);
+            
         }
 
         const selectSas = document.getElementById('sas');
         if (selectSas && dados.sas_ids.length > 0) {
             selectSas.value    = dados.sas_ids[0];
             selectSas.disabled = true;
-            console.log("SAS SETADA PARA:", selectSas.value);
+            
             selectSas.dispatchEvent(new Event('change', { bubbles: true }));
         }
 
@@ -889,8 +889,7 @@ async function carregarDadosDoUsuario(ID) {
             'email': data['email'] || '',
             'dt_desligamento': formatarData(data['dt_desligamento']),
         };
-        console.log("DADOS COMPLETOS:", data);
-        console.log("cad_unico:", data.cad_unico);
+        
         
 		
         // Preencher os campos do formulário

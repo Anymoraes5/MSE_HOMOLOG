@@ -347,7 +347,6 @@ function carregarDados() {
     // Atualiza o evento change do select de MSE para usar a função diretamente
     document.getElementById('tec_ref').addEventListener('change', function() {
         var tec_ref = this.value; // Obtém o valor selecionado no select mse
-        console.log("teste tec:", tec_ref)
     });
 
 

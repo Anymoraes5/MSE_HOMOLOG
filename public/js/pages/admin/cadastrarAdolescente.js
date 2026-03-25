@@ -273,6 +273,7 @@ function checkDrogas() {
 
 
 
+
 document.addEventListener('DOMContentLoaded', function() {
 
     var nProcessoInput = $('n_processo');
@@ -666,10 +667,6 @@ document.addEventListener('change', function(e) {
         
         data['programas_sociais[]'] = formData.getAll('programas_sociais[]');
 
-
-        console.log("MSE no data:", data.mse);
-        console.log("CREAS no data:", data.creas_atual);
-        console.log("SAS no data:", data.sas);
 
         
         //=====================validar idade==================================
@@ -1195,7 +1192,7 @@ fetch('/opcoesProgramasSociais')
     });
 }
  function buscarTecRefPorMse(idOuDescricao) {
-    console.log("FUNÇÃO CHAMADA buscarTecRefPorMse", idOuDescricao);
+    
 
     fetch(`/opcoesTecRef?mse=${encodeURIComponent(idOuDescricao)}`)
         .then(response => response.json())
@@ -1229,20 +1226,20 @@ async function preencherCreasSasPorMse(idMse) {
         const response = await fetch(`/dadosMse/${idMse}`);
         const dados    = await response.json();
 
-        console.log("DADOS DO MSE:", dados);
+        
 
         const selectCreas = document.getElementById('creas_atual');
         if (selectCreas && dados.creas_id) {
             selectCreas.value    = dados.creas_id;
             selectCreas.disabled = true;
-            console.log("CREAS SETADO PARA:", selectCreas.value);
+            
         }
 
         const selectSas = document.getElementById('sas');
         if (selectSas && dados.sas_ids.length > 0) {
             selectSas.value    = dados.sas_ids[0];
             selectSas.disabled = true;
-            console.log("SAS SETADA PARA:", selectSas.value);
+            
             selectSas.dispatchEvent(new Event('change', { bubbles: true }));
         }
 
@@ -1569,7 +1566,7 @@ document.addEventListener("DOMContentLoaded", function () {
 /*-----CONFIRMAÇÃO DE LOGOUT----------------------------------------------------------------------------------------------------------*/
 
 // Função para confirmar logout
-function confirmLogout() {
+window.confirmLogout = function() {
     if (confirm("Tem certeza que deseja encerrar a sessão?")) {
         window.location.href = '/logout'; // Redireciona para a rota de logout se o usuário confirmar
     } else {
