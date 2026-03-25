@@ -443,8 +443,8 @@ console.log({
 document.addEventListener("formReady", () => {
     aplicarMascaraCEP("cep_unidade");
 	aplicarMascaraCEP("cep");
-    iniciarMascaraTelefone("telefone");
-    iniciarMascaraTelefone("telefone_unidade");
+    // iniciarMascaraTelefone("telefone");
+    // iniciarMascaraTelefone("telefone_unidade");
 
 
     $("sexo")?.addEventListener("change", checkSexo);
@@ -536,8 +536,9 @@ function checkCaps(){
     if (ativar) {
         caps.disabled = false;
         caps.required = true;
-    } else {
         caps.value = "";
+    } else {
+        caps.value = "0";
         caps.disabled = true;
         caps.required = false;
     }
@@ -580,9 +581,9 @@ function checkMatriculado() {
 
     } else if (matriculado === "0") {
 
-        tipoEscola.value = "1";
-        ensinoModalidade.value = "0";
-        frequenciaAula.value = "0";
+        tipoEscola.value = "";
+        ensinoModalidade.value = "";
+        frequenciaAula.value = "";
         tipoEscola.disabled = true;
         ensinoModalidade.disabled = true;
         frequenciaAula.disabled = true;
@@ -648,14 +649,12 @@ document.addEventListener('change', function(e) {
    document.addEventListener("submit", function(event){
 
     if(event.target && event.target.id === "editar-form"){
-        this.querySelectorAll("input:disabled, select:disabled").forEach(el => {
-            el.disabled = false;
-        });
         event.preventDefault();
 
         document.getElementById('creas_atual')?.removeAttribute('disabled');
         document.getElementById('sas')?.removeAttribute('disabled');
         document.getElementById('mse')?.removeAttribute('disabled');
+        document.getElementById('caps')?.removeAttribute('disabled');
 
         
 

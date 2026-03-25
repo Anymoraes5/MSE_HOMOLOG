@@ -1,3 +1,6 @@
+
+@import url(../css/global.css);
+
 html, body {
     height: 100%;
     width: 100%;
@@ -43,12 +46,6 @@ nav a:hover{
     font-weight: bold;
 }
 
-.active {
-    text-decoration:overline;
-    padding: 5px;
-    margin: 5px;
-    border-radius: 5%;
-}
 
 nav img {
     max-width: 100px;
@@ -56,6 +53,7 @@ nav img {
     vertical-align: middle;
     margin-right: 20px;
 }
+
 
 /* --- AJUSTES AQUI --- */
 .container {

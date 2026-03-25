@@ -78,8 +78,11 @@ function rota_verPessoas(app) {
             LEFT JOIN usuarios U ON U.ID = P.fk_tec_ref
             WHERE 1=1
             `;
-        const queryParams = []; // Parâmetros da consulta
 
+            const queryParams = []; // Parâmetros da consulta
+            
+            console.log("QUERY:", query);
+            console.log("PARAMS:", queryParams);
         if (ID) {
             query += ` AND P.ID = ?`;
             queryParams.push(ID);
@@ -121,7 +124,7 @@ function rota_verPessoas(app) {
         }
 
         if (ativo_inativo !== undefined && ativo_inativo !== "") {
-            query += ` AND U.ativo_inativo = ?`;
+            query += ` AND P.ativo_inativo = ?`;
             queryParams.push(ativo_inativo);
         }
 

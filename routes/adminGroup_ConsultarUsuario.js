@@ -71,7 +71,7 @@ function rota_consulta(app) {
                      ON 
                         P.ID = U.fk_tipo_perfil 
                      WHERE 1=1`; // Inicia a consulta com uma cláusula verdadeira
-    
+        
         const queryParams = [];
     
     

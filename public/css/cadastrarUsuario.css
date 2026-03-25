@@ -32,7 +32,9 @@ nav a:hover{
     margin: 5px;
     border-radius: 5%;
 }
-
+nav a.active{
+    text-decoration: overline;
+}
 
 
 
