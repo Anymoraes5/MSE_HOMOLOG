@@ -16,6 +16,9 @@ const path = require('path');
 
 const app = express();
 
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
 //chama public componentes
 app.use(express.static("public"));
 
@@ -56,14 +59,14 @@ const httpsOptions = {
     ca: fs.readFileSync(path.join(__dirname, 'certificado/chain.crt'))
 };
 
-app.listen(3001, () => {
-    console.log('Servidor rodando na porta 3001');
+app.listen(3000, () => {
+    console.log('Servidor rodando na porta 3000');
 });
 
 // Inicia o servidor HTTPS na porta 3001 com o certificado
-/* https.createServer(httpsOptions, app).listen(3001, () => {
+https.createServer(httpsOptions, app).listen(3001, () => {
     console.log('Servidor HTTPS rodando na porta 3001');
-}); */
+}); 
 
 // Inicia o servidor na porta 3001 localhost
 /*app.listen(3001, () => {

@@ -213,7 +213,7 @@ window.onload = function() {
         var tec_ref = document.getElementById('tec_ref').value;
 
         // Realiza uma requisição fetch para filtrar as pessoas com base nos dados fornecidos
-        fetch('/filtro', {
+        fetch('/Adolescente/filtro', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

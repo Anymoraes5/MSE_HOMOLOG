@@ -48,8 +48,12 @@ function rota_consulta(app) {
     });
 
     //rota para executar a filtragem com base nos parâmetros passados no corpo
-    app.post('/filtro', (req, res) => {
+    app.post('/usuarios/filtro', (req, res) => {
+        console.log("BODY:", req.body);
         const {  cpf, nome, login, ativo_inativo, dt_nasc, mse, perfil } = req.body;
+
+        
+        
     
         let query = `SELECT
                         U.ID,
@@ -90,10 +94,10 @@ function rota_consulta(app) {
             queryParams.push(`%${login}%`);
         }
     
-        if (ativo_inativo !== undefined && ativo_inativo !== "") {
+        if (ativo_inativo !== undefined && ativo_inativo !== null && ativo_inativo !== "")  {
             query += ` AND U.ativo_inativo = ?`;
-            queryParams.push(ativo_inativo);
-        }
+            queryParams.push(Number(ativo_inativo));
+            }
     
         if (dt_nasc) {
             query += ` AND U.dt_nasc = ?`;
@@ -106,21 +110,18 @@ function rota_consulta(app) {
         }
     
         if (perfil) {
-            query += ` AND P.descricao = ?`;
+            query += ` AND U.fk_tipo_perfil = ?`;
             queryParams.push(perfil);
         }   
 
+        console.log("QUERY:", query);
+        console.log("PARAMS:", queryParams);
+        
         // Executa a consulta no banco de dados com os parâmetros
         connection.query(query, queryParams, (error, results, fields) => {
             if (error) {
                 console.error('Erro ao consultar dados:', error);
                 res.status(500).send('Erro ao consultar dados.');
-                return;
-            }
-    
-            // Verifica se não há resultados antes de enviar a resposta
-            if (results.length === 0) {
-                res.status(404).json({ message: 'Nenhum usuário encontrado.' });
                 return;
             }
     

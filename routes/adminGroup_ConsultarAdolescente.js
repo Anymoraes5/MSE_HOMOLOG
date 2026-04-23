@@ -58,8 +58,9 @@ function rota_verPessoas(app) {
     });
 
     // Rota para filtrar usuários
-    app.post('/filtro', (req, res) => {
+    app.post('/adolescente/filtro', (req, res) => {
         const { ID, cpf, n_processo, nome, nome_social, nome_da_mae, dt_nasc, ativo_inativo, mse, tec_ref} = req.body;
+
         let query = `
             SELECT
             P.ID,
@@ -79,10 +80,8 @@ function rota_verPessoas(app) {
             WHERE 1=1
             `;
 
-            const queryParams = []; // Parâmetros da consulta
-            
-            console.log("QUERY:", query);
-            console.log("PARAMS:", queryParams);
+        const queryParams = []; // Parâmetros da consulta   
+
         if (ID) {
             query += ` AND P.ID = ?`;
             queryParams.push(ID);
@@ -123,7 +122,7 @@ function rota_verPessoas(app) {
             queryParams.push(dt_nasc);
         }
 
-        if (ativo_inativo !== undefined && ativo_inativo !== "") {
+        if (ativo_inativo !== undefined && ativo_inativo !== null && ativo_inativo !== "") {
             query += ` AND P.ativo_inativo = ?`;
             queryParams.push(ativo_inativo);
         }
@@ -137,6 +136,11 @@ function rota_verPessoas(app) {
             query += ` AND P.fk_tec_ref = ?`;
             queryParams.push(tec_ref);
         }
+
+        
+            
+            console.log("QUERY:", query);
+            console.log("PARAMS:", queryParams);
 
         // Executa a consulta no banco de dados
         connection.query(query, queryParams, (error, results, fields) => {

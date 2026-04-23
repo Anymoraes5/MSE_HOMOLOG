@@ -291,7 +291,7 @@ function rota_listasCargaSelects(app) {
 
     //  rotas para preencher o select
     app.get('/opcoesPerfil', (req, res) => {
-        connection.query('SELECT descricao FROM perfil WHERE ativo_inativo = 1 ORDER BY 1', (error, results, fields) => {
+        connection.query('SELECT ID, descricao FROM perfil WHERE ativo_inativo = 1 ORDER BY 1', (error, results, fields) => {
             if (error) {
                 console.error('Erro ao buscar opções Perfil:', error);
                 res.status(500).send('Erro ao buscar opções Perfil.');

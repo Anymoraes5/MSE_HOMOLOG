@@ -59,7 +59,7 @@ function rota_home(app) {
     });
 
     // Rota para filtrar usuários
-    app.post('/filtroPessoas', (req, res) => {
+    app.post('/adolescente/filtro', (req, res) => {
         const { ID, cpf, nis, n_processo, nome, nome_social, nome_da_mae, dt_nasc, ativo_inativo, tec_ref } = req.body;
         let query = `
             SELECT
