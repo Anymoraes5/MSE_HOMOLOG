@@ -45,8 +45,9 @@ function cadastrarOuEditarUsuario(req, res, isEdit) {
             }
 
             if (resultsCpfCheck.length > 0) {
-                // Se encontrar um CPF duplicado (e não for o próprio usuário sendo editado)
-                rollbackAndSendError(res, connection, 'CPF já está cadastrado para outro usuário.'); // Mensagem mais específica
+                connection.rollback(() => {
+                    res.status(400).json({ error: 'CPF já cadastrado' });
+                });
                 return;
             }
 
