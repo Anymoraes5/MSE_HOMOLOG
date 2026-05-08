@@ -4,4 +4,5 @@ document.addEventListener("DOMContentLoaded", function () {
     .then(data => {
       document.getElementById("sidebarUser").innerHTML = data;
     });
+
 });

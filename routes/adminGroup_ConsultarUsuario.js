@@ -49,7 +49,6 @@ function rota_consulta(app) {
 
     //rota para executar a filtragem com base nos parâmetros passados no corpo
     app.post('/usuarios/filtro', (req, res) => {
-        console.log("BODY:", req.body);
         const {  cpf, nome, login, ativo_inativo, dt_nasc, mse, perfil } = req.body;
 
         
@@ -114,8 +113,6 @@ function rota_consulta(app) {
             queryParams.push(perfil);
         }   
 
-        console.log("QUERY:", query);
-        console.log("PARAMS:", queryParams);
         
         // Executa a consulta no banco de dados com os parâmetros
         connection.query(query, queryParams, (error, results, fields) => {

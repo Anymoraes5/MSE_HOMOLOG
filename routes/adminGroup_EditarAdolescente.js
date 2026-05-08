@@ -46,6 +46,7 @@ function rota_adminEditaPessoa(app) {
                             P.dt_cadastro,
                             P.dt_atualizacao,
                             CA.descricao AS "creas_atual",
+                            P.fk_mse AS mse_id,
                             M.descricao AS "mse",
                             U.nome AS "tec_ref",
                             S.descricao AS "sas",
@@ -235,7 +236,7 @@ function rota_adminEditaPessoa(app) {
         if (!cpfValido.valido) {
             return res.status(400).json({ error: 'CPF inválido.' });
         } else {
-            console.log("CPF válido:", cpfValido.cpf);
+            
             cpf = cpfValido.cpf;
         }
 
@@ -245,7 +246,7 @@ function rota_adminEditaPessoa(app) {
         let telefone = req.body.telefone.replace(/\D/g, '')
 
 
-        console.log("cad_unico vindo do front:", req.body.cad_unico);
+        
         var {
 			tipo_local,
 			nome_unidade,
@@ -340,8 +341,6 @@ function rota_adminEditaPessoa(app) {
             email,    //: email 
         } = req.body;
 
-        console.log("cad_unico vindo do back:", req.body.cad_unico);
-        console.log(req.body);
 
         nome            = normalizarTexto(nome);
         nome_social     = normalizarTexto(nome_social);
@@ -363,13 +362,12 @@ function rota_adminEditaPessoa(app) {
 
 
         if (typeof cep_unidade === "string") {
-            console.log("Valor original:", cep_unidade);
+            
             
             cep_unidade = cep_unidade.trim(); // remove espaços invisíveis
             cep_unidade = cep_unidade.replace(/\D/g, '');
 
-            console.log("Após replace:", cep_unidade);
-            console.log("Tamanho:", cep_unidade.length);
+            
 
             if (cep_unidade.length !== 8) {
                 console.log("CEP inválido, setando null");
@@ -379,7 +377,7 @@ function rota_adminEditaPessoa(app) {
             cep_unidade = null;
         }
 
-        console.log("DEPOIS DO TRATAMENTO:", cep_unidade);
+        
 
 
         var dt_desligamento = req.body.dt_desligamento;
@@ -395,7 +393,7 @@ function rota_adminEditaPessoa(app) {
                 let dt_desligamento_mes = String(dt_desligamento.getMonth() + 1).padStart(2, '0'); // Mês com zero à esquerda
                 let dt_desligamento_dia = String(dt_desligamento.getDate() + 1).padStart(2, '0'); // Dia com zero à esquerda
                 dt_desligamento = `${dt_desligamento_ano}-${dt_desligamento_mes}-${dt_desligamento_dia}`;
-                console.log(dt_desligamento)
+                
             }
         } else {
             dt_desligamento = null
@@ -648,10 +646,7 @@ function rota_adminEditaPessoa(app) {
 
     function atualizarDadosPessoa() {
 
-                        console.log("CPF:", cpf);
-                        console.log("ID:", ID);
-                        console.log("BODY:", req.body);
-                        
+                                               
                         // Atualização dos dados do usuário
                         connection.query(`UPDATE pessoas SET 
                              
@@ -875,7 +870,7 @@ function rota_adminEditaPessoa(app) {
 												console.error('Erro ao atualizar unidade acolhedora:', errorUA);
 											} else {
 												console.log('Rows afetadas:', result.affectedRows);
-                                                console.log('dias_semana enviado:', dias_semana);
+                                                
 											}
 										}
 

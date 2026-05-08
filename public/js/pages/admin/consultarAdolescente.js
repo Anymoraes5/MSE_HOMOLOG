@@ -327,11 +327,11 @@ function carregarDados() {
                     var option = document.createElement('option');
                     option.text = opcao.nome;
                     option.value = opcao.ID; // Adiciona o valor da opção
-                    console.log("Opção adicionada:", opcao.nome, opcao.nome);
+                    
                     selectTecRef.appendChild(option);
                 });
 
-                console.log('Opções TecRef carregadas:', opcoesTecRef);
+                
             })
             .catch(error => {
                 console.error('Erro ao buscar opções Técnico de Referência:', error);

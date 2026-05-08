@@ -10,47 +10,6 @@ body {
     background-color: #f8f9fa;
 }
 
-nav {
-    background-color: #bcc6d0;
-    padding: 20px 0;
-    text-align: center;
-}
-
-nav a {
-    text-decoration: none;
-    color: black;
-    margin: 0 10px;
-    padding: 5px;
-    border-radius: 5px;
-}
-
-.error-message {
-    color: red;
-    font-size: 0.875em;
-    margin-top: 0.25em;
-}
-
-nav a:hover{
-    text-decoration:overline;
-    color: black;
-    padding: 5px;
-    border-radius: 5%;
-    font-weight: bold;
-}
-
-.active {
-    text-decoration:overline;
-    padding: 5px;
-    margin: 5px;
-    border-radius: 5%;
-}
-
-nav img {
-    max-width: 100px;
-    height: auto;
-    vertical-align: middle;
-    margin-right: 20px;
-}
 
 h1 {
     text-align: center;
@@ -68,9 +27,10 @@ h1 {
     padding: 20px;
     border-radius: 10px;
     box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.1);
-    margin-top: 20px;
+    margin-top: 150px;
     width: 100%; /* Adapta-se à largura do .container */
     box-sizing: border-box;
+
 }
 
 label {
@@ -130,18 +90,7 @@ button[type="submit"]:hover {
 /* Seção de Cadastro - Renomeada de #cadastroSection para ser mais genérica para o container principal */
 /* Como você tem <div class="container">, não precisamos de #cadastroSection */
 /* Assegure-se de que o .container tem espaço suficiente */
-.container {
-    padding-top: 20px;
-    padding-bottom: 40px;
-    box-sizing: border-box;
 
-    /* ***** Regras para centralizar o contêiner ***** */
-    width: 95%; /* Mantenha esta largura ou ajuste se precisar */
-    max-width: 1400px; /* Mantenha ou ajuste a largura máxima desejada */
-    margin-left: auto; /* Centraliza o contêiner horizontalmente */
-    margin-right: auto; /* Centraliza o contêiner horizontalmente */
-    /* Ou, de forma abreviada: margin: 0 auto; */
-}
 
 
 #programas_sociais label {
@@ -156,38 +105,7 @@ button[type="submit"]:hover {
     margin-bottom: 1rem;
 }
 
-.d-flex {
-    display: flex;
-    gap: 0.5rem;
-}
 
-.me-2 {
-    margin-right: 0.5rem;
-}
-
-footer {
-    background-color: #bcc6d0;
-    text-align: center;
-    padding: 10px 0;
-    font-family: Arial, sans-serif;
-    font-size: 14px;
-    color: #333;
-    width: 100%;
-    position: relative;
-    bottom: 0;
-    margin-top: 40px;
-}
-
-footer img {
-    max-width: 50px;
-    max-height: 50px;
-    height: auto;
-    margin-bottom: 10px;
-}
-
-footer p {
-    margin: 0;
-}
 
 /* --- REGRAS PARA A TABELA (ADICIONE/MODIFIQUE ESSAS) --- */
 

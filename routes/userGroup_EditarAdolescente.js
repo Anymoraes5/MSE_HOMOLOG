@@ -46,6 +46,7 @@ function rota_editarPessoas(app) {
                             P.dt_cadastro,
                             P.dt_atualizacao,
                             CA.descricao AS "creas_atual",
+                            P.fk_mse AS mse_id,
                             M.descricao AS "mse",
                             U.nome AS "tec_ref",
                             S.descricao AS "sas",
@@ -233,7 +234,7 @@ function rota_editarPessoas(app) {
        if (!cpfValido.valido) {
            return res.status(500).send('<script>alert("cpf inválido");window.location.href = "/editarPessoas";</script>');
        } else {
-           console.log("CPF válido:", cpfValido.cpf);
+           
            cpf = cpfValido.cpf;
        }
 
@@ -353,7 +354,7 @@ function rota_editarPessoas(app) {
                let dt_desligamento_mes = String(dt_desligamento.getMonth() + 1).padStart(2, '0'); // Mês com zero à esquerda
                let dt_desligamento_dia = String(dt_desligamento.getDate() + 1).padStart(2, '0'); // Dia com zero à esquerda
                dt_desligamento = `${dt_desligamento_ano}-${dt_desligamento_mes}-${dt_desligamento_dia}`;
-               console.log(dt_desligamento)
+               
            }
        } else {
            dt_desligamento = null

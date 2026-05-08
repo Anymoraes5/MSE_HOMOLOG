@@ -153,7 +153,7 @@ function rota_listasCargaSelects(app) {
     });
         app.get('/dadosMse/:id', (req, res) => {
         const idMse = req.params.id;
-        console.log("BUSCANDO MSE ID:", idMse);
+        
 
         connection.query(`
             SELECT 
@@ -189,10 +189,11 @@ function rota_listasCargaSelects(app) {
         // Adapta a consulta SQL para buscar os TecRef com base no mse selecionado
         const query = `
             SELECT 
+                U.ID,
                 U.nome 
             FROM usuarios U
             JOIN mse M ON U.fk_mse = M.ID
-            WHERE U.ativo_inativo = 1 AND M.descricao = ? ORDER BY 1;
+            WHERE U.ativo_inativo = 1 AND M.ID = ? ORDER BY 1;
         `;
     
         connection.query(query, [mseSelecionado], (error, results, fields) => {
@@ -247,6 +248,7 @@ function rota_listasCargaSelects(app) {
         // Adapta a consulta SQL para buscar os TecRef com base no mse selecionado
         const query = `
             SELECT 
+                U.ID,
                 U.nome 
             FROM usuarios U
             JOIN mse M ON U.fk_mse = M.ID

@@ -2,61 +2,22 @@
 @import url(../css/global.css);
 
 html, body {
-    height: 100%;
-    width: 100%;
-    margin: 0;
-    padding: 0;
+    height: 100%; /* Garante que o body ocupe 100% da altura da tela */
+    margin: 0; /* Remove margens padrão */
+    margin-bottom: 0;
 }
 
 body {
     background-color: #f8f9fa; /* Fundo cinza claro */
-    /* Remove qualquer display: flex ou align-items aqui no body se houver */
-    /* Você quer que os elementos se comportem como blocos para o margin: auto funcionar no .container */
-}
-
-nav {
-    background-color: #bcc6d0; /* Azul */
-    padding: 20px 0;
-    text-align: center;
-    /* Adicione width: 100% para a navegação ocupar a largura total */
-    width: 100%;
-}
-
-#menu-principal {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    z-index: 1000;
-}
-
-nav a {
-    text-decoration: none;
-    color: black;
-    margin: 0 10px;
-    padding: 5px;
-    border-radius: 5px;
-}
-
-nav a:hover{
-    text-decoration:overline;
-    color: black;
-    padding: 5px;
-    border-radius: 5%;
-    font-weight: bold;
 }
 
 
-nav img {
-    max-width: 100px;
-    height: auto;
-    vertical-align: middle;
-    margin-right: 20px;
-}
+
+
 
 
 /* --- AJUSTES AQUI --- */
-.container {
+.container-filtro {
     margin-top: 150px;
     /* flex: 1; Remova ou comente esta linha. Não precisamos que ele se estique. */
     /* Display flex e flex-direction: column são mantidos para empilhar form e table */
@@ -74,7 +35,6 @@ nav img {
     /* Ou, mais concisamente: */
     /* margin: 150px auto 0 auto; */ /* Margem superior, e auto para centralizar horizontalmente */
 
-    justify-content: center; /* Mantido se você quer centralização vertical dentro do container, mas flex-start é mais comum aqui */
 }
 
 form {
@@ -104,8 +64,8 @@ select {
     box-sizing: border-box;
 }
 
-button[type="submit"],
-button[type="button"] {
+form button[type="submit"],
+form button[type="button"] {
     background-color: #007bff;
     color: #fff;
     padding: 10px 20px;
@@ -115,8 +75,8 @@ button[type="button"] {
     margin-right: 10px;
 }
 
-button[type="submit"]:hover,
-button[type="button"]:hover {
+form button[type="submit"]:hover,
+form button[type="button"]:hover {
     background-color: #0056b3;
 }
 
@@ -145,27 +105,3 @@ tbody tr:hover {
     background-color: #f2f2f2;
 }
 
-footer {
-    background-color: #bcc6d0;
-    text-align: center;
-    padding: 10px 0;
-    font-family: Arial, sans-serif;
-    font-size: 14px;
-    color: #333;
-    width: 100%;
-    position: relative;
-    bottom: 0;
-    /* Ajuste para garantir que o footer não fique sobreposto pela navbar */
-    margin-top: auto; /* Empurra o footer para o final da página se o body for flex-direction: column */
-}
-
-footer img {
-    max-width: 75px;
-    max-height: 75px;
-    height: auto;
-    margin-bottom: 10px;
-}
-
-footer p {
-    margin: 0;
-}

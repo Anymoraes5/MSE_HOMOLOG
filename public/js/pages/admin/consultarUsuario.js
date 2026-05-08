@@ -177,7 +177,7 @@ async function carregarDados() {
         // Perfil
         const perfilRes = await fetch('/opcoesPerfil');
         const perfilData = await perfilRes.json();
-        console.log('opcoesPerfil:', perfilData); 
+        
         const selectPerfil = document.getElementById('perfil');
         selectPerfil.innerHTML = '<option value=""></option>';
 

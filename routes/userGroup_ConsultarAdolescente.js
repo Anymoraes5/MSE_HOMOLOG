@@ -122,7 +122,7 @@ function rota_home(app) {
         }
 
         if (ativo_inativo !== undefined && ativo_inativo !== "") {
-            query += ` AND U.ativo_inativo = ?`;
+            query += ` AND P.ativo_inativo = ?`;
             queryParams.push(ativo_inativo);
         }
 

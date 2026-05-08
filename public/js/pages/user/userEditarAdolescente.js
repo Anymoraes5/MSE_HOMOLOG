@@ -1049,8 +1049,7 @@ if(btnSalvar){
             .join(',');
 
         
-        console.log("TIPO:", typeof cad_unico);
-        console.log("VALOR:", cad_unico);
+        
         // Envia uma requisição AJAX para atualizar os dados do usuário
         fetch(`/editandoPessoas/${ID}`, {
             method: 'PUT',
@@ -1162,7 +1161,7 @@ if(btnSalvar){
         .then(response => response.json())
         .then(data => {
             alert('Dados atualizados com sucesso!');
-            window.location.href = '/verPessoas'; 
+            window.location.href = '/home'; 
             // Redireciona para a página de consulta
         })
         .catch(error => {
@@ -1443,7 +1442,7 @@ atualizarObrigatoriedadeUnidade();
 const btnCancelar = document.getElementById('cancelar');
 if (btnCancelar){
     btnCancelar.addEventListener('click', function() {
-    window.location.href = '/verPessoas'; // Redireciona para a página de consulta ao clicar em Cancelar
+    window.location.href = '/home'; // Redireciona para a página de consulta ao clicar em Cancelar
     })
 };
 

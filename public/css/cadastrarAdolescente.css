@@ -113,37 +113,6 @@ button[type="submit"]:hover {
 
 
 
-#menu-lateral {
-    position: fixed;
-    top: 115px; /* Ajuste conforme necessário */
-    left: 0;
-    width: 15vw;
-    padding: 10px;
-    background-color: #bcc6d0;
-    border-right: 1px solid #ccc;
-    z-index: 2000;
-    color: white;
-}
-
-#menu-lateral ul {
-    list-style-type: none;
-    padding: 0;
-    text-align: left;
-}
-
-#menu-lateral ul li {
-    margin-bottom: 5px;
-}
-
-#menu-lateral a {
-    text-decoration: none;
-    color: #333;
-}
-
-#menu-lateral a:hover {
-    color: black; /* Cor de destaque ao passar o mouse */
-    font-weight: bold;
-}
 
 #container {
     position: relative;
@@ -152,7 +121,7 @@ button[type="submit"]:hover {
     width: 100%;
     box-sizing: border-box;
     min-height: calc(100vh - 65px);
-    background-color: #fff;
+    background-color: #f8f9fa;
     padding: 20px;
 }
 
@@ -171,38 +140,7 @@ button[type="submit"]:hover {
     margin-bottom: 1rem; /* Margem inferior para espaçamento */
 }
 
-.d-flex {
-    display: flex;
-    gap: 0.5rem; /* Espaçamento entre os botões */
-}
 
-.me-2 {
-    margin-right: 0.5rem; /* Margem direita para o botão adicionar */
-}
-
-footer {
-    background-color: #bcc6d0;
-    text-align: center;
-    padding: 10px 0;
-    font-family: Arial, sans-serif;
-    font-size: 14px;
-    color: #333;
-    width: 100%;
-    position: relative; /* Garante que o rodapé esteja abaixo do conteúdo */
-    bottom: 0;
-    margin-top: 40px; /* Adiciona espaçamento entre o rodapé e o conteúdo */
-}
-
-footer img {
-    max-width: 50px; /* Reduz a largura máxima */
-    max-height: 50px; /* Reduz a altura máxima */
-    height: auto; /* Mantém a proporção da imagem */
-    margin-bottom: 10px; /* Espaçamento abaixo da imagem */
-}
-
-footer p {
-    margin: 0; /* Remove margens adicionais */
-}
 
 
 

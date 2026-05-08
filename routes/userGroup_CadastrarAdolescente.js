@@ -27,7 +27,6 @@ function rota_cadastroPessoas(app) {
 
    // Rota para a página de edição
    app.get('/cadastroAdolescente', (req, res) => {
-    console.log('Recebendo requisição de atualização de dados de pessoa:', req.body);
     // Verifica se o usuário está autenticado
     if (req.session.userAuthenticated) {
         const filePath = path.join(__dirname, '..', 'views', 'userGroup_CadastrarAdolescente.html');
@@ -218,8 +217,6 @@ function rota_cadastroPessoas(app) {
                            return res.status(500).json({ error: 'Erro ao verificar processo.' });
                        }
        
-                       console.log("n_processo:", n_processo);
-                       console.log("resultVerifica:", resultVerifica);
        
                        if (resultVerifica.length > 0) {
                            return res.status(400).json({ error: 'ER_DUP_ENTRY' });
@@ -243,7 +240,7 @@ function rota_cadastroPessoas(app) {
                            dias_semana = diasRaw.join(',');
                        }
        
-                       console.log("dias_semana resolvido:", dias_semana);
+                       
        
                        // Normaliza campos opcionais para null
                        gestante                    = utils.verificar_campos(gestante)                    ?? null;
@@ -400,8 +397,7 @@ function rota_cadastroPessoas(app) {
                                            idDistritoPessoa, cep, bairro, rua, numero, complemento, cad_unico,
                                            ativo_inativo, idMedidasMse, dt_cadastro, dt_atualizacao, dt_desligamento, null,  listar_cursos];
        
-                                       console.log("COLUNAS:", colunasInsert.length);
-                                       console.log("VALORES:", valoresInsert.length);
+                                       
        
                                        
        

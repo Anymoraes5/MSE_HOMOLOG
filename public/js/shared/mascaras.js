@@ -1,7 +1,6 @@
 
 export function aplicarMascaraCEP(idCampo) {
     const campo = document.getElementById(idCampo); // ← sem #
-    console.log("campo encontrado:", campo);
     if (!campo) return;
 
     campo.addEventListener("input", function () {

@@ -232,10 +232,7 @@ window.onload = function() {
                 var tr = document.createElement('tr');
                 
                 
-                /*---------------------*/
-                console.log("teste:", pessoa.tec_ref)
-                console.log("teste:", pessoa.dt_nasc)
-                /*-----------------------*/
+                
 
                 tr.innerHTML = `
                     <td>${pessoa.cpf}</td>
@@ -290,7 +287,7 @@ function carregarDados() {
         opcoesTecRef.forEach(opcao => {
             var option = document.createElement('option');
             option.text = opcao.nome;
-            option.value = opcao.nome; // Adiciona o valor da opção
+            option.value = opcao.ID; // Adiciona o valor da opção
             selectTecRef.appendChild(option);
         });
     })

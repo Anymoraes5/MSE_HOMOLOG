@@ -1254,7 +1254,7 @@ document.addEventListener("change", function(e) {
         const idMse = e.target.value;
         const descricaoMse = e.target.options[e.target.selectedIndex].text; 
         preencherCreasSasPorMse(idMse);
-        buscarTecRefPorMse(descricaoMse); 
+        buscarTecRefPorMse(idMse); 
     }
 });
     function carregarDistritoServicoPorSas(idSas) {
@@ -1485,8 +1485,13 @@ document.addEventListener("DOMContentLoaded", function () {
         ===================================================== */
         const mseSelect = $("mse");
         if (mseSelect) {
-            mseSelect.value = "SMSE-MA CIAP LAJEADO";
-            mseSelect.dispatchEvent(new Event("change"));
+            const option = Array.from(mseSelect.options)
+                .find(opt => opt.textContent.trim() === "SMSE-MA CIAP LAJEADO");
+
+            if (option) {
+                mseSelect.value = option.value;
+                mseSelect.dispatchEvent(new Event("change"));
+            }
         }
 
         /* =====================================================

@@ -48,7 +48,7 @@ function rota_verPessoas(app) {
                     res.status(500).send('Erro ao consultar dados.');
                     return;
                 }
-                //console.log('Resultados da consulta:', results);
+                
                 res.json(results); // Envia os resultados da consulta como resposta
             });
         } else {
@@ -139,8 +139,7 @@ function rota_verPessoas(app) {
 
         
             
-            console.log("QUERY:", query);
-            console.log("PARAMS:", queryParams);
+    
 
         // Executa a consulta no banco de dados
         connection.query(query, queryParams, (error, results, fields) => {

@@ -1,75 +1,133 @@
 /* ============================Menu top============================== */
+#nome-usuario {
+    min-width: 100px;
+    max-width: 180px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
 
-#menu-principal {
+header {
     position: fixed;
-    top: 0; /* Ajuste conforme necessário */
+    top: 0;
     left: 0;
-    width: 100vw;
+    width: 100%;
     z-index: 1000;
+    background-color: #fff !important; /* sua cor original */
+
 }
-nav {
-    background-color: #bcc6d0; /* Azul */
-    padding: 20px 0;
-    text-align: center;
-    
+.fs-6{
+    font-size: 12px;
 }
-nav a {
-    text-decoration: none;
-    color: black;
-    margin: 0 10px;
-    padding: 5px;
-    border-radius: 5px;
+
+/* Cor dos links */
+header .nav-link {
+    color: #1a1a1a !important;
+    font-weight: 500;
 }
-nav img {
-    max-width: 100px; /* Ajusta o tamanho máximo da imagem (menor que antes) */
-    height: auto; /* Mantém a proporção original da imagem */
-    vertical-align: middle; /* Alinha a imagem verticalmente com o conteúdo do nav */
-    margin-right: 20px; /* Espaçamento à direita da imagem */
-}
-nav a:hover{
-    text-decoration:overline;
-    color: black;
-    padding: 5px;
-    border-radius: 5%;
+
+header .nav-link:hover {
     font-weight: bold;
+    color: #000 !important;
+    transform: scale(1.05);
 }
-/* .active {
-    text-decoration:none;
-    padding: 5px;
-    margin: 5px;
-    border-radius: 5%;
-} */
+
+/* Logo */
+header img {
+    max-width: 100px;
+    height: auto;
+}
+
+/* Botão nome do usuário */
+header #nome-usuario, .profile {
+    border-color: #000000;
+}
 
 
-/* =============================MENU LATERAL============================== */
+
+/* Botão logout */
+header .btn-warning {
+    background-color: #333;
+    border-color: #333;
+    color: #fff;
+}
+
+header .btn-warning:hover {
+    background-color: #000;
+    border-color: #000;
+}
+
+/* Compensar o header fixo no conteúdo abaixo */
+body {
+    padding-top: 80px;
+}
+
+
+
+/* ============================Menu Lateral============================== */
+
 #menu-lateral {
     position: fixed;
-    top: 120px; /* Ajuste conforme necessário */
+    top: 110px;  /* acompanha a altura do header */
     left: 0;
     width: 15vw;
+    min-width: 160px;
     padding: 10px;
-    background-color: #bcc6d0;
-    border-right: 1px solid #ccc;
-    z-index: 2000;
-    color: white;
+    background-color: #005780;
+    font-weight: 500;
+    color:aliceblue;
+    border-right: 1px solid #aaa;
+    z-index: 999;
+    margin-top: 20px;
+    height: 100%;
 }
 
 #menu-lateral ul {
     list-style-type: none;
     padding: 0;
-    text-align: left;
+    margin: 0;
+
 }
 
 #menu-lateral ul li {
     margin-bottom: 5px;
+
 }
 
 #menu-lateral a {
     text-decoration: none;
-    color: #333;
+    color:aliceblue;
+    display: block;
+    padding: 4px 6px;
+    border-radius: 4px;
 }
 
 #menu-lateral a:hover {
-    color: black; /* Cor de destaque ao passar o mouse */
+    color: #ffffff;
     font-weight: bold;
+    background-color: rgba(0,0,0,0.08);
+}
+
+footer {
+    background-color: #ffffff;
+    text-align: center;
+    padding: 10px 0;
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+    color: #333;
+    width: 100%;
+    position: relative; /* Garante que o rodapé esteja abaixo do conteúdo */
+    bottom: 0;
+    margin-top: 60px; /* Adiciona espaçamento entre o rodapé e o conteúdo */
+}
+
+footer img {
+    max-width: 75px; /* Reduz a largura máxima */
+    max-height: 75px; /* Reduz a altura máxima */
+    height: auto; /* Mantém a proporção da imagem */
+    margin-bottom: 10px; /* Espaçamento abaixo da imagem */
+}
+
+footer p {
+    margin: 0; /* Remove margens adicionais */
 }

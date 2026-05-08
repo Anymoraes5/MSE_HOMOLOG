@@ -1,14 +1,33 @@
-<nav id="menu-principal">
-    <img src="/images/MSE.png" alt="logo-mse">
-    <span>|</span>
-    <a href="/consulta">Consulta de Usuários do Sistema </a>
-    <span>|</span>
-    <a href="/cadastro" >Cadastro de Usuários do Sistema</a>
-    <span>|</span>
-    <a href="/verPessoas">Consulta de Adolescentes/Jovens</a>
-    <span>|</span>
-    <a href="/adminCadastraPessoa">Cadastrar Adolescente/Jovem</a>
-    <span>|</span>
-    <a href="#" onclick="confirmLogout()">Logout</a>
-    <span>|</span>
-</nav>
+<header class="p-3 text-bg-dark">
+  <div class="container">
+    <div class="d-flex flex-nowrap align-items-center">
+
+      <!-- Logo -->
+      <a href="/" class="d-flex align-items-center text-white text-decoration-none me-4">
+        <img src="/images/MSE.png" alt="logo-mse" height="32" class="me-2">
+      </a>
+
+      <!-- Links de navegação -->
+      <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0 me-5">
+        <li><a href="/consulta" class="nav-link px-2 text-white">Consulta de Usuários</a></li>
+        <li><a href="/cadastro" class="nav-link px-2 text-white">Cadastro de Usuários</a></li>
+        <li><a href="/verPessoas" class="nav-link px-2 text-white">Consulta de Adolescentes/Jovens</a></li>
+        <li><a href="/adminCadastraPessoa" class="nav-link px-2 text-white">Cadastrar Adolescentes</a></li>
+      </ul>
+
+      <!-- Usuário + Logout -->
+      <div class="d-flex align-items-center gap-3 flex-shrink-0 ms-auto">
+        <span class="btn btn-outline-primary d-flex align-items-center gap-1 " style="margin-right: 10px;">
+          <i class="material-icons" style="font-size:18px;">person</i>
+
+          <div class="d-flex flex-column text-left ml-2">
+            <span id="nome-usuario" class="fs-5 lh-1">...</span>
+            <span id="mse-usuario" class="fs-6 ">...</span>
+          </div>
+        </span>
+        <a href="#" class="btn btn-warning" onclick="confirmLogout()">Logout</a>
+      </div>
+
+    </div>
+  </div>
+</header>

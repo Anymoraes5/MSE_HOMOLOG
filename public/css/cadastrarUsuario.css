@@ -3,7 +3,6 @@
 html, body {
     height: 100%; /* Garante que o body ocupe 100% da altura da tela */
     margin: 0; /* Remove margens padrão */
-    padding: 0; /* Remove espaçamentos padrão */
 }
 
 body {
@@ -18,24 +17,6 @@ body {
     margin-top: 0.25em;
 }
 
-nav a:hover{
-    text-decoration:overline;
-    color: black;
-    padding: 5px;
-    border-radius: 5%;
-    font-weight: bold;
-}
-
-.active {
-    text-decoration:overline;
-    padding: 5px;
-    margin: 5px;
-    border-radius: 5%;
-}
-nav a.active{
-    text-decoration: overline;
-}
-
 
 
 
@@ -48,6 +29,7 @@ form {
     margin-top: 20px; /* Margem superior */
     width: 50%; /* Largura do formulário */
     margin: auto; /* Centraliza o formulário */
+    margin-bottom: 10px;
 }
 
 label {
@@ -122,6 +104,7 @@ button[type="submit"]:hover {
     min-height: calc(100vh - 65px);
     background-color: #f8f9fa;
     padding: 20px;
+    margin-bottom: 10px;
 }
 
 h1 {
@@ -145,35 +128,4 @@ h1 {
     margin-bottom: 1rem; /* Margem inferior para espaçamento */
 }
 
-.d-flex {
-    display: flex;
-    gap: 0.5rem; /* Espaçamento entre os botões */
-}
 
-.me-2 {
-    margin-right: 0.5rem; /* Margem direita para o botão adicionar */
-}
-
-footer {
-    background-color: #bcc6d0;
-    text-align: center;
-    padding: 10px 0;
-    font-family: Arial, sans-serif;
-    font-size: 14px;
-    color: #333;
-    width: 100%;
-    position: relative; /* Garante que o rodapé esteja abaixo do conteúdo */
-    bottom: 0;
-    margin-top: 40px; /* Adiciona espaçamento entre o rodapé e o conteúdo */
-}
-
-footer img {
-    max-width: 50px; /* Reduz a largura máxima */
-    max-height: 50px; /* Reduz a altura máxima */
-    height: auto; /* Mantém a proporção da imagem */
-    margin-bottom: 10px; /* Espaçamento abaixo da imagem */
-}
-
-footer p {
-    margin: 0; /* Remove margens adicionais */
-}

@@ -318,6 +318,7 @@ document.addEventListener("DOMContentLoaded", function () {
         var selectMSE = document.getElementById('mse');
         opcoesMSE.forEach(opcao => {
             var option = document.createElement('option');
+            option.value = opcao.ID;
             option.text = opcao.descricao;
             selectMSE.appendChild(option);
         });
@@ -526,6 +527,7 @@ document.addEventListener("DOMContentLoaded", function () {
         var selectMedidasMse = document.getElementById('medidas_mse');
         opcoesMedidasMse.forEach(opcao => {
             var option = document.createElement('option');
+            option.value = opcao.ID;
             option.text = opcao.descricao;
             selectMedidasMse.appendChild(option);
         });
@@ -716,10 +718,12 @@ async function buscarTecRefPorMse(mseSelecionado) {
         const response = await fetch(`/opcoesTecRef?mse=${encodeURIComponent(mseSelecionado)}`);
         const opcoesTecRef = await response.json();
         var selectTecRef = document.getElementById('tec_ref');
+        selectTecRef.disabled = false;
         selectTecRef.innerHTML = ''; // Limpa as opções existentes
 
         opcoesTecRef.forEach(opcao => {
             var option = document.createElement('option');
+            option.value = opcao.nome;
             option.text = opcao.nome;
             selectTecRef.appendChild(option);
         });
@@ -786,7 +790,7 @@ async function carregarDadosDoUsuario(ID) {
         };
 
         // Preenche o mse antes para que a lista de técnicos seja carregada
-        var mseSelecionado = data.mse;
+        var mseSelecionado = data.mse_id;
         await buscarTecRefPorMse(mseSelecionado); // Aguarda carregar as opções de técnico de referência
         document.getElementById('tec_ref').value = data.tec_ref || '';
 
@@ -809,7 +813,7 @@ async function carregarDadosDoUsuario(ID) {
             'dt_cadastro': formatarData(data['dt_cadastro']),
             'dt_atualizacao': formatarData(data['dt_atualizacao']),
             'creas_atual': tratarValor(data['creas_atual']),
-            'mse': tratarValor(data['mse']),
+            'mse': tratarValor(data['mse_id']),
             'tec_ref': data.tec_ref,
             'sas': tratarValor(data['sas']),
             'servico_familia': tratarValor(data['servico_familia']),
@@ -1117,7 +1121,27 @@ carregarDadosDoUsuario(ID);
             console.error('Erro ao buscar opções programas_sociais:', error);
         });
  
+        document.addEventListener("change", async function(e) {
+    if (e.target && e.target.id === "mse") {
+        const idMse = e.target.value;
+        const selectTecRef = document.getElementById("tec_ref");
+
+        if (!selectTecRef) return;
+
+        if (!idMse) {
+            selectTecRef.value = "";
+            selectTecRef.disabled = true;
+            return;
+        }
+
+        selectTecRef.disabled = false;
+        await buscarTecRefPorMse(idMse);
+    }
+});
 },);
+
+
+
 
 /*-----CONTINUA NO ARQUIVO adminEditaPessoa2--------------------------------------------------------------------------------------*/
 

@@ -10,10 +10,13 @@ body {
     background-color: #f8f9fa; /* Fundo cinza claro */
 }
 
-
-
-.unidade-obrigatorio {
-    display: none;
+input:disabled,
+select:disabled,
+textarea:disabled {
+    background-color: #e9ecef; /* cinza Bootstrap */
+    color: #6c757d;            /* texto cinza */
+    cursor: not-allowed;
+    opacity: 1;                /* evita ficar transparente demais */
 }
 
 
@@ -24,20 +27,10 @@ body {
     margin-top: 0.25em;
 }
 
-select:disabled,
-input:disabled {
-    background-color: #e9ecef !important;
-    cursor: not-allowed;
-}
 
 
-
-
-.active {
-    text-decoration:overline;
-    padding: 5px;
-    margin: 5px;
-    border-radius: 5%;
+.unidade-obrigatorio {
+    display: none;
 }
 
 
@@ -84,6 +77,20 @@ button[type="button"]:hover {
     background-color: #0056b3; /* Azul mais escuro */
 }
 
+button[type="submit"] {
+    background-color: #007bff; /* Azul */
+    color: #fff; /* Branco */
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-right: 10px;
+}
+
+button[type="submit"]:hover {
+    background-color: #0056b3; /* Azul mais escuro */
+}
+
 #salvar {
     background-color: #28a745; /* Verde */
 }
@@ -107,7 +114,6 @@ button[type="button"]:hover {
 
 
 
-
 #container {
     position: relative;
     top: 100px; /* Distância do topo, ajustada para ficar abaixo do menu */
@@ -115,32 +121,49 @@ button[type="button"]:hover {
     width: 100%;
     box-sizing: border-box;
     min-height: calc(100vh - 65px);
-    background-color: #fff;
+    background-color: #f8f9fa;
     padding: 20px;
 }
 
 
 
-footer {
-    background-color: #bcc6d0;
-    text-align: center;
-    padding: 10px 0;
-    font-family: Arial, sans-serif;
-    font-size: 14px;
-    color: #333;
-    width: 100%;
-    position: relative; /* Garante que o rodapé esteja abaixo do conteúdo */
-    bottom: 0;
-    margin-top: 40px; /* Adiciona espaçamento entre o rodapé e o conteúdo */
+
+#programas_sociais label {
+    margin-left: 5px; /* Espaçamento entre checkbox e label */
 }
 
-footer img {
-    max-width: 75px; /* Reduz a largura máxima */
-    max-height: 75px; /* Reduz a altura máxima */
-    height: auto; /* Mantém a proporção da imagem */
-    margin-bottom: 10px; /* Espaçamento abaixo da imagem */
+#programas_sociais div {
+    margin-bottom: 8px; /* Espaçamento entre cada linha de checkbox */
 }
 
-footer p {
-    margin: 0; /* Remove margens adicionais */
+#buttons_container {
+    margin-bottom: 1rem; /* Margem inferior para espaçamento */
 }
+
+
+
+
+
+
+table {
+    width: 80%; /* Ajuste a largura conforme necessário */
+    margin: 20px auto; /* Centraliza a tabela na tela */
+    border-collapse: collapse;
+    background-color: #fff;
+    box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.1);
+    overflow-x: auto; /* Permite rolagem se o conteúdo for muito largo */
+}
+
+th, td {
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+    word-wrap: break-word; /* Permite quebra de linha dentro das células */
+}
+
+th {
+    background-color: #007bff;
+    color: #fff;
+    text-align: left;
+    white-space: nowrap; /* Impede quebra de linha no cabeçalho */
+}
+

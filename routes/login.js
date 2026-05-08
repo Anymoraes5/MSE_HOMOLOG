@@ -36,7 +36,12 @@ function rota_index(app) {
 		
 
         // Consulta o banco de dados para verificar se o login e senha são válidos e se o usuário está ativo
-        connection.query('SELECT * FROM usuarios WHERE login = ? AND senha = ?', [login, senha], (error, results, fields) => {
+        connection.query(`
+            SELECT U.*, M.descricao AS mse_descricao
+            FROM usuarios U 
+            LEFT JOIN mse M ON M.ID = U.fk_mse 
+            WHERE U.login = ? AND U.senha = ?
+            `, [login, senha], (error, results, fields) => {
             if (error) {
                 // Envia uma mensagem de erro se houver um erro na consulta
                 res.redirect('/?mensagem=Erro ao executar a consulta.');
@@ -51,6 +56,9 @@ function rota_index(app) {
                     res.redirect('/?mensagem=Seu login não está ativo. Entre em contato com o administrador.');
                     return;
                 }
+                req.session.nome = results[0].nome;
+                req.session.fk_mse = results[0].fk_mse;
+                req.session.mse = results[0].mse_descricao;
 
                 // Verifica o grupo de acesso do usuário
                 if (results[0].fk_tipo_perfil == 1) {
@@ -76,6 +84,17 @@ function rota_index(app) {
                 res.redirect('/?mensagem=Login ou senha incorretos.');
                 return;
             }
+        });
+    });
+    app.get('/me', (req, res) => {
+        if (!req.session.adminAuthenticated && !req.session.userAuthenticated) {
+            return res.status(401).json({ error: 'Não autenticado' });
+        }
+
+        res.json({
+            nome: req.session.nome,
+            fk_mse: req.session.fk_mse,
+            mse: req.session.mse
         });
     });
 

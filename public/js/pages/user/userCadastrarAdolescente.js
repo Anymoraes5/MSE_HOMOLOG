@@ -1253,9 +1253,8 @@ async function preencherCreasSasPorMse(idMse) {
 document.addEventListener("change", function(e) {
     if (e.target && e.target.id === "mse") {
         const idMse = e.target.value;
-        const descricaoMse = e.target.options[e.target.selectedIndex].text; 
         preencherCreasSasPorMse(idMse);
-        buscarTecRefPorMse(descricaoMse); 
+        buscarTecRefPorMse(idMse);
     }
 });
     function carregarDistritoServicoPorSas(idSas) {

@@ -34,12 +34,7 @@ function rota_adminCadastraPessoa(app) {
     });
 
     app.post('/adminCadastraPessoa', (req, res) => {
-        console.log("POST RECEBIDO — quantidade de chamadas");
-        console.log("CPF tipo:", typeof req.body.cpf, "valor:", req.body.cpf);
-        console.log("CREAS RECEBIDO:", req.body.creas_atual);
-        console.log("SAS RECEBIDA:", req.body.sas);
-        console.log("MSE RECEBIDO:", req.body.mse);
-
+        
         // Obter a data atual
         let dataAtual = new Date();
         let ano = dataAtual.getFullYear();
