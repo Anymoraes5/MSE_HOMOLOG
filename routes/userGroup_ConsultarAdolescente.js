@@ -44,7 +44,8 @@ function rota_home(app) {
                             LEFT JOIN mse M ON M.ID = P.fk_mse
                             LEFT JOIN usuarios U ON U.ID = P.fk_tec_ref
                             WHERE P.ativo_inativo = 1 
-                            AND P.fk_mse = ?` [req.session.fk_mse] , (error, results, fields) => {
+                            AND P.fk_mse = ?
+                            `, [req.session.fk_mse] , (error, results, fields) => {
                 if (error) {
                     console.error('Erro ao consultar dados:', error);
                     res.status(500).send('Erro ao consultar dados.');

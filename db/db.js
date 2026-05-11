@@ -14,6 +14,7 @@ const connection = mysql.createConnection({
     connectTimeout: 10000 // 10 segundos de timeout para evitar travamentos de conexão
 });
 
+
 // Função para gerenciar reconexões automáticas
 function handleDisconnect() {
   connection.connect((err) => {
