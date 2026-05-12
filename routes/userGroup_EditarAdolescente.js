@@ -391,6 +391,13 @@ function rota_editarPessoas(app) {
    // Função assíncrona para processar os dados e capturar os IDs
    async function processarDados() {
        try {
+            console.log("=== VALORES RECEBIDOS ===");
+            console.log("mse:", mse);
+            console.log("creas_atual:", creas_atual);
+            console.log("creas_origem:", creas_origem);
+            console.log("sas:", sas);
+            console.log("tec_ref:", tec_ref);
+            console.log("=========================");
            // Captura todos os IDs
            idCreasOrigem = await IdDescricaoRepository.getIdByDescricao('creas', creas_origem);
            idCreasAtual = await IdDescricaoRepository.getIdByDescricao('creas', creas_atual);
@@ -403,8 +410,12 @@ function rota_editarPessoas(app) {
            idParouEstudar = await IdDescricaoRepository.getIdByDescricao('paroudeestudar', paroudeEstudar);
            idEstadoCivil = await IdDescricaoRepository.getIdByDescricao('estado_civil', estado_civil);
            idGenero = await IdDescricaoRepository.getIdByDescricao('genero', genero);
-           idMedidasMse = await IdDescricaoRepository.getIdByDescricao('medidas_mse', medidas_mse);
-           idMse = await IdDescricaoRepository.getIdByDescricao('mse', mse);
+           idMedidasMse = (!isNaN(medidas_mse) && medidas_mse !== '' && medidas_mse !== null && medidas_mse !== undefined)
+                    ? parseInt(medidas_mse)
+                    : await IdDescricaoRepository.getIdByDescricao('medidas_mse', medidas_mse);
+           idMse = (!isNaN(mse) && mse !== '' && mse !== null && mse !== undefined)
+                       ? parseInt(mse)
+                       : await IdDescricaoRepository.getIdByDescricao('mse', mse);
            idNacionalidade = await IdDescricaoRepository.getIdByDescricao('nacionalidade', nacionalidade);
            idOrientacaoSexual = await IdDescricaoRepository.getIdByDescricao('orientacao_sexual', orientacao_sexual);
            idRaca = await IdDescricaoRepository.getIdByDescricao('raca', raca);

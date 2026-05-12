@@ -212,6 +212,7 @@ window.onload = function() {
         var dt_nasc = validarData(document.getElementById('dt_nasc').value);
         var ativo_inativo = document.getElementById('ativo_inativo').value;
         var tec_ref = document.getElementById('tec_ref').value;
+        var transferido = document.getElementById('transferido').value;
         
         // Realiza uma requisição fetch para filtrar as pessoas com base nos dados fornecidos
         fetch('/Adolescente/filtro', {
@@ -219,7 +220,7 @@ window.onload = function() {
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ cpf: cpf, n_processo: n_processo, nome: nome, nome_social: nome_social, nome_da_mae: nome_da_mae,  dt_nasc: dt_nasc, ativo_inativo: ativo_inativo, tec_ref: tec_ref  })
+            body: JSON.stringify({ cpf: cpf, n_processo: n_processo, nome: nome, nome_social: nome_social, nome_da_mae: nome_da_mae,  dt_nasc: dt_nasc, ativo_inativo: ativo_inativo, tec_ref: tec_ref, transferido: transferido  })
         })
         .then(response => response.json())
         .then(data => {
@@ -242,6 +243,7 @@ window.onload = function() {
                     <td>${pessoa.nome_social}</td>
                     <td>${pessoa.nome_da_mae}</td>
                     <td>${formatarData(pessoa.dt_nasc)}</td>
+                    <td>${pessoa.mse}</td>
                     <td>${pessoa.tec_ref}</td>
                     
                     <td>
@@ -319,6 +321,7 @@ function carregarDados() {
                 var nome_social = resultado.nome_social || ' -- ';
                 var nome_da_mae = resultado.nome_da_mae;
                 var dt_nasc = formatarData(resultado.dt_nasc);
+                var mse = resultado.mse;
                 var tec_ref = resultado.tec_ref;
 
                 // Cria uma nova linha na tabela com os dados do resultado
@@ -330,6 +333,7 @@ function carregarDados() {
                     <td>${nome_social}</td>
                     <td>${nome_da_mae}</td>
                     <td>${dt_nasc}</td>
+                    <td>${mse}</td>
                     <td>${tec_ref}</td>
                     <td><button class="btn btn-warning" onclick="editUsuario(${resultado.ID})">Editar</button></td>
                     <td><button class="btn btn-${resultado.ativo_inativo ? 'danger' : 'success'}" onclick="toggleAtivacao(${resultado.ID}, ${resultado.ativo_inativo})">${resultado.ativo_inativo ? 'Desligar' : 'Ativar'}</button></td>

@@ -527,7 +527,6 @@ document.addEventListener("DOMContentLoaded", function () {
         var selectMedidasMse = document.getElementById('medidas_mse');
         opcoesMedidasMse.forEach(opcao => {
             var option = document.createElement('option');
-            option.value = opcao.ID;
             option.text = opcao.descricao;
             selectMedidasMse.appendChild(option);
         });
@@ -735,7 +734,10 @@ async function preencherCreasSasPorMse(idMse) {
     if (!idMse) {
         const selectCreas = document.getElementById('creas_atual');
         const selectSas   = document.getElementById('sas');
-        if (selectCreas) { selectCreas.value = ''; selectCreas.disabled = false; }
+        if (selectCreas && dados.creas_descricao) {
+            selectCreas.value = dados.creas_descricao;  // ← usa descrição
+            selectCreas.disabled = true;
+        }
         if (selectSas)   { selectSas.value   = ''; selectSas.disabled   = false; }
         resetSelectField('distrito_servico');
         return;

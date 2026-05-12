@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <form id="faleConoscoForm" enctype="multipart/form-data">
+    <label>Assunto principal</label>
+    <input type="text" id="assunto" name="assunto" required>
+
+    <label>Tipo</label>
+    <select id="tipo" name="tipo" required>
+        <option value="">Selecione</option>
+        <option value="solicitacao_acesso">Solicitação de acesso</option>
+        <option value="problema_sistema">Problema no sistema</option>
+    </select>
+
+    <div id="campo-termo" style="display:none;">
+        <label>Termo de responsabilidade</label>
+        <input type="file" id="termo" name="termo" accept=".pdf,.doc,.docx">
+    </div>
+
+    <label>Mensagem</label>
+    <textarea id="mensagem" name="mensagem" required></textarea>
+
+    <button type="submit">Enviar</button>
+</form>
+
+<script src="/js/pages/faleConosco.js"></script>
+
+</body>
+</html>

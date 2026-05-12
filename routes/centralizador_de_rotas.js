@@ -20,6 +20,7 @@ const rota_home = require('./userGroup_ConsultarAdolescente');
 const rota_index = require('./login');
 const rota_listasCargaSelects = require('./rota_listasCargaSelects');
 const rota_verPessoas = require('./adminGroup_ConsultarAdolescente');
+const rota_faleConosco = require('./faleConosco');
 
 //Define as rotas do aplicativo para irem ao server.js
 function setupRoutes(app) {
@@ -27,6 +28,7 @@ function setupRoutes(app) {
      rota_verPessoas(app);
      rota_home(app);
      rota_consulta(app);
+     rota_faleConosco(app);
      // rota_adolescente(app);
      rota_adminCadastraPessoa(app);
      rota_adminEditaPessoa(app);

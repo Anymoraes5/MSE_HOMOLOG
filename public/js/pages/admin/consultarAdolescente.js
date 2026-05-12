@@ -211,6 +211,8 @@ window.onload = function() {
         var ativo_inativo = document.getElementById('ativo_inativo').value;
         var mse = document.getElementById('mse').value;
         var tec_ref = document.getElementById('tec_ref').value;
+        var transferido = document.getElementById('transferido').value;
+       
 
         // Realiza uma requisição fetch para filtrar as pessoas com base nos dados fornecidos
         fetch('/Adolescente/filtro', {
@@ -228,16 +230,18 @@ window.onload = function() {
                 dt_nasc: dt_nasc,
                 ativo_inativo: ativo_inativo,
                 mse: mse,
-                tec_ref: tec_ref
+                tec_ref: tec_ref,
+                transferido: transferido
             })
         })
         .then(response => response.json())
         .then(data => {
             // Limpa o conteúdo da tabela de usuários
             var tbody = document.getElementById('tabela-usuarios');
-            tbody.innerHTML = '';
+            
             // Para cada pessoa retornada na resposta
             data.forEach(pessoa => {
+                tbody.innerHTML = '';
                 // Cria uma nova linha na tabela com os dados da pessoa
                 var tr = document.createElement('tr');
                 tr.innerHTML = `
@@ -255,6 +259,8 @@ window.onload = function() {
                     <td>
                         <button class="btn btn-${pessoa.ativo_inativo ? 'danger' : 'success'}" onclick="toggleAtivacao(${pessoa.ID}, ${pessoa.ativo_inativo})">${pessoa.ativo_inativo ? 'Desligar' : 'Ativar'}</button>
                     </td>
+                    
+                    
                 `;
                 tbody.appendChild(tr);
             });
@@ -369,6 +375,8 @@ function carregarDados() {
                 var dt_nasc = formatarData(resultado.dt_nasc);
                 var mse = resultado.mse || 'Não informado';
                 var tec_ref = resultado.tec_ref || 'Não informado';
+               
+
 
                 var tr = document.createElement('tr');
                 tr.innerHTML = `
@@ -382,6 +390,7 @@ function carregarDados() {
                     <td>${tec_ref}</td>
                     <td><button class="btn btn-warning" onclick="editUsuario(${resultado.ID})">Editar</button></td>
                     <td><button class="btn btn-${resultado.ativo_inativo ? 'danger' : 'success'}" onclick="toggleAtivacao(${resultado.ID}, ${resultado.ativo_inativo})">${resultado.ativo_inativo ? 'Desligar' : 'Ativar'}</button></td>
+                
                 `;
                 tbody.appendChild(tr);
             });

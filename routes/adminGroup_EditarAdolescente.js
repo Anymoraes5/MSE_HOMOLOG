@@ -465,6 +465,7 @@ function rota_adminEditaPessoa(app) {
     // Função assíncrona para processar os dados e capturar os IDs
     async function processarDados() {
         try {
+            
 			 // Captura todos os IDs
             idCreasOrigem = await IdDescricaoRepository.getIdByDescricao('creas', creas_origem);
             idCreasAtual = await IdDescricaoRepository.getIdByDescricao('creas', creas_atual);
@@ -477,8 +478,12 @@ function rota_adminEditaPessoa(app) {
             idParouEstudar = await IdDescricaoRepository.getIdByDescricao('paroudeestudar', paroudeEstudar);
             idEstadoCivil = await IdDescricaoRepository.getIdByDescricao('estado_civil', estado_civil);
             idGenero = await IdDescricaoRepository.getIdByDescricao('genero', genero);
-            idMedidasMse = await IdDescricaoRepository.getIdByDescricao('medidas_mse', medidas_mse);
-            idMse = await IdDescricaoRepository.getIdByDescricao('mse', mse);
+            idMedidasMse = (!isNaN(medidas_mse) && medidas_mse !== '' && medidas_mse !== null && medidas_mse !== undefined)
+                                ? parseInt(medidas_mse)
+                                : await IdDescricaoRepository.getIdByDescricao('medidas_mse', medidas_mse)
+            idMse = (!isNaN(mse) && mse !== '' && mse !== null && mse !== undefined)
+            ? parseInt(mse)
+            : await IdDescricaoRepository.getIdByDescricao('mse', mse);
             idNacionalidade = await IdDescricaoRepository.getIdByDescricao('nacionalidade', nacionalidade);
             idOrientacaoSexual = await IdDescricaoRepository.getIdByDescricao('orientacao_sexual', orientacao_sexual);
             idRaca = await IdDescricaoRepository.getIdByDescricao('raca', raca);
@@ -631,6 +636,19 @@ function rota_adminEditaPessoa(app) {
  	       if (utils.verificar_campos(n_pt) == null) {
                 n_pt = null
             }
+
+            // logo antes de chamar atualizarDadosPessoa()
+console.log("=== TODOS OS IDs ===");
+console.log("idMse:", idMse, "| idCreasAtual:", idCreasAtual, "| idCreasOrigem:", idCreasOrigem);
+console.log("idSas:", idSas, "| idTecRef:", idTecRef, "| idMedidasMse:", idMedidasMse);
+console.log("idDistritoServico:", idDistritoServico, "| idDistritoPessoa:", idDistritoPessoa);
+console.log("idRaca:", idRaca, "| idNacionalidade:", idNacionalidade, "| idGenero:", idGenero);
+console.log("idEstadoCivil:", idEstadoCivil, "| idOrientacaoSexual:", idOrientacaoSexual);
+console.log("idAlcoolOuDrogas:", idAlcoolOuDrogas, "| idSituacaoProcesso:", idSituacaoProcesso);
+console.log("idVaraDaInfancia:", idVaraDaInfancia, "| idUbs:", idUbs);
+console.log("====================");
+
+
                      
             // Todos os IDs foram capturados, agora execute o código de atualização
             atualizarDadosPessoa();

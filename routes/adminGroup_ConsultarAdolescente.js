@@ -27,22 +27,33 @@ function rota_verPessoas(app) {
         // Verifica se o usuário está autenticado como administrador
         if (req.session.adminAuthenticated) {
             // Consulta SQL modificada para incluir a condição do fk_mse
-            connection.query(`SELECT
-                                P.ID,
-                                P.cpf,
-                                PRO.n_processo,
-                                P.nome,
-                                P.nome_social,
-                                P.nome_da_mae,
-                                P.dt_nasc,
-                                P.ativo_inativo,
-                                M.descricao AS 'mse',
-                                U.nome AS 'tec_ref'
-                            FROM pessoas P
-                            LEFT JOIN processos PRO ON PRO.ID = P.fk_processos
-                            LEFT JOIN mse M ON M.ID = P.fk_mse
-                            LEFT JOIN usuarios U ON U.ID = P.fk_tec_ref
-                            WHERE P.ativo_inativo = 1`, (error, results, fields) => {
+            connection.query(`
+                SELECT DISTINCT
+                    P.ID,
+                    P.cpf,
+                    PRO.n_processo,
+                    P.nome,
+                    P.nome_social,
+                    P.nome_da_mae,
+                    P.dt_nasc,
+                    P.ativo_inativo,
+                    M.descricao    AS mse,
+                    U.nome         AS tec_ref,
+                    C_origem.descricao AS creas_origem,
+                    C_atual.descricao  AS creas_atual
+                FROM pessoas P
+                LEFT JOIN processos PRO ON PRO.ID = P.fk_processos
+                LEFT JOIN mse M         ON M.ID   = P.fk_mse
+                LEFT JOIN usuarios U    ON U.ID   = P.fk_tec_ref
+                LEFT JOIN historico_pessoas H ON H.ID = (
+                    SELECT MAX(h2.ID)
+                    FROM historico_pessoas h2
+                    WHERE h2.fk_processos = P.fk_processos
+                )
+                LEFT JOIN creas C_origem ON C_origem.ID = H.fk_creas_origem
+                LEFT JOIN creas C_atual  ON C_atual.ID  = H.fk_creas_atual
+                WHERE P.ativo_inativo = 1
+            `, (error, results) => {
                 if (error) {
                     console.error('Erro ao consultar dados:', error);
                     res.status(500).send('Erro ao consultar dados.');
@@ -59,26 +70,35 @@ function rota_verPessoas(app) {
 
     // Rota para filtrar usuários
     app.post('/adolescente/filtro', (req, res) => {
-        const { ID, cpf, n_processo, nome, nome_social, nome_da_mae, dt_nasc, ativo_inativo, mse, tec_ref} = req.body;
+        const { ID, cpf, n_processo, nome, nome_social, nome_da_mae, dt_nasc, ativo_inativo, mse, tec_ref, transferido} = req.body;
 
         let query = `
-            SELECT
-            P.ID,
-            P.cpf,
-            PRO.n_processo,
-            P.nome,
-            P.nome_social,
-            P.nome_da_mae,
-            P.dt_nasc,
-            P.ativo_inativo,
-            M.descricao AS 'mse',
-            U.nome AS 'tec_ref'
+            SELECT DISTINCT
+                P.ID,
+                P.cpf,
+                PRO.n_processo,
+                P.nome,
+                P.nome_social,
+                P.nome_da_mae,
+                P.dt_nasc,
+                P.ativo_inativo,
+                M.descricao AS mse,
+                U.nome AS tec_ref,
+                C_origem.descricao AS creas_origem,
+                C_atual.descricao  AS creas_atual
             FROM pessoas P
             LEFT JOIN processos PRO ON PRO.ID = P.fk_processos
-            LEFT JOIN mse M ON M.ID = P.fk_mse
-            LEFT JOIN usuarios U ON U.ID = P.fk_tec_ref
+            LEFT JOIN mse M         ON M.ID   = P.fk_mse
+            LEFT JOIN usuarios U    ON U.ID   = P.fk_tec_ref
+            LEFT JOIN historico_pessoas H ON H.ID = (
+                SELECT MAX(h2.ID)
+                FROM historico_pessoas h2
+                WHERE h2.fk_processos = P.fk_processos
+            )
+            LEFT JOIN creas C_origem ON C_origem.ID = H.fk_creas_origem
+            LEFT JOIN creas C_atual  ON C_atual.ID  = H.fk_creas_atual
             WHERE 1=1
-            `;
+        `;
 
         const queryParams = []; // Parâmetros da consulta   
 
@@ -135,6 +155,9 @@ function rota_verPessoas(app) {
         if (tec_ref) {
             query += ` AND P.fk_tec_ref = ?`;
             queryParams.push(tec_ref);
+        }
+        if (transferido === '1') {
+            query += ` AND H.fk_creas_atual IS NOT NULL AND H.fk_creas_atual != H.fk_creas_origem`;
         }
 
         
