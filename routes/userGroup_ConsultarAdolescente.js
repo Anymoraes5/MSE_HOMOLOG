@@ -1,19 +1,14 @@
 /*-configurações padrões---------------------------------------------------------------------------------------------*/
 
-//Importa o módulo fs e path para lidar com arquivos e caminhos
-const fs = require('fs');
+const fs   = require('fs');
 const path = require('path');
 
-//Importa a conexão com o banco de dados
 const { connection } = require('../db/db');
 
-//Define as rotas do aplicativo
 function rota_home(app) {
-     /*-----pagina inicial da pessoa-------------------------------------------------------------------------------------*/
-    
+
     // Rota para a página de consulta
     app.get('/home', (req, res) => {
-        // Verifica se o usuário está autenticado
         if (req.session.userAuthenticated) {
             const filePath = path.join(__dirname, '..', 'views', 'userGroup_ConsultarAdolescente.html');
             res.sendFile(filePath);
@@ -22,11 +17,9 @@ function rota_home(app) {
         }
     });
 
-    // Rota para obter todos os usuários do banco de dados com base no mse armazenado em seção
+    // Rota para obter todos os usuários do banco de dados com base no mse armazenado em sessão
     app.get('/todasPessoasMse', (req, res) => {
-        // Verifica se o usuário está autenticado como usuario e se há um fk_mse na sessão
         if (req.session.userAuthenticated && req.session.fk_mse) {
-            // Consulta SQL modificada para incluir a condição do fk_mse
             connection.query(`
                 SELECT DISTINCT
                     P.ID,
@@ -38,19 +31,23 @@ function rota_home(app) {
                     P.nome_da_mae,
                     P.dt_nasc,
                     P.ativo_inativo,
-                    M.descricao    AS mse,
-                    U.nome         AS tec_ref,
+                    M.descricao        AS mse,
+                    U.nome             AS tec_ref,
                     C_origem.descricao AS creas_origem,
                     C_atual.descricao  AS creas_atual
                 FROM pessoas P
                 LEFT JOIN processos PRO ON PRO.ID = P.fk_processos
                 LEFT JOIN mse M         ON M.ID   = P.fk_mse
                 LEFT JOIN usuarios U    ON U.ID   = P.fk_tec_ref
-                LEFT JOIN historico_pessoas H ON H.ID = (
-                    SELECT MAX(h2.ID)
-                    FROM historico_pessoas h2
-                    WHERE h2.fk_processos = P.fk_processos
-                )
+                LEFT JOIN (
+                    SELECT hp1.*
+                    FROM historico_pessoas hp1
+                    INNER JOIN (
+                        SELECT fk_processos, MAX(ID) AS max_id
+                        FROM historico_pessoas
+                        GROUP BY fk_processos
+                    ) hp2 ON hp1.ID = hp2.max_id
+                ) H ON H.fk_processos = P.fk_processos
                 LEFT JOIN creas C_origem ON C_origem.ID = H.fk_creas_origem
                 LEFT JOIN creas C_atual  ON C_atual.ID  = H.fk_creas_atual
                 WHERE P.ativo_inativo = 1
@@ -69,17 +66,30 @@ function rota_home(app) {
                     return;
                 }
                 console.log('Resultados da todas pessoas:', results);
-                res.json(results); // Envia os resultados da consulta como resposta
+                res.json(results);
             });
         } else {
-            // Se o usuário não estiver autenticado ou não tiver um fk_mse na sessão, redirecione para a página inicial
             res.redirect('/');
         }
     });
 
     // Rota para filtrar usuários
     app.post('/adolescente/filtro', (req, res) => {
-        const { ID, cpf, nis, n_processo, nome, nome_social, nome_da_mae, dt_nasc, ativo_inativo, tec_ref, transferido } = req.body;
+
+        const {
+            ID,
+            cpf,
+            n_processo,
+            nome,
+            nome_social,
+            nome_da_mae,
+            dt_nasc,
+            ativo_inativo,
+            tec_ref,
+            transferido
+        } = req.body;
+        console.log('MSE LOGADO:', req.session.fk_mse);
+        // WHERE base sem filtro de MSE — controlado pelo if/else abaixo
         let query = `
             SELECT DISTINCT
                 P.ID,
@@ -90,25 +100,53 @@ function rota_home(app) {
                 P.nome_da_mae,
                 P.dt_nasc,
                 P.ativo_inativo,
-                M.descricao AS mse,
-                U.nome AS tec_ref,
+                M.descricao        AS mse,
+                U.nome             AS tec_ref,
                 C_origem.descricao AS creas_origem,
                 C_atual.descricao  AS creas_atual
             FROM pessoas P
             LEFT JOIN processos PRO ON PRO.ID = P.fk_processos
             LEFT JOIN mse M         ON M.ID   = P.fk_mse
             LEFT JOIN usuarios U    ON U.ID   = P.fk_tec_ref
-            LEFT JOIN historico_pessoas H ON H.ID = (
-                SELECT MAX(h2.ID)
-                FROM historico_pessoas h2
-                WHERE h2.fk_processos = P.fk_processos
-            )
+            LEFT JOIN (
+                SELECT hp1.*
+                FROM historico_pessoas hp1
+                INNER JOIN (
+                    SELECT fk_processos, MAX(ID) AS max_id
+                    FROM historico_pessoas
+                    GROUP BY fk_processos
+                ) hp2 ON hp1.ID = hp2.max_id
+            ) H ON H.fk_processos = P.fk_processos
             LEFT JOIN creas C_origem ON C_origem.ID = H.fk_creas_origem
             LEFT JOIN creas C_atual  ON C_atual.ID  = H.fk_creas_atual
             WHERE 1=1
         `;
 
-        const queryParams =  [req.session.fk_mse]; // Parâmetros da consulta
+        const queryParams = [];
+
+
+        if (transferido === '1') {
+
+            query += `
+                AND EXISTS (
+                    SELECT 1
+                    FROM historico_pessoas HT
+                    WHERE HT.fk_processos = P.fk_processos
+                    AND HT.fk_mse = ?
+                )
+
+                AND (
+                    SELECT HX.fk_mse
+                    FROM historico_pessoas HX
+                    WHERE HX.fk_processos = P.fk_processos
+                    ORDER BY HX.ID DESC
+                    LIMIT 1
+                ) != ?
+            `;
+
+            queryParams.push(req.session.fk_mse);
+            queryParams.push(req.session.fk_mse);
+        }
 
         if (ID) {
             query += ` AND P.ID = ?`;
@@ -119,11 +157,6 @@ function rota_home(app) {
             query += ` AND P.cpf = ?`;
             queryParams.push(cpf);
         }
-
-        // if (nis) {
-        //     query += ` AND P.nis = ?`;
-        //     queryParams.push(nis);
-        // }
 
         if (n_processo) {
             query += ` AND PRO.n_processo = ?`;
@@ -154,61 +187,60 @@ function rota_home(app) {
             query += ` AND P.ativo_inativo = ?`;
             queryParams.push(ativo_inativo);
         }
+
         if (tec_ref) {
             query += ` AND P.fk_tec_ref = ?`;
             queryParams.push(tec_ref);
         }
-        if (transferido === '1') {
-            query += ` AND H.fk_creas_atual IS NOT NULL AND H.fk_creas_atual != H.fk_creas_origem`;
-        }
+        console.log('TRANSFERIDO:', transferido);
+        console.log('MSE LOGADO:', req.session.fk_mse);
+        console.log('QUERY PARAMS:', queryParams);
 
-        // Executa a consulta no banco de dados
-        connection.query(query, queryParams, (error, results, fields) => {
+        connection.query(query, queryParams, (error, results) => {
             if (error) {
                 console.error('Erro ao consultar dados:', error);
-                res.status(500).send('Erro ao consultar dados.');
-                return;
+                return res.status(500).send('Erro ao consultar dados.');
             }
-
-            console.log('Resultados da consulta:', results); // Verifica os resultados da consulta
-
-            res.json(results); // Envia os resultados da consulta como resposta
+            console.log('Resultados da consulta:', results);
+            res.json(results);
         });
     });
 
     // Rota para ativar ou desativar uma pessoa
     app.post('/pessoaAtiva/:action/:ID', (req, res) => {
-        const ID = req.params.ID;
+        const ID     = req.params.ID;
         const action = req.params.action;
 
-        var ativo = 0;
-        var dt_desligamento = null;
+        let ativo           = 0;
+        let dt_desligamento = null;
 
-        let dataAtual = new Date();
-        // Extrair ano, mês e dia
-        let ano = dataAtual.getFullYear();
-        let mes = String(dataAtual.getMonth() + 1).padStart(2, '0'); // adiciona um zero à esquerda se for necessário
-        let dia = String(dataAtual.getDate()).padStart(2, '0'); // adiciona um zero à esquerda se for necessário
-        var dt_atualizacao = `${ano}-${mes}-${dia}`;
+        const dataAtual    = new Date();
+        const ano          = dataAtual.getFullYear();
+        const mes          = String(dataAtual.getMonth() + 1).padStart(2, '0');
+        const dia          = String(dataAtual.getDate()).padStart(2, '0');
+        const dt_atualizacao = `${ano}-${mes}-${dia}`;
 
         if (action === 'ativar') {
-            ativo = 1;
+            ativo           = 1;
             dt_desligamento = null;
-        } 
-        
-        if (action === 'desligar') {
-            dt_desligamento = dt_atualizacao
         }
 
-        connection.query('UPDATE pessoas SET ativo_inativo = ?, dt_atualizacao = ?, dt_desligamento = ? WHERE ID = ?', [ativo, dt_atualizacao, dt_desligamento, ID], (error, results, fields) => {
-            if (error) {
-                res.status(500).send('Erro ao executar a atualização.');
-                return;
+        if (action === 'desligar') {
+            dt_desligamento = dt_atualizacao;
+        }
+
+        connection.query(
+            'UPDATE pessoas SET ativo_inativo = ?, dt_atualizacao = ?, dt_desligamento = ? WHERE ID = ?',
+            [ativo, dt_atualizacao, dt_desligamento, ID],
+            (error) => {
+                if (error) {
+                    res.status(500).send('Erro ao executar a atualização.');
+                    return;
+                }
+                res.status(200).send({ ID: ID, ativo: ativo });
             }
-            res.status(200).send({ ID: ID, ativo: ativo });
-        });
+        );
     });
 }
 
-// Exporta a função de configuração das rotas
 module.exports = rota_home;

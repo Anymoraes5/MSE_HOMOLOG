@@ -3,31 +3,72 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Fale Conosco</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="/css/faleConosco.css">
 </head>
 <body>
+    <div id="navbar"></div>
+
+
     <form id="faleConoscoForm" enctype="multipart/form-data">
-    <label>Assunto principal</label>
-    <input type="text" id="assunto" name="assunto" required>
+        <label>Assunto principal</label>
+        <input type="text" id="assunto" name="assunto" required>
 
-    <label>Tipo</label>
-    <select id="tipo" name="tipo" required>
-        <option value="">Selecione</option>
-        <option value="solicitacao_acesso">Solicitação de acesso</option>
-        <option value="problema_sistema">Problema no sistema</option>
-    </select>
+        <label>Tipo</label>
+        <select id="tipo" name="tipo" required>
+            <option value="">Selecione</option>
+            <option value="solicitacao_acesso">Solicitação de acesso</option>
+            <option value="problema_sistema">Problema no sistema</option>
+        </select>
 
-    <div id="campo-termo" style="display:none;">
-        <label>Termo de responsabilidade</label>
-        <input type="file" id="termo" name="termo" accept=".pdf,.doc,.docx">
-    </div>
+        <div id="campo-termo" style="display:none;">
+            <label>Termo de responsabilidade</label>
+            <input type="file" id="termo" name="termo" accept=".pdf,.doc,.docx">
+        </div>
 
-    <label>Mensagem</label>
-    <textarea id="mensagem" name="mensagem" required></textarea>
+        <label>Mensagem</label>
+        <textarea id="mensagem" name="mensagem" required></textarea>
 
-    <button type="submit">Enviar</button>
-</form>
+        <button type="submit">Enviar</button>
+    </form>
 
+<script>
+
+// verifica autenticação
+const adminAuth = document.cookie.includes('adminAuthenticated=true');
+const userAuth = document.cookie.includes('userAuthenticated=true');
+
+let navbarArquivo = '';
+
+// define qual navbar carregar
+if (adminAuth) {
+
+    navbarArquivo = 'js/components/Admin/navAdmin.html';
+
+} else if (userAuth) {
+
+    navbarArquivo = 'js/components/User/navUser.html';
+
+} else {
+
+    window.location.href = '/';
+}
+
+// carrega navbar
+fetch(navbarArquivo)
+    .then(response => response.text())
+    .then(data => {
+
+        document.getElementById('navbar').innerHTML = data;
+
+    })
+    .catch(error => {
+        console.error('Erro ao carregar navbar:', error);
+    });
+
+</script>
 <script src="/js/pages/faleConosco.js"></script>
 
 </body>

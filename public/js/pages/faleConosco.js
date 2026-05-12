@@ -1,3 +1,6 @@
+
+
+
 const tipo = document.getElementById('tipo');
 const campoTermo = document.getElementById('campo-termo');
 const form = document.getElementById('faleConoscoForm');

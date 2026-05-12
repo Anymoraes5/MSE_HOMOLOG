@@ -2,42 +2,28 @@ import { toggleCampo, toggleCampoPorMultiplos } from "../../shared/formRules.js"
 import { aplicarMascaraCEP, iniciarMascaraTelefone } from "../../shared/mascaras.js";
 import { $ } from "../../shared/helpers.js";
 
-
 console.log("JS CARREGANDO EDITAR EDIÇÃO");
+
 // Script para ajustar o scroll quando um link do menu lateral é clicado
 document.querySelectorAll('#menu-lateral a').forEach(anchor => {
-    anchor.addEventListener('click', function(e) {
+    anchor.addEventListener('click', function (e) {
         e.preventDefault();
-
-        // Obter o ID do conteúdo correspondente ao link clicado
         const targetId = this.getAttribute('href').substring(1);
         const targetElement = document.getElementById(targetId);
-
         if (targetElement) {
-            // Calcular a altura do menu principal
             const menuPrincipalHeight = document.getElementById('menu-principal').offsetHeight;
-
-            // Calcular a posição do topo do elemento alvo
             const targetTop = targetElement.offsetTop - menuPrincipalHeight;
-
-            // Scroll para a posição correta
-            window.scrollTo({
-                top: targetTop,
-                behavior: 'smooth'
-            });
+            window.scrollTo({ top: targetTop, behavior: 'smooth' });
         }
     });
 });
 
-
 /*-----VALIDAÇÕES----------------------------------------------------------------------------------------------------------*/
 
-//Validação do campo de telefone
 document.addEventListener('DOMContentLoaded', function () {
 
     function aplicarMascaraTelefone(valor) {
         valor = valor.replace(/\D/g, '');
-
         if (valor.length <= 10) {
             return valor
                 .replace(/^(\d{2})(\d)/, '($1) $2')
@@ -58,136 +44,95 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     document.querySelectorAll('.telefone-br').forEach(input => {
-
-        // Máscara
         input.addEventListener('input', function () {
             this.value = aplicarMascaraTelefone(this.value);
         });
-
-        // Validação ao sair do campo
         input.addEventListener('blur', function () {
             if (this.value && !telefoneCompleto(this.value)) {
                 alert("Informe um telefone completo. Ex: (11) 91234-5678");
                 this.value = "";
-
-                // FORÇA REAVALIAÇÃO DA OBRIGATORIEDADE
                 this.dispatchEvent(new Event('change'));
                 this.dispatchEvent(new Event('input'));
-
                 this.focus();
             }
         });
-
     });
 
-    // Validação final no submit (para TODOS)
     const form = document.querySelector('form');
     if (form) {
         form.addEventListener('submit', function (e) {
             let erro = false;
-
             document.querySelectorAll('.telefone-br').forEach(input => {
                 if (input.value && !telefoneCompleto(input.value)) {
                     erro = true;
                     input.focus();
                 }
             });
-
             if (erro) {
                 e.preventDefault();
                 alert("Existe telefone incompleto no formulário.");
             }
         });
     }
-
 });
 
-//Limpar campos se o CEP for alterado
+// Limpar campos se o CEP da unidade for alterado
 const cepUnidade = document.getElementById("cep_unidade");
-
-if (cepUnidade){
+if (cepUnidade) {
     let valorInicial = cepUnidade.value;
-    cepUnidade.addEventListener("input", function(){
-    
+    cepUnidade.addEventListener("input", function () {
         if (this.value === valorInicial) return;
-
         document.getElementById("logradouro_unidade").value = "";
         document.getElementById("bairro_unidade").value = "";
         document.getElementById("numero_unidade").value = "";
         document.getElementById("complemento_unidade").value = "";
-
         bloquearCamposEndereco(false);
-
     });
 }
 
-//Função para bloquear edição manual após escolha de CEP
 function bloquearCamposEndereco(bloquear = true) {
-    document.getElementById("tipo_logradouro").disabled = bloquear;
-    document.getElementById("logradouro_unidade").readOnly = bloquear;
-    document.getElementById("bairro_unidade").readOnly = bloquear;
+    const tipoLogradouro = document.getElementById("tipo_logradouro");
+    const logradouro    = document.getElementById("logradouro_unidade");
+    const bairro        = document.getElementById("bairro_unidade");
+    if (tipoLogradouro) tipoLogradouro.disabled = bloquear;
+    if (logradouro)     logradouro.readOnly = bloquear;
+    if (bairro)         bairro.readOnly = bloquear;
 }
 
-document.addEventListener('DOMContentLoaded', function() {
-    const nome = document.getElementById('nome');
-    const nome_social = document.getElementById('nome_social');
-    const nome_da_mae = document.getElementById('nome_da_mae');
-    const nome_do_pai = document.getElementById('nome_do_pai');
-    const nome_responsavel = document.getElementById('nome_responsavel');
-    const bairro = document.getElementById('bairro');
-    const rua = document.getElementById('rua');
-    const complemento = document.getElementById('complemento');
-    const nome_do_contato = document.getElementById('nome_do_contato');
-    
-
-
-
+document.addEventListener('DOMContentLoaded', function () {
+    const camposNome = [
+        'nome', 'nome_social', 'nome_da_mae', 'nome_do_pai',
+        'nome_responsavel', 'bairro', 'rua', 'complemento', 'nome_do_contato'
+    ];
 
     function formatarNome(inputElement) {
-        inputElement.addEventListener('input', function() {
-            let valor = this.value;
-
-            // Garante que haja apenas um espaço entre as palavras
-            valor = valor.replace(/\s+/g, ' ');
-
-            // Converte para maiúsculas
-            valor = valor.toUpperCase();
-
-            this.value = valor;
+        if (!inputElement) return;
+        inputElement.addEventListener('input', function () {
+            this.value = this.value.replace(/\s+/g, ' ').toUpperCase();
         });
-
-        // Remove espaços no início e no final quando o campo perde o foco
-        inputElement.addEventListener('blur', function() {
+        inputElement.addEventListener('blur', function () {
             this.value = this.value.trim();
         });
     }
 
-    formatarNome(nome);
-    formatarNome(nome_social);
-    formatarNome(nome_da_mae);
-    formatarNome(nome_do_pai);
-    formatarNome(nome_responsavel);
-    formatarNome(bairro);
-    formatarNome(rua);
-    formatarNome(complemento);
-    formatarNome(nome_do_contato);
+    camposNome.forEach(id => formatarNome(document.getElementById(id)));
 });
 
-//função para padronizar numero do processo
-document.addEventListener('DOMContentLoaded', function() {
+// Padronizar número do processo
+document.addEventListener('DOMContentLoaded', function () {
     const nProcessoInput = document.getElementById('n_processo');
-    const formato = '0000000-00.0000.0.00.0000';
+    if (!nProcessoInput) return;
 
-    nProcessoInput.addEventListener('input', function() {
-        let valorDigitado = this.value.replace(/[^\d]/g, ''); // Remove tudo que não é dígito
+    const formato = '0000000-00.0000.0.00.0000';
+    nProcessoInput.addEventListener('input', function () {
+        let valorDigitado = this.value.replace(/[^\d]/g, '');
         let valorFormatado = '';
         let indiceFormato = 0;
         let indiceDigitado = 0;
 
         while (indiceDigitado < valorDigitado.length && indiceFormato < formato.length) {
-            const caractereFormato = formato[indiceFormato];
+            const caractereFormato  = formato[indiceFormato];
             const caractereDigitado = valorDigitado[indiceDigitado];
-
             if (/[0-9]/.test(caractereFormato)) {
                 if (caractereDigitado) {
                     valorFormatado += caractereDigitado;
@@ -200,989 +145,752 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
 
-        this.value = valorFormatado;
-
-        // Trunca o valor se exceder o tamanho da máscara
-        if (this.value.length > formato.length) {
-            this.value = this.value.slice(0, formato.length);
-        }
+        this.value = valorFormatado.slice(0, formato.length);
     });
 });
+
+// Validação de caracteres permitidos (IIFE)
 (function inicializarValidacao() {
+    const regrasPorCampo = new Map();
+    const teclasEspeciais = new Set([
+        'Backspace', 'Delete', 'ArrowLeft', 'ArrowRight',
+        'ArrowUp', 'ArrowDown', 'Tab', 'Enter', 'Home', 'End'
+    ]);
 
- 
-  const regrasPorCampo = new Map();
+    document.addEventListener('keydown', function (e) {
+        const regra = regrasPorCampo.get(e.target.id);
+        if (!regra) return;
+        if (e.ctrlKey || e.metaKey || e.altKey) return;
+        if (teclasEspeciais.has(e.key)) return;
+        if (!regra.has(e.key)) e.preventDefault();
+    });
 
-  
-  const teclasEspeciais = new Set([
-    'Backspace','Delete','ArrowLeft','ArrowRight',
-    'ArrowUp','ArrowDown','Tab','Enter','Home','End'
-  ]);
+    document.addEventListener('input', function (e) {
+        const regra = regrasPorCampo.get(e.target.id);
+        if (!regra) return;
 
-  
-  document.addEventListener('keydown', function(e) {
-    const regra = regrasPorCampo.get(e.target.id);
-    if (!regra) return;                          // campo não monitorado
-    if (e.ctrlKey || e.metaKey || e.altKey) return; // atalhos do sistema
-    if (teclasEspeciais.has(e.key)) return;      // navegação/edição
-    if (!regra.has(e.key)) e.preventDefault();
-  });
-  document.addEventListener('input', function(e) {
-    const regra = regrasPorCampo.get(e.target.id);
-    if (!regra) return;
+        const el       = e.target;
+        const original = el.value;
+        const cursor   = el.selectionStart;
 
-    const el       = e.target;
-    const original = el.value;
-    const cursor   = el.selectionStart;
+        let limpo = [...original].filter(c => regra.has(c)).join('');
+        if (regra.has(' ')) limpo = limpo.replace(/ {2,}/g, ' ');
 
-    // 1. Remove caracteres não permitidos
-    let limpo = [...original].filter(c => regra.has(c)).join('');
+        if (limpo !== original) {
+            const removidosAntesCursor = [...original.slice(0, cursor)]
+                .filter(c => !regra.has(c)).length;
+            el.value = limpo;
+            const novoCursor = Math.max(0, cursor - removidosAntesCursor);
+            el.setSelectionRange(novoCursor, novoCursor);
+        }
+    });
 
-    // 2. Colapsa espaços múltiplos (só se espaço for permitido no campo)
-    if (regra.has(' ')) limpo = limpo.replace(/ {2,}/g, ' ');
-
-    // 3. Só atualiza o DOM se mudou algo (evita loop)
-    if (limpo !== original) {
-      const removidosAntesCursor = [...original.slice(0, cursor)]
-        .filter(c => !regra.has(c)).length;
-
-      el.value = limpo;
-      const novoCursor = Math.max(0, cursor - removidosAntesCursor);
-      el.setSelectionRange(novoCursor, novoCursor);
-    }
-  });
-
-
-  window.validarCaracteresPermitidos = function(elementId, allowedCharacters) {
-    regrasPorCampo.set(elementId, new Set(allowedCharacters));
-  };
-
+    window.validarCaracteresPermitidos = function (elementId, allowedCharacters) {
+        regrasPorCampo.set(elementId, new Set(allowedCharacters));
+    };
 })();
 
-// Obtém a data atual
+// Limites de data
 var hoje = new Date();
-// Formata a data no formato YYYY-MM-DD
-var dd = String(hoje.getDate()).padStart(2, '0');
-var mm = String(hoje.getMonth() + 1).padStart(2, '0'); // Janeiro é 0!
+var dd   = String(hoje.getDate()).padStart(2, '0');
+var mm   = String(hoje.getMonth() + 1).padStart(2, '0');
 var yyyy = hoje.getFullYear();
-// Define o valor do atributo max para a data atual
+var dataMaxima = `${yyyy}-${mm}-${dd}`;
+
 const dtNasc = document.getElementById("dt_nasc");
-//novo 
-if (dtNasc){
-    dtNasc.max = yyyy + '-' + mm + '-' + dd
-}
+if (dtNasc) dtNasc.max = dataMaxima;
 
 const dtInterpretacao = document.getElementById("dt_interpretacao_medida");
-if (dtInterpretacao){
-    dtInterpretacao.max = yyyy + '-' + mm + '-' + dd;
-}
-const dtUltimo = document.getElementById("dt_ultimo_relatorio_enviado");
-if (dtUltimo){
-    dtUltimo.max = yyyy + '-' + mm + '-' + dd;
-}
+if (dtInterpretacao) dtInterpretacao.max = dataMaxima;
 
-// Função para validar os campos de nomes
+const dtUltimo = document.getElementById("dt_ultimo_relatorio_enviado");
+if (dtUltimo) dtUltimo.max = dataMaxima;
+
+// Validações de campo
 function validarNome(inputNome) {
-    // Obter o valor do input, remover espaços em branco extras e converter para maiúsculas
     var nome = inputNome.value.trim().toUpperCase();
-    // Verificar se o nome contém apenas letras, espaços, apóstrofos, hifens e parênteses, e tem entre 2 e 100 caracteres
-    if (/^[A-ZÀ-ÿ\s'()-]{2,100}$/.test(nome)) {
-        // Se o nome for válido, retorná-lo
-        return nome;
-    } else {
-        // Se o nome não for válido, retornar false
-        return false;
-    }
+    return /^[A-ZÀ-ÿ\s'()-]{2,100}$/.test(nome) ? nome : false;
 }
 
 function validarCPF(cpf) {
-    // Remover caracteres não numéricos do CPF
     cpf = cpf.replace(/[^\d]/g, '');
-
-     // Permitir CPF null ou vazio
-     if (cpf === null || cpf.trim() === '') {
-        return true;
-    }
-
-    // Verificar se o CPF tem 11 dígitos ou se é uma sequência de dígitos repetidos
+    if (cpf === null || cpf.trim() === '') return true;
     if (cpf.length !== 11 || /^(\d)\1{10}$/.test(cpf)) return false;
 
-    var soma = 0;
-    var r;
-    var i;
-
-    // Verificar o primeiro dígito verificador
-    for (i = 0; i < 9; i++) {
-        soma += parseInt(cpf.charAt(i)) * (10 - i);
-    }
+    var soma = 0, r, i;
+    for (i = 0; i < 9; i++) soma += parseInt(cpf.charAt(i)) * (10 - i);
     r = (soma * 10) % 11;
     if (r === 10 || r === 11) r = 0;
-
     if (r !== parseInt(cpf.charAt(9))) return false;
 
-    // Verificar o segundo dígito verificador
     soma = 0;
-    for (i = 0; i < 10; i++) {
-        soma += parseInt(cpf.charAt(i)) * (11 - i);
-    }
+    for (i = 0; i < 10; i++) soma += parseInt(cpf.charAt(i)) * (11 - i);
     r = (soma * 10) % 11;
     if (r === 10 || r === 11) r = 0;
-
-    if (r !== parseInt(cpf.charAt(10))) return false;
-
-    return true;
+    return r === parseInt(cpf.charAt(10));
 }
 
-document.addEventListener('DOMContentLoaded', function() {
-    var cpfInput = document.getElementById('cpf');
+document.addEventListener('DOMContentLoaded', function () {
+    var cpfInput    = document.getElementById('cpf');
     var errorMessage = document.getElementById('error-message');
+    if (!cpfInput || !errorMessage) return;
 
     cpfInput.addEventListener('input', function () {
-        var cpfValue = this.value;
-        var cpfValido = validarCPF(cpfValue);
-
-        if (!cpfValido) {
-            // Exibir uma mensagem de erro
-            errorMessage.textContent = 'CPF inválido. Por favor, verifique e tente novamente.';
-            //event.preventDefault();
-        } else {
-            // Limpar a mensagem de erro se o CPF for válido
-            errorMessage.textContent = '';
-        }
+        errorMessage.textContent = validarCPF(this.value)
+            ? ''
+            : 'CPF inválido. Por favor, verifique e tente novamente.';
     });
 });
 
 function verificarComprimentoNProcesso() {
     const nProcessoInput = document.getElementById('n_processo');
-
-    // Verifica se o elemento existe antes de tentar acessar seu valor
-    if (nProcessoInput) {
-        const valorCampo = nProcessoInput.value;
-        const comprimentoEsperado = 25; // O número exato de caracteres esperados
-
-        if (valorCampo.length === comprimentoEsperado) {
-            return true; // O campo tem exatamente 25 caracteres
-        } else {
-            return false; // O campo NÃO tem 25 caracteres
-        }
-    } else {
-        console.warn("Elemento com ID 'n_processo' não encontrado no DOM.");
-        return false; // Retorna false se o elemento não for encontrado
+    if (!nProcessoInput) {
+        console.warn("Elemento 'n_processo' não encontrado.");
+        return false;
     }
+    return nProcessoInput.value.length === 25;
 }
 
-document.addEventListener('DOMContentLoaded', function() {
-    var nProcessoInput = document.getElementById('n_processo');
-    var errorMessage = document.getElementById('error-message-processo');
+document.addEventListener('DOMContentLoaded', function () {
+    var nProcessoInput  = document.getElementById('n_processo');
+    var errorMsgProcesso = document.getElementById('error-message-processo');
+    if (!nProcessoInput || !errorMsgProcesso) return;
 
     nProcessoInput.addEventListener('input', function () {
-        var nProcessoValue = this.value;
-        var nProcessoValido = verificarComprimentoNProcesso(nProcessoValue);
-
-        if (!nProcessoValido) {
-            // Exibir uma mensagem de erro
-            errorMessage.textContent = 'Processo inválido. Por favor, verifique e tente novamente.';
-            //event.preventDefault();
-        } else {
-            // Limpar a mensagem de erro se o CPF for válido
-            errorMessage.textContent = '';
-        }
+        errorMsgProcesso.textContent = verificarComprimentoNProcesso()
+            ? ''
+            : 'Processo inválido. Por favor, verifique e tente novamente.';
     });
 });
 
-// Função para validar o campo de NIS
-// function validaNis(nis) {
-//     // Verificar se o NIS é nulo ou uma string vazia
-//     if (!nis) return true;
-//     // Remover caracteres não numéricos do NIS
-//     nis = nis.replace(/[^\d]/g, '');
-//     // Verificar se o NIS tem 11 dígitos ou se é uma sequência de dígitos repetidos
-//     if (nis.length !== 11 || /^(\d)\1{10}$/.test(nis)) return false;
-//     // Verificar se o NIS tem 11 dígitos após a remoção de caracteres não numéricos
-//     if (nis.length !== 11 || !/^\d+$/.test(nis)) return false;
-//     // Inicializar resultado como verdadeiro
-//     var result = true;
-    
-//     var regex = /[.*+?^${}()|[\]\\]/g;
-//     if (regex.test(result)) {
-//         alert("Caracteres inválidos detectados!");
-//         return false;
-//     }
-//     // Retornar o resultado da validação
-//     return result;
-// }
-
-
-// Função para validar o campo de CEP
-/*function validarCEP(cep) {
-    // Expressão regular para validar CEP no formato XXXXX-XXX ou XXXXXXXX
-    var regexCEP = /^[0-9]{5}-?[0-9]{3}$/;
-    if (regexCEP.test(cep.value)) {
-        return cep.value.replace(/[^\d]/g, '');
-    } else {
-        // CEP inválido retorna falso
-        return false;
-    }
-}*/
-
-// Função para validar o campo de N° cartão SUS
 function validaCartao_sus(cartao_sus) {
-    // Verificar se o N° cartão SUS é nulo ou uma string vazia
     if (!cartao_sus) return true;
-    // Remover caracteres não numéricos do N° cartão SUS
     cartao_sus = cartao_sus.replace(/[^\d]/g, '');
-    // Verificar se o  tem 15 dígitos ou se é uma sequência de dígitos repetidos
     if (cartao_sus.length !== 15 || /^(\d)\1{10}$/.test(cartao_sus)) return false;
-    // Verificar se o N° cartão SUS tem 15 dígitos após a remoção de caracteres não numéricos
-    if (cartao_sus.length !== 15 || !/^\d+$/.test(cartao_sus)) return false;
-    // Inicializar resultado como verdadeiro
-    var result = true;
-    
-    var regex = /[.*+?^${}()|[\]\\]/g;
-    if (regex.test(result)) {
-        alert("Caracteres inválidos detectados!");
-        return false;
-    }
-    // Retornar o resultado da validação
-    return result;
+    return true;
 }
 
-//Função para validar uma data
 function validarData(data) {
-    // Obtém a data atual
-    var dataAtual = new Date();
-
-    // Obtém a data selecionada pelo usuário
+    if (!data) return false;
     var dataSelecionada = new Date(data);
-    var dataMinima = new Date('1900-01-01');
+    var dataMinima      = new Date('1900-01-01');
     if (dataSelecionada < dataMinima) {
         alert('Por favor, selecione uma data posterior a 01 de janeiro de 1900.');
         return false;
     }
-    // Compara as datas
-    if (dataSelecionada > dataAtual) {
-        // Se a data selecionada for futura, exibe uma mensagem de erro
+    if (dataSelecionada > new Date()) {
         alert('Por favor, selecione uma data igual ou anterior à data atual.');
         return false;
-    } else {
-        // Se a data for válida, retorna a data formatada
-        return formatarData(data);
     }
+    return formatarData(data);
 }
 
-//Função para validar email
 function validarEmail(email) {
-    // Verifica se o e-mail está vazio
-    if (!email.trim()) {
-        alert('E-mail não pode ser vazio');
-        return false; // Se estiver vazio, retorna falso
-    }
-    // Expressão regular para validar o formato do e-mail
-    var regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    // Verifica se o e-mail corresponde ao formato esperado
-    if (!regex.test(email)) {
-        alert('Formato de e-mail inválido');
-        return false; // Se não corresponder ao formato, retorna falso
-    }
-    // Se passar por todas as verificações acima, retorna verdadeiro
+    if (!email.trim()) { alert('E-mail não pode ser vazio'); return false; }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { alert('Formato de e-mail inválido'); return false; }
     return email.trim();
 }
 
-//função para tratar um telefone
 function validarTelefone(telefone) {
-    // Remove todos os caracteres que não são números
     return telefone.replace(/\D/g, '');
 }
 
-// Função genérica para validação de caracteres permitidos em campos de entrada
 function validarCaracteresPermitidos(elementId, allowedCharacters) {
     const element = document.getElementById(elementId);
     if (!element) return;
-
     element.setAttribute('autocomplete', 'off');
-
     if (element.dataset.validacaoAtiva) return;
     element.dataset.validacaoAtiva = 'true';
 
     element.addEventListener('paste', function (e) {
         const clipboardData = e.clipboardData || window.clipboardData;
-        let pastedData = clipboardData.getData('text');
-
-        pastedData = pastedData.replace(
-            new RegExp('[^' + allowedCharacters + ']', 'g'),
-            ''
-        );
-
+        let pastedData = clipboardData.getData('text')
+            .replace(new RegExp('[^' + allowedCharacters + ']', 'g'), '');
         e.preventDefault();
         document.execCommand('insertText', false, pastedData);
     });
 
     element.addEventListener('keypress', function (e) {
-        const chr = String.fromCharCode(e.which);
-        if (!allowedCharacters.includes(chr)) {
-            e.preventDefault();
-        }
+        if (!allowedCharacters.includes(String.fromCharCode(e.which))) e.preventDefault();
     });
 }
 
-//valida caracteres permitidos
-
+// Sets de caracteres permitidos
 const letras = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ" +
                "àáâãäéêëíîïóôõöúüçñÀÁÂÃÄÉÊËÍÎÏÓÔÕÖÚÜÇÑ";
 const letrasComEspaco            = letras + " ";
 const letrasComParentesesEEspaco = letras + "() ";
 const numeros                    = "0123456789";
-const numerosComParenteses = numeros + "()-"
-console.log({
-    validarCaracteresPermitidos,
-    letrasComEspaco,
-    letrasComParentesesEEspaco,
-    numeros,
-    numerosComParenteses
-});
+const numerosComParenteses       = numeros + "()-";
 
 ["nome", "nome_social", "nome_da_mae", "nome_do_pai",
  "nome_responsavel", "responsavel_unidade", "nome_do_contato"
 ].forEach(id => validarCaracteresPermitidos(id, letrasComEspaco));
 
-["medicamentos", "medicamentos_controlados"] .forEach(id => validarCaracteresPermitidos(id, letrasComParentesesEEspaco + numerosComParenteses));
+["medicamentos", "medicamentos_controlados"]
+    .forEach(id => validarCaracteresPermitidos(id, letrasComParentesesEEspaco + numerosComParenteses));
 
-["logradouro_unidade", "saude",
- "bairro", "bairro_unidade", "rua"
-].forEach(id => validarCaracteresPermitidos(id, letrasComParentesesEEspaco));
+["logradouro_unidade", "saude", "bairro", "bairro_unidade", "rua"]
+    .forEach(id => validarCaracteresPermitidos(id, letrasComParentesesEEspaco));
 
-["medicamentos", "medicamentos_controlados"] .forEach(id => validarCaracteresPermitidos(id, letrasComParentesesEEspaco + numerosComParenteses));
-
-["cpf", "cartao_sus", "numero_unidade", "telefone_unidade",
- "cep_unidade", "horas_psc", "numeroRa", "n_processo",
- "n_processo_apuracao", "numero", "telefone", "n_pt"
+["cpf", "cartao_sus", "numero_unidade", "cep_unidade",
+ "horas_psc", "numeroRa", "n_processo", "n_processo_apuracao",
+ "numero", "n_pt"
 ].forEach(id => validarCaracteresPermitidos(id, numeros));
 
-["telefone_unidade",
- "telefone"
-].forEach(id => validarCaracteresPermitidos(id, numerosComParenteses));
+["telefone_unidade", "telefone"]
+    .forEach(id => validarCaracteresPermitidos(id, numerosComParenteses));
 
-/*---------------verifica se a dt_nasc mudou e altera a idade----------------------*/
+// Recalcula idade ao mudar dt_nasc
 const dtNascChange = document.getElementById('dt_nasc');
-if (dtNascChange) {
-    dtNascChange.addEventListener('change', calculaIdade);
-}
+if (dtNascChange) dtNascChange.addEventListener('change', calculaIdade);
 
-/*-----EDITAR DADOS DA PESSOA----------------------------------------------------------------------------------------------------------*/
+/*-----BOTÃO SALVAR----------------------------------------------------------------------------------------------------------*/
 
 const btnSalvarMouse = document.getElementById('salvar');
-if(btnSalvarMouse){
-    btnSalvarMouse.addEventListener('mouseover', function() {
-    var cpfInput = document.getElementById('cpf');
-    var cpfValue = cpfInput.value;
-    var cpfValido = validarCPF(cpfValue);
+if (btnSalvarMouse) {
+    btnSalvarMouse.addEventListener('mouseover', function () {
+        const cpfInput      = document.getElementById('cpf');
+        const nProcessoInput = document.getElementById('n_processo');
 
-    var nProcessoInput = document.getElementById('n_processo');
-    var nProcessoValue = nProcessoInput.value;
-    var nProcessoValido = verificarComprimentoNProcesso(nProcessoValue);
-
-    // Se o CPF for inválido, foca nele
-    if (!cpfValido) {
-        alert('CPF inválido. Por favor, verifique e tente novamente.');
-        cpfInput.focus(); // Move o cursor para o campo CPF
-    }
-    // Se o CPF for válido, mas o Processo for inválido, foca no processo
-    else if (!nProcessoValido) { 
-        alert('Processo de execução inválido. Por favor, verifique e tente novamente.');
-        nProcessoInput.focus(); // Move o cursor para o campo Processo
-    }
-});
-
-}
-    
-
-//função para salvar os dados editados
-const btnSalvar = document.getElementById('salvar');
-
-if(btnSalvar){
-
-    btnSalvar.addEventListener('click', function(event) {
-    document.querySelectorAll("input:disabled, select:disabled").forEach(el => {
-        el.disabled = false;
+        if (!validarCPF(cpfInput.value)) {
+            alert('CPF inválido. Por favor, verifique e tente novamente.');
+            cpfInput.focus();
+        } else if (!verificarComprimentoNProcesso()) {
+            alert('Processo de execução inválido. Por favor, verifique e tente novamente.');
+            nProcessoInput.focus();
+        }
     });
+}
 
-    if (!confirm("Tem certeza que deseja cadastrar o usuário?")) {
-        alert("Operação cancelada");
-        event.preventDefault()
-        return; // Encerra a função se o usuário cancelar
-    } else {
-        // Obtém o ID do usuário da URL e preenche os campos do formulário com seus dados
+const btnSalvar = document.getElementById('salvar');
+if (btnSalvar) {
+    btnSalvar.addEventListener('click', function (event) {
+
+        // Habilita campos desabilitados para incluir no envio
+        document.querySelectorAll("input:disabled, select:disabled").forEach(el => {
+            el.disabled = false;
+        });
+
+        if (!confirm("Tem certeza que deseja salvar as alterações?")) {
+            alert("Operação cancelada");
+            event.preventDefault();
+            return;
+        }
+
         var urlParams = new URLSearchParams(window.location.search);
         var ID = urlParams.get('ID');
-        // Obtém os valores dos campos do formulário e verifica se está vazio
+
+        // --- Validações ---
+
         var ativo_inativo = document.getElementById('ativo_inativo').value;
-        // Se o status não for válido, exibe um alerta e retorna
         if (!ativo_inativo) {
             alert('Status inválido. Por favor, verifique e tente novamente.');
             return;
         }
+
         var dt_cadastro = validarData(formatarData(document.getElementById('dt_cadastro').value));
-        // Se Data de cadastro não for válida, exibe um alerta e retorna
         if (!dt_cadastro) {
             alert('Data de cadastro inválida. Por favor, verifique e tente novamente.');
             return;
         }
+
         var dt_atualizacao = validarData(formatarData(document.getElementById('dt_atualizacao').value));
-        // Se a Data de atualização não for válida, exibe um alerta e retorna
         if (!dt_atualizacao) {
             alert('Data de atualização inválida. Por favor, verifique e tente novamente.');
             return;
         }
-        var dt_desligamento = validarData(formatarData(document.getElementById('dt_desligamento').value));
-        
 
-         // Obtém os valores dos campos do formulário e verifica se está vazio
-         var ativo_inativo = document.getElementById('ativo_inativo').value;
-         // Se o status não for válido, exibe um alerta e retorna
-         if (!ativo_inativo) {
-             alert('Status inválido. Por favor, verifique e tente novamente.');
-             return;
-         }
-         var dt_cadastro = validarData(formatarData(document.getElementById('dt_cadastro').value));
-         // Se Data de cadastro não for válida, exibe um alerta e retorna
-         if (!dt_cadastro) {
-             alert('Data de cadastro inválida. Por favor, verifique e tente novamente.');
-             return;
-         }
- 
-         var dt_atualizacao = validarData(formatarData(document.getElementById('dt_atualizacao').value));
-         // Se a Data de atualização não for válida, exibe um alerta e retorna
-         if (!dt_atualizacao) {
-             alert('Data de atualização inválida. Por favor, verifique e tente novamente.');
-             return;
-         }
- 
-         var creas_atual = document.getElementById('creas_atual').value;
-         // Se o creas atual não for válido, exibe um alerta e retorna
-         if (!creas_atual) {
-             alert('CREAS atual inválido. Por favor, verifique e tente novamente.');
-             return;
-         }
-         var mse = document.getElementById('mse').value;
-         // Se o mse não for válido, exibe um alerta e retorna
-         if (!mse) {
-             alert('MSE inválido. Por favor, verifique e tente novamente.');
-             return;
-         }
-         var tec_ref = document.getElementById('tec_ref').value;
-         // Se o tec_ref não for válido, exibe um alerta e retorna
-         if (!tec_ref) {
-             alert('tec_ref inválido. Por favor, verifique e tente novamente.');
-             return;
-         }
-         var sas = document.getElementById('sas').value;
-         // Se a SAS não for válido, exibe um alerta e retorna
-         if (!sas) {
-             alert('SAS inválida. Por favor, verifique e tente novamente.');
-             return;
-         }
-         var servico_familia = document.getElementById('servico_familia').value;
+        // CORREÇÃO: dt_desligamento só é validada quando ativo_inativo === "0"
+        var dt_desligamento = null;
+        if (ativo_inativo === "0") {
+            var dtDesligamentoRaw = document.getElementById('dt_desligamento').value;
+            if (dtDesligamentoRaw) {
+                dt_desligamento = validarData(formatarData(dtDesligamentoRaw));
+                if (!dt_desligamento) {
+                    alert('Data de desligamento inválida. Por favor, verifique e tente novamente.');
+                    return;
+                }
+            }
+        }
 
-         var distrito_servico = document.getElementById('distrito_servico').value;
-         // Se o distrito do serviço não for válido, exibe um alerta e retorna
-         if (!distrito_servico) {
-             alert('Distrito do serviço inválido. Por favor, verifique e tente novamente.');
-             return;
-         }
-         var creas_origem = document.getElementById('creas_origem').value; //sem validação pois é campo opcional
- 
-         var nome = validarNome(document.getElementById('nome'));
-         if (!nome) {
-             // Se o nome não for válido, exibe um alerta e retorna
-             alert('Nome inválido. Por favor, verifique e tente novamente.');
-             return;
-         }
-         var nome_social = validarNome(document.getElementById('nome_social')); //sem validação pois é campo opcional
- 
-         var dt_nasc = validarData(formatarData(document.getElementById('dt_nasc').value));
-         // Se a data de nascimento não for válida, exibe um alerta e retorna
-         if (!dt_nasc) {
-             alert('Data de nascimento inválida. Por favor, verifique e tente novamente.');
-             return;
-         }
- 
-        var cpfValue = document.getElementById('cpf').value
-        var cpfValido = validarCPF(cpfValue);
-        if (!cpfValido) {
-            // Se o CPF não for válido, interrompe o processo de cadastro
+        var creas_atual = document.getElementById('creas_atual').value;
+        if (!creas_atual) {
+            alert('CREAS atual inválido. Por favor, verifique e tente novamente.');
+            return;
+        }
+
+        var mse = document.getElementById('mse').value;
+        if (!mse) {
+            alert('MSE inválido. Por favor, verifique e tente novamente.');
+            return;
+        }
+
+        var tec_ref = document.getElementById('tec_ref').value;
+        if (!tec_ref) {
+            alert('Técnico de referência inválido. Por favor, verifique e tente novamente.');
+            return;
+        }
+
+        var sas = document.getElementById('sas').value;
+        if (!sas) {
+            alert('SAS inválida. Por favor, verifique e tente novamente.');
+            return;
+        }
+
+        var servico_familia = document.getElementById('servico_familia').value;
+        var distrito_servico = document.getElementById('distrito_servico').value;
+        if (!distrito_servico) {
+            alert('Distrito do serviço inválido. Por favor, verifique e tente novamente.');
+            return;
+        }
+
+        var creas_origem = document.getElementById('creas_origem').value;
+
+        var nome = validarNome(document.getElementById('nome'));
+        if (!nome) {
+            alert('Nome inválido. Por favor, verifique e tente novamente.');
+            return;
+        }
+
+        var nome_social = validarNome(document.getElementById('nome_social'));
+
+        var dt_nasc = validarData(formatarData(document.getElementById('dt_nasc').value));
+        if (!dt_nasc) {
+            alert('Data de nascimento inválida. Por favor, verifique e tente novamente.');
+            return;
+        }
+
+        var cpfValue = document.getElementById('cpf').value;
+        if (!validarCPF(cpfValue)) {
             alert('CPF inválido. Por favor, verifique e tente novamente.');
             return;
         }
 
-        //  var nisValue = document.getElementById('nis').value.replace(/[^\d]/g, '');
-        //  var nisValido = validaNis(nisValue);
-        //  if (!nisValido) {
-        //      // Se o NIS não for válido, interrompe o processo de cadastro
-        //      alert('NIS inválido. Por favor, verifique e tente novamente.');
-        //      return;
-        //  }
- 
-         var cartao_susValue = document.getElementById('cartao_sus').value.replace(/[^\d]/g, '');
-         var cartao_susValido = validaCartao_sus(cartao_susValue);
-         if (!cartao_susValido) {
-             // Se o N° do cartão do SUS não for válido, interrompe o processo de cadastro
-             alert('N° do SUS inválido. Por favor, verifique e tente novamente.');
-             return;
-         }
- 
-         var medidas_mse = document.getElementById('medidas_mse').value;
-         // Se medidas não for válido, exibe um alerta e retorna
-         if (!medidas_mse) {
-             alert('Medidas inválida. Por favor, verifique e tente novamente.');
-             return;
-         }
-         var nome_da_mae = validarNome(document.getElementById('nome_da_mae'));
-         if (!nome_da_mae) {
-             // Se o nome não for válido, interrompe o processo de cadastro
-             alert('Nome da mãe inválido. Por favor, verifique e tente novamente.');
-             return;
-         }
-         var nome_do_pai = validarNome(document.getElementById('nome_do_pai')); //sem validação pois é campo opcional
-         var nome_responsavel = validarNome(document.getElementById('nome_responsavel'));
-         if (!nome_responsavel) {
-             // Se o nome_responsavel não for válido, exibe um alerta e retorna
-             alert('Nome do responsável inválido. Por favor, verifique e tente novamente.');
-             return;
-         }
-         var sexo = document.getElementById('sexo').value;
-         // Se o sexo não for válido, exibe um alerta e retorna
-         if (!sexo) {
-             alert('Sexo inválido. Por favor, verifique e tente novamente.');
-             return;
-         }
-         var gestante = document.getElementById('gestante').value;
-         
-         var parceira_gestante = document.getElementById('parceira_gestante').value;
-         // Se o parceira_gestante não for válido, exibe um alerta e retorna
-         if (!parceira_gestante) {
-             alert('Parceira(o) gestante inválido. Por favor, verifique e tente novamente.');
-             return;
-         }
-         var lactante = document.getElementById('lactante').value;
-        
-         var raca = document.getElementById('raca').value;
-         // Se a Raça não for válido, exibe um alerta e retorna
-         if (!raca) {
-             alert('Raça inválida. Por favor, verifique e tente novamente.');
-             return;
-         }
-         var nacionalidade = document.getElementById('nacionalidade').value;
-         // Se a nacionalidade não for válido, exibe um alerta e retorna
-         if (!nacionalidade) {
-             alert('Nacionalidade inválida. Por favor, verifique e tente novamente.');
-             return;
-         }
-         var genero = document.getElementById('genero').value;
-         var orientacao_sexual = document.getElementById('orientacao_sexual').value;
-         var estado_civil = document.getElementById('estado_civil').value;
-         // Se o estado_civil não for válido, exibe um alerta e retorna
-         if (!estado_civil) {
-             alert('Estado civil inválido. Por favor, verifique e tente novamente.');
-             return;
-         }
-         var matriculado = document.getElementById('matriculado').value;
-         // Se o matriculado não for válido, exibe um alerta e retorna
-         if (!matriculado) {
-             alert('Matriculado inválida. Por favor, verifique e tente novamente.');
-             return;
-         }
-         var alfabetizado = document.getElementById('alfabetizado').value;
-         // Se o alfabetizado não for válido, exibe um alerta e retorna
-         if (!alfabetizado) {
-             alert('Alfabetizado inválida. Por favor, verifique e tente novamente.');
-             return;
-         }
-         var cicloEstudo = document.getElementById('cicloEstudo').value;
-         
-         var numeroRa = document.getElementById('numeroRa').value;
-         
-         var tipoEscola = document.getElementById('tipoEscola').value;
-         
-         var ensinoModalidade = document.getElementById('ensinoModalidade').value;
-        
-         var frequenciaAula = document.getElementById('frequenciaAula').value;
+        var cartao_susValue = document.getElementById('cartao_sus').value.replace(/[^\d]/g, '');
+        if (!validaCartao_sus(cartao_susValue)) {
+            alert('N° do SUS inválido. Por favor, verifique e tente novamente.');
+            return;
+        }
 
-         var concluiuCurso = document.getElementById('concluiuCurso').value;
-         // Se o Concluiu Curso não for válido, exibe um alerta e retorna
-         
-         var paroudeEstudar = document.getElementById('paroudeEstudar').value;
-        
-         var possui_deficiencia = document.getElementById('possui_deficiencia').value;
-         // Se o deficiencia não for válido, exibe um alerta e retorna
-         if (!possui_deficiencia) {
-             alert('Campo é pessoa com deficiência inválido. Por favor, verifique e tente novamente.');
-             return;
-         }
- 
-         // Se o deficiencia não for válido, exibe um alerta e retorna
-         var deficiencia = document.getElementById('deficiencia').value;
-        
-         var trabalho = document.getElementById('trabalho').value; //sem validação pois é campo opcional
-         var necessita_cuidados_terceiros = document.getElementById('necessita_cuidados_terceiros').value;
-         // Se o necessita_cuidados_terceiros não for válido, exibe um alerta e retorna
-         if (!necessita_cuidados_terceiros) {
-             alert('Necessita de cuidados de terceiros inválido. Por favor, verifique e tente novamente.');
-             return;
-         }
-         var possui_demanda_saude = document.getElementById('possui_demanda_saude').value;
-        // Se o possui_demanda_saude não for válido, exibe um alerta e retorna
+        var medidas_mse = document.getElementById('medidas_mse').value;
+        if (!medidas_mse) {
+            alert('Medidas inválida. Por favor, verifique e tente novamente.');
+            return;
+        }
+
+        var nome_da_mae = validarNome(document.getElementById('nome_da_mae'));
+        if (!nome_da_mae) {
+            alert('Nome da mãe inválido. Por favor, verifique e tente novamente.');
+            return;
+        }
+
+        var nome_do_pai      = validarNome(document.getElementById('nome_do_pai'));
+        var nome_responsavel = validarNome(document.getElementById('nome_responsavel'));
+        if (!nome_responsavel) {
+            alert('Nome do responsável inválido. Por favor, verifique e tente novamente.');
+            return;
+        }
+
+        var sexo = document.getElementById('sexo').value;
+        if (!sexo) {
+            alert('Sexo inválido. Por favor, verifique e tente novamente.');
+            return;
+        }
+
+        var gestante          = document.getElementById('gestante').value;
+        var parceira_gestante = document.getElementById('parceira_gestante').value;
+        if (!parceira_gestante) {
+            alert('Parceira(o) gestante inválido. Por favor, verifique e tente novamente.');
+            return;
+        }
+
+        var lactante     = document.getElementById('lactante').value;
+        var raca         = document.getElementById('raca').value;
+        if (!raca) {
+            alert('Raça inválida. Por favor, verifique e tente novamente.');
+            return;
+        }
+
+        var nacionalidade = document.getElementById('nacionalidade').value;
+        if (!nacionalidade) {
+            alert('Nacionalidade inválida. Por favor, verifique e tente novamente.');
+            return;
+        }
+
+        var genero           = document.getElementById('genero').value;
+        var orientacao_sexual = document.getElementById('orientacao_sexual').value;
+        var estado_civil      = document.getElementById('estado_civil').value;
+        if (!estado_civil) {
+            alert('Estado civil inválido. Por favor, verifique e tente novamente.');
+            return;
+        }
+
+        var matriculado = document.getElementById('matriculado').value;
+        if (!matriculado) {
+            alert('Matriculado inválido. Por favor, verifique e tente novamente.');
+            return;
+        }
+
+        var alfabetizado = document.getElementById('alfabetizado').value;
+        if (!alfabetizado) {
+            alert('Alfabetizado inválido. Por favor, verifique e tente novamente.');
+            return;
+        }
+
+        var cicloEstudo       = document.getElementById('cicloEstudo').value;
+        var numeroRa          = document.getElementById('numeroRa').value;
+        var tipoEscola        = document.getElementById('tipoEscola').value;
+        var ensinoModalidade  = document.getElementById('ensinoModalidade').value;
+        var frequenciaAula    = document.getElementById('frequenciaAula').value;
+        var concluiuCurso     = document.getElementById('concluiuCurso').value;
+        var paroudeEstudar    = document.getElementById('paroudeEstudar').value;
+
+        var possui_deficiencia = document.getElementById('possui_deficiencia').value;
+        if (!possui_deficiencia) {
+            alert('Campo "é pessoa com deficiência" inválido. Por favor, verifique e tente novamente.');
+            return;
+        }
+
+        var deficiencia               = document.getElementById('deficiencia').value;
+        var trabalho                  = document.getElementById('trabalho').value;
+        var necessita_cuidados_terceiros = document.getElementById('necessita_cuidados_terceiros').value;
+        if (!necessita_cuidados_terceiros) {
+            alert('Necessita de cuidados de terceiros inválido. Por favor, verifique e tente novamente.');
+            return;
+        }
+
+        var possui_demanda_saude = document.getElementById('possui_demanda_saude').value;
         if (!possui_demanda_saude) {
-            alert('possui_demanda_saude inválido. Por favor, verifique e tente novamente.');
+            alert('Possui demanda de saúde inválido. Por favor, verifique e tente novamente.');
             return;
         }
-        var saude = document.getElementById('saude').value;
 
+        var saude                       = document.getElementById('saude').value;
         var possui_demanda_saude_mental = document.getElementById('possui_demanda_saude_mental').value;
-        // Se o possui_demanda_saude não for válido, exibe um alerta e retorna
         if (!possui_demanda_saude_mental) {
-            alert('possui_demanda_saude_mental inválido. Por favor, verifique e tente novamente.');
+            alert('Possui demanda de saúde mental inválido. Por favor, verifique e tente novamente.');
             return;
         }
-        var saude_mental = document.getElementById('saude_mental').value;
-         
-         var acompanhamento_saude = document.getElementById('acompanhamento_saude').value;
-        
-         var faz_uso_de_medicamentos = document.getElementById('faz_uso_de_medicamentos').value;
-        // Se o faz_uso_de_medicamentos não for válido, exibe um alerta e retorna
+
+        var saude_mental          = document.getElementById('saude_mental').value;
+        var acompanhamento_saude  = document.getElementById('acompanhamento_saude').value;
+
+        var faz_uso_de_medicamentos = document.getElementById('faz_uso_de_medicamentos').value;
         if (!faz_uso_de_medicamentos) {
             alert('Faz uso de medicamentos inválido. Por favor, verifique e tente novamente.');
             return;
         }
+
         var medicamentos = document.getElementById('medicamentos').value;
 
         var faz_uso_de_medicamentos_controlados = document.getElementById('faz_uso_de_medicamentos_controlados').value;
-        // Se o faz_uso_de_medicamentos_controlados não for válido, exibe um alerta e retorna
         if (!faz_uso_de_medicamentos_controlados) {
             alert('Faz uso de medicamentos controlados inválido. Por favor, verifique e tente novamente.');
             return;
         }
+
         var medicamentos_controlados = document.getElementById('medicamentos_controlados').value;
-         var possui_trabalho = document.getElementById('possui_trabalho').value;
-         // Se o possui_trabalho não for válido, exibe um alerta e retorna
-         if (!possui_trabalho) {
-             alert('Possui trabalho inválido. Por favor, verifique e tente novamente.');
-             return;
-         }           
-         var possui_familia_em_servico = document.getElementById('possui_familia_em_servico').value;
-         // Se o possui_familia_em_servico não for válido, exibe um alerta e retorna
-         if (!possui_familia_em_servico) {
-             alert('Possui família em serviço inválido. Por favor, verifique e tente novamente.');
-             return;
-         }
-         var possui_filhos = document.getElementById('possui_filhos').value;
-         // Se o possui_filhos não for válido, exibe um alerta e retorna
-         if (!possui_filhos) {
-             alert('Possui filhos inválido. Por favor, verifique e tente novamente.');
-             return;
-         }
-         var responsavel_por_pcd = document.getElementById('responsavel_por_pcd').value;
-         // Se o responsavel_por_pcd não for válido, exibe um alerta e retorna
-         if (!responsavel_por_pcd) {
-             alert('Responsável por PCD inválido. Por favor, verifique e tente novamente.');
-             return;
-         }
-         var adolescente_com_trajetoria_de_acolhimento = document.getElementById('adolescente_com_trajetoria_de_acolhimento').value;
-         // Se o adolescente_com_trajetoria_de_acolhimento não for válido, exibe um alerta e retorna
-         if (!adolescente_com_trajetoria_de_acolhimento) {
-             alert('Adolescente com trajetória de acolhimento inválido. Por favor, verifique e tente novamente.');
-             return;
-         }
-         var alcool_ou_drogas = document.getElementById('alcool_ou_drogas').value;
-         // Se o alcool_ou_drogas não for válido, exibe um alerta e retorna
-         if (!alcool_ou_drogas) {
-             alert('Álcool ou drogas inválido. Por favor, verifique e tente novamente.');
-             return;
-         }
-        var caps = document.getElementById('caps').value;
-         if (!caps) {
-            alert('CAPS inválido. Por favor, verifique e tente novamente.');
-            event.preventDefault()
-            return;
-        }
-             
-         var curso = document.getElementById('curso').value;
-         if (!curso) {
-            alert('Curso profissionalizante inválido. Por favor, verifique e tente novamente.');
-            event.preventDefault()
+
+        var possui_trabalho = document.getElementById('possui_trabalho').value;
+        if (!possui_trabalho) {
+            alert('Possui trabalho inválido. Por favor, verifique e tente novamente.');
             return;
         }
 
-         var n_processo = document.getElementById('n_processo').value;
-         var nProcessoValido = verificarComprimentoNProcesso(n_processo);
-        if (!nProcessoValido) {
-            // Se o CPF não for válido, interrompe o processo de cadastro
+        var possui_familia_em_servico = document.getElementById('possui_familia_em_servico').value;
+        if (!possui_familia_em_servico) {
+            alert('Possui família em serviço inválido. Por favor, verifique e tente novamente.');
+            return;
+        }
+
+        var possui_filhos = document.getElementById('possui_filhos').value;
+        if (!possui_filhos) {
+            alert('Possui filhos inválido. Por favor, verifique e tente novamente.');
+            return;
+        }
+
+        var responsavel_por_pcd = document.getElementById('responsavel_por_pcd').value;
+        if (!responsavel_por_pcd) {
+            alert('Responsável por PCD inválido. Por favor, verifique e tente novamente.');
+            return;
+        }
+
+        var adolescente_com_trajetoria_de_acolhimento = document.getElementById('adolescente_com_trajetoria_de_acolhimento').value;
+        if (!adolescente_com_trajetoria_de_acolhimento) {
+            alert('Adolescente com trajetória de acolhimento inválido. Por favor, verifique e tente novamente.');
+            return;
+        }
+
+        var alcool_ou_drogas = document.getElementById('alcool_ou_drogas').value;
+        if (!alcool_ou_drogas) {
+            alert('Álcool ou drogas inválido. Por favor, verifique e tente novamente.');
+            return;
+        }
+
+        var caps = document.getElementById('caps').value;
+        if (!caps) {
+            alert('CAPS inválido. Por favor, verifique e tente novamente.');
+            event.preventDefault();
+            return;
+        }
+
+        var curso = document.getElementById('curso').value;
+        if (!curso) {
+            alert('Curso profissionalizante inválido. Por favor, verifique e tente novamente.');
+            event.preventDefault();
+            return;
+        }
+
+        var n_processo = document.getElementById('n_processo').value;
+        if (!verificarComprimentoNProcesso()) {
             alert('Processo de execução inválido. Por favor, verifique e tente novamente.');
             return;
         }
-         var n_processo_apuracao = document.getElementById('n_processo_apuracao').value;
-         // Se o n_processo_apuracao não for válido, exibe um alerta e retorna
-         if (!n_processo_apuracao|| n_processo_apuracao.length < 20) {
-             alert('Número do processo de apuração inválido. Por favor, verifique e tente novamente.');
-             event.preventDefault()
-             return;
-         }
-         var n_pt = document.getElementById('n_pt').value; 
-        
-         var vara_da_infancia = document.getElementById('vara_da_infancia').value;
-         var dt_interpretacao_medida = formatarData(document.getElementById('dt_interpretacao_medida').value);
-         // Se o dt_interpretacao_medida não for válido, exibe um alerta e retorna
-         if (!dt_interpretacao_medida) {
-             alert('Data de interpretação da medida inválida. Por favor, verifique e tente novamente.');
-             return;
-         }
-         var dt_ultimo_relatorio_enviado = formatarData(document.getElementById('dt_ultimo_relatorio_enviado').value);
-         // Se o dt_ultimo_relatorio_enviado não for válido, exibe um alerta e retorna
-         if (!dt_ultimo_relatorio_enviado) {
-             alert('Data do último relatório enviado inválida. Por favor, verifique e tente novamente.');
-             return;
-         }
-         var resumo_do_caso = document.getElementById('resumo_do_caso').value;
-         // Se o resumo_do_caso não for válido, exibe um alerta e retorna
-         if (!resumo_do_caso) {
-             alert('Resumo do caso inválido. Por favor, verifique e tente novamente.');
-             return;
-         }
-         var listar_cursos = document.getElementById('listar_cursos').value;
-         var situacao_do_processo = document.getElementById('situacao_do_processo').value;
-         // Se o Situação do processo não for válido, exibe um alerta e retorna
-         if (!situacao_do_processo) {
-             alert('Situação do processo inválido. Por favor, verifique e tente novamente.');
-             return;
-         }
- 
-         var distrito_pessoa = document.getElementById('distrito_pessoa').value;
-         // Se o distrito_pessoa não for válido, exibe um alerta e retorna
-         if (!distrito_pessoa) {
-             alert('Distrito da pessoa inválido. Por favor, verifique e tente novamente.');
-             return;
-         }
 
-         var ubs = document.getElementById('ubs').value;
-         var cep = document.getElementById('cep').value;
-        
-         
-        /* var cep = validarCEP(document.getElementById('cep')).replace(/-/g, "");
-        if (!cep) {
-            // Se o cep não for válido, interrompe o processo de cadastro
-            alert('CEP inválido. Por favor, verifique e tente novamente.');
+        var n_processo_apuracao = document.getElementById('n_processo_apuracao').value;
+        if (!n_processo_apuracao || n_processo_apuracao.length < 20) {
+            alert('Número do processo de apuração inválido. Por favor, verifique e tente novamente.');
+            event.preventDefault();
             return;
-        }*/
-         var bairro = validarNome(document.getElementById('bairro'));
-         if (!bairro) {
-             // Se o bairro não for válido, interrompe o processo de cadastro
-             alert('Bairro inválido. Por favor, verifique e tente novamente.');
-             return;
-         }
-         var rua = validarNome(document.getElementById('rua'));
-         if (!rua) {
-             // Se o rua não for válido, interrompe o processo de cadastro
-             alert('Rua inválida. Por favor, verifique e tente novamente.');
-             return;
-         }
-         var numero = document.getElementById('numero').value;
-         // Se o numero não for válido, exibe um alerta e retorna
-         if (!numero) {
-             alert('Número inválido. Por favor, verifique e tente novamente.');
-             return;
-         }
-         var complemento = document.getElementById('complemento').value; //sem validação pois é campo opcional
- 
-         var tipo_de_contato = document.getElementById('tipo_de_contato').value;
-         // Se o tipo_de_contato não for válido, exibe um alerta e retorna
-         if (!tipo_de_contato) {
-             alert('Tipo de contato inválido. Por favor, verifique e tente novamente.');
-             return;
-         }
-         var nome_do_contato = document.getElementById('nome_do_contato').value;
-         // Se o nome_do_contato não for válido, exibe um alerta e retorna
-         if (!nome_do_contato) {
-             alert('Nome do contato inválido. Por favor, verifique e tente novamente.');
-             return;
-         }
-         var telefone = validarTelefone(document.getElementById('telefone').value.replace(/\D/g, ''));
-         // Se o telefone não for válido, exibe um alerta e retorna
-         if (!telefone) {
-             alert('Telefone inválido. Por favor, verifique e tente novamente.');
-             return;
-         }
-         var email = validarEmail(document.getElementById('email').value);
-         // Se o e-mail não for válido, exibe um alerta e retorna
-         if (!email) {
-             alert('E-mail inválido. Por favor, verifique e tente novamente.');
-             return;
-         }
+        }
+
+        var n_pt = document.getElementById('n_pt').value;
+        var vara_da_infancia = document.getElementById('vara_da_infancia').value;
+
+        var dt_interpretacao_medida = formatarData(document.getElementById('dt_interpretacao_medida').value);
+        if (!dt_interpretacao_medida) {
+            alert('Data de interpretação da medida inválida. Por favor, verifique e tente novamente.');
+            return;
+        }
+
+        var dt_ultimo_relatorio_enviado = formatarData(document.getElementById('dt_ultimo_relatorio_enviado').value);
+        if (!dt_ultimo_relatorio_enviado) {
+            alert('Data do último relatório enviado inválida. Por favor, verifique e tente novamente.');
+            return;
+        }
+
+        var resumo_do_caso = document.getElementById('resumo_do_caso').value;
+        if (!resumo_do_caso) {
+            alert('Resumo do caso inválido. Por favor, verifique e tente novamente.');
+            return;
+        }
+
+        var listar_cursos       = document.getElementById('listar_cursos').value;
+        var situacao_do_processo = document.getElementById('situacao_do_processo').value;
+        if (!situacao_do_processo) {
+            alert('Situação do processo inválida. Por favor, verifique e tente novamente.');
+            return;
+        }
+
+        var distrito_pessoa = document.getElementById('distrito_pessoa').value;
+        if (!distrito_pessoa) {
+            alert('Distrito da pessoa inválido. Por favor, verifique e tente novamente.');
+            return;
+        }
+
+        var ubs  = document.getElementById('ubs').value;
+        var cep  = document.getElementById('cep').value;
+
+        var bairro = validarNome(document.getElementById('bairro'));
+        if (!bairro) {
+            alert('Bairro inválido. Por favor, verifique e tente novamente.');
+            return;
+        }
+
+        var rua = validarNome(document.getElementById('rua'));
+        if (!rua) {
+            alert('Rua inválida. Por favor, verifique e tente novamente.');
+            return;
+        }
+
+        var numero = document.getElementById('numero').value;
+        if (!numero) {
+            alert('Número inválido. Por favor, verifique e tente novamente.');
+            return;
+        }
+
+        var complemento = document.getElementById('complemento').value;
+
+        var tipo_de_contato = document.getElementById('tipo_de_contato').value;
+        if (!tipo_de_contato) {
+            alert('Tipo de contato inválido. Por favor, verifique e tente novamente.');
+            return;
+        }
+
+        var nome_do_contato = document.getElementById('nome_do_contato').value;
+        if (!nome_do_contato) {
+            alert('Nome do contato inválido. Por favor, verifique e tente novamente.');
+            return;
+        }
+
+        var telefone = validarTelefone(document.getElementById('telefone').value.replace(/\D/g, ''));
+        if (!telefone) {
+            alert('Telefone inválido. Por favor, verifique e tente novamente.');
+            return;
+        }
+
+        var email = validarEmail(document.getElementById('email').value);
+        if (!email) {
+            alert('E-mail inválido. Por favor, verifique e tente novamente.');
+            return;
+        }
+
         var ID_contatos = document.getElementById('ID_contatos').value;
 
+        // Coleta programas sociais
         const selects = document.querySelectorAll('select[name="programas_sociais[]"]');
         const programasSociaisSelecionados = [];
-        
-        // Coleta os valores selecionados, incluindo nulos
         selects.forEach(select => {
-            // Adiciona o valor selecionado ou null se não houver seleção
-            programasSociaisSelecionados.push(select.value || null);            
+            if (select.value) programasSociaisSelecionados.push(select.value);
         });
-       
-        var nome_unidade = document.getElementById('nome_unidade').value;
-        var tipo_local = document.getElementById('tipo_local').value;
-        var atividade_unidade = document.getElementById('atividade_unidade').value;
-        var tipo_logradouro = document.getElementById('tipo_logradouro').value;
-        var logradouro_unidade = document.getElementById('logradouro_unidade').value;	
-        var numero_unidade = document.getElementById('numero_unidade').value;
-        var complemento_unidade = document.getElementById('complemento_unidade').value;
-        var bairro_unidade = document.getElementById('bairro_unidade').value;
-        var telefone_unidade = document.getElementById('telefone_unidade').value;
-        var responsavel_unidade = document.getElementById('responsavel_unidade').value;
-        var horario_inicio_unidade = document.getElementById('horario_inicio_unidade').value;
-        var horario_fim_unidade = document.getElementById('horario_fim_unidade').value;
-        var cep_unidade = document.getElementById('cep_unidade').value;
-        var cad_unico = document.getElementById('cad_unico').value;
 
-        // dias da semana (checkbox)
+        // Dados da unidade acolhedora
+        var nome_unidade         = document.getElementById('nome_unidade').value;
+        var tipo_local           = document.getElementById('tipo_local').value;
+        var atividade_unidade    = document.getElementById('atividade_unidade').value;
+        var tipo_logradouro      = document.getElementById('tipo_logradouro').value;
+        var logradouro_unidade   = document.getElementById('logradouro_unidade').value;
+        var numero_unidade       = document.getElementById('numero_unidade').value;
+        var complemento_unidade  = document.getElementById('complemento_unidade').value;
+        var bairro_unidade       = document.getElementById('bairro_unidade').value;
+        var telefone_unidade     = document.getElementById('telefone_unidade').value;
+        var responsavel_unidade  = document.getElementById('responsavel_unidade').value;
+        var horario_inicio_unidade = document.getElementById('horario_inicio_unidade').value;
+        var horario_fim_unidade  = document.getElementById('horario_fim_unidade').value;
+        var cep_unidade          = document.getElementById('cep_unidade').value;
+        var cad_unico            = document.getElementById('cad_unico').value;
+
         var dias_semana = Array
             .from(document.querySelectorAll('input[name="dias[]"]:checked'))
             .map(el => el.value)
             .join(',');
 
-        
-        
-        // Envia uma requisição AJAX para atualizar os dados do usuário
+        // CORREÇÃO: URL alinhada com o backend (/editandoPessoas/:ID)
         fetch(`/editandoPessoas/${ID}`, {
             method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({				
-                nome_unidade: nome_unidade,
-                tipo_local: tipo_local,
-                cep_unidade : cep_unidade,
-                atividade_unidade: atividade_unidade,
-                tipo_logradouro: tipo_logradouro,
-                logradouro_unidade: logradouro_unidade,
-                numero_unidade: numero_unidade,
-                complemento_unidade: complemento_unidade,
-                bairro_unidade: bairro_unidade,
-                telefone_unidade: telefone_unidade,
-                responsavel_unidade: responsavel_unidade,
-                horario_inicio_unidade: horario_inicio_unidade,
-                horario_fim_unidade: horario_fim_unidade,
-                dias_semana: dias_semana,
-                ID: ID,
-                ativo_inativo: ativo_inativo, 
-                dt_cadastro: dt_cadastro, 
-                dt_atualizacao: dt_atualizacao, 
-                creas_atual: creas_atual, 
-                mse: mse, 
-                tec_ref: tec_ref,
-                sas: sas, 
-                servico_familia: servico_familia,
-                distrito_servico: distrito_servico, 
-                creas_origem: creas_origem, 
-                nome: nome, 
-                nome_social: nome_social, 
-                dt_nasc: dt_nasc, 
-                cpf: cpfValue, 
-                cad_unico: cad_unico,
-                // nis: nisValue, 
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                nome_unidade,
+                tipo_local,
+                cep_unidade,
+                atividade_unidade,
+                tipo_logradouro,
+                logradouro_unidade,
+                numero_unidade,
+                complemento_unidade,
+                bairro_unidade,
+                telefone_unidade,
+                responsavel_unidade,
+                horario_inicio_unidade,
+                horario_fim_unidade,
+                dias_semana,
+                ativo_inativo,
+                dt_cadastro,
+                dt_atualizacao,
+                creas_atual,
+                mse,
+                tec_ref,
+                sas,
+                servico_familia,
+                distrito_servico,
+                creas_origem,
+                nome,
+                nome_social,
+                dt_nasc,
+                cpf: cpfValue,
+                cad_unico,
                 cartao_sus: cartao_susValue,
-                medidas_mse: medidas_mse, 
-                nome_da_mae: nome_da_mae, 
-                nome_do_pai: nome_do_pai,
-                nome_responsavel: nome_responsavel, 
-                sexo: sexo, 
-                gestante: gestante, 
-                parceira_gestante: parceira_gestante, 
-                lactante: lactante, 
-                raca: raca, 
-                nacionalidade: nacionalidade,  
-                genero: genero, 
-                orientacao_sexual: orientacao_sexual, 
-                estado_civil: estado_civil, 
-                matriculado: matriculado,
-                alfabetizado: alfabetizado, 
-                cicloEstudo: cicloEstudo, 
-                numeroRa: numeroRa,
-                tipoEscola: tipoEscola,
-                ensinoModalidade: ensinoModalidade,
-                frequenciaAula: frequenciaAula,
-                concluiuCurso: concluiuCurso,
-                paroudeEstudar: paroudeEstudar,
-                possui_deficiencia: possui_deficiencia,
-                deficiencia: deficiencia,
-                trabalho: trabalho, 
-                necessita_cuidados_terceiros: necessita_cuidados_terceiros, 
-                possui_demanda_saude: possui_demanda_saude,
-                saude: saude,
-                possui_demanda_saude_mental: possui_demanda_saude_mental,
-                saude_mental: saude_mental,
-                acompanhamento_saude: acompanhamento_saude,
-                faz_uso_de_medicamentos: faz_uso_de_medicamentos,
-                medicamentos: medicamentos, 
-                faz_uso_de_medicamentos_controlados: faz_uso_de_medicamentos_controlados,
-                medicamentos_controlados: medicamentos_controlados, 
-                possui_trabalho: possui_trabalho, 
-                programas_sociais: programasSociaisSelecionados, 
-                possui_familia_em_servico: possui_familia_em_servico, 
-                possui_filhos: possui_filhos, 
-                responsavel_por_pcd: responsavel_por_pcd, 
-                adolescente_com_trajetoria_de_acolhimento: adolescente_com_trajetoria_de_acolhimento, 
-                alcool_ou_drogas: alcool_ou_drogas, 
-                caps: caps,
-                curso: curso,
-                n_processo: n_processo, 
-                n_processo_apuracao: n_processo_apuracao, 
-                n_pt: n_pt, 
-                vara_da_infancia: vara_da_infancia, 
-                dt_interpretacao_medida: dt_interpretacao_medida, 
-                dt_ultimo_relatorio_enviado: dt_ultimo_relatorio_enviado, 
-                resumo_do_caso: resumo_do_caso, 
-                listar_cursos: listar_cursos,
-                situacao_do_processo: situacao_do_processo, 
-                distrito_pessoa: distrito_pessoa, 
-                ubs: ubs,
-                cep: cep, 
-                bairro: bairro, 
-                rua: rua, 
-                numero: numero, 
-                complemento: complemento, 
-                ID_contatos: ID_contatos,
-                tipo_de_contato: tipo_de_contato, 
-                nome_do_contato: nome_do_contato, 
-                telefone: telefone, 
-                email: email,
-                dt_desligamento: dt_desligamento,
+                medidas_mse,
+                nome_da_mae,
+                nome_do_pai,
+                nome_responsavel,
+                sexo,
+                gestante,
+                parceira_gestante,
+                lactante,
+                raca,
+                nacionalidade,
+                genero,
+                orientacao_sexual,
+                estado_civil,
+                matriculado,
+                alfabetizado,
+                cicloEstudo,
+                numeroRa,
+                tipoEscola,
+                ensinoModalidade,
+                frequenciaAula,
+                concluiuCurso,
+                paroudeEstudar,
+                possui_deficiencia,
+                deficiencia,
+                trabalho,
+                necessita_cuidados_terceiros,
+                possui_demanda_saude,
+                saude,
+                possui_demanda_saude_mental,
+                saude_mental,
+                acompanhamento_saude,
+                faz_uso_de_medicamentos,
+                medicamentos,
+                faz_uso_de_medicamentos_controlados,
+                medicamentos_controlados,
+                possui_trabalho,
+                programas_sociais: programasSociaisSelecionados,
+                possui_familia_em_servico,
+                possui_filhos,
+                responsavel_por_pcd,
+                adolescente_com_trajetoria_de_acolhimento,
+                alcool_ou_drogas,
+                caps,
+                curso,
+                n_processo,
+                n_processo_apuracao,
+                n_pt,
+                vara_da_infancia,
+                dt_interpretacao_medida,
+                dt_ultimo_relatorio_enviado,
+                resumo_do_caso,
+                listar_cursos,
+                situacao_do_processo,
+                distrito_pessoa,
+                ubs,
+                cep,
+                bairro,
+                rua,
+                numero,
+                complemento,
+                ID_contatos,
+                tipo_de_contato,
+                nome_do_contato,
+                telefone,
+                email,
+                dt_desligamento,
             })
         })
-        
-        .then(response => response.json())
-        .then(data => {
+        .then(response => {
+            if (!response.ok) return response.json().then(err => Promise.reject(err));
+            return response.json();
+        })
+        .then(() => {
             alert('Dados atualizados com sucesso!');
-            window.location.href = '/home'; 
-            // Redireciona para a página de consulta
+            window.location.href = '/home';
         })
         .catch(error => {
-            console.error('Erro capturado:', error);
-             console.error('Detalhes completos do erro:', JSON.stringify(error, null, 2));
-            if (error.code === 'ER_DUP_ENTRY') {
-                console.error('Erro ao atualizar dados:', error.code);
+            console.error('Erro ao atualizar:', error);
+            if (error && error.code === 'ER_DUP_ENTRY') {
                 alert('Erro: O número de processo já existe. Verifique os dados e tente novamente.');
             } else {
-                console.error('Erro desconhecido', error.code);
-                alert('Erro desconhecido.');
-                window.history.back(); // Volta para a página anterior em caso de erro
+                alert('Erro ao salvar os dados. Tente novamente.');
+                window.history.back();
             }
         });
+    });
+}
 
-        // Após carregar usuario.dias_semana
-       
-    }
-})
-};
-// No final do arquivo, fora de tudo:
+/*-----INICIALIZAÇÃO----------------------------------------------------------------------------------------------------------*/
+
 document.addEventListener("DOMContentLoaded", function () {
     checkSexo();
     checkDeficiencia();
@@ -1200,62 +908,53 @@ document.addEventListener("DOMContentLoaded", function () {
 
     document.dispatchEvent(new Event("formReady"));
 });
-//--------------------------validar campos
+
 document.dispatchEvent(new Event("formReady"));
-    aplicarMascaraCEP("cep_unidade");
-    aplicarMascaraCEP("cep");
-    iniciarMascaraTelefone("telefone");
-    iniciarMascaraTelefone("telefone_unidade");
+aplicarMascaraCEP("cep_unidade");
+aplicarMascaraCEP("cep");
+iniciarMascaraTelefone("telefone");
+iniciarMascaraTelefone("telefone_unidade");
 
-    $("sexo")?.addEventListener("change", checkSexo);
-    // $("cad_unico")?.addEventListener("change", checkCadUnico);
-    $("possui_deficiencia")?.addEventListener("change", checkDeficiencia);
-    $("matriculado")?.addEventListener("change", checkMatriculado);
-    $("curso")?.addEventListener("change", checkCurso);
-    $("possui_trabalho")?.addEventListener("change", checkTrabalho);
-    $("possui_familia_em_servico")?.addEventListener("change", checkFamiliar);
-    $("faz_uso_de_medicamentos_controlados")?.addEventListener("change", checkMedicamentosControlados);
-    $("faz_uso_de_medicamentos")?.addEventListener("change", checkMedicamentos);
-    $("possui_demanda_saude")?.addEventListener("change", checkDemandaSaude);
-    $("possui_demanda_saude_mental")?.addEventListener("change", checkDemandaSaudeMental);
-    $("tec_ref")?.addEventListener("change", checkTecRef);
-    $("alcool_ou_drogas")?.addEventListener("change", checkCaps);
-    $("ativo_inativo")?.addEventListener("change", checkDtDesligamento);
-    
-    // Garante que os asteriscos condicionais iniciem ocultos
-    const camposCondicionais = [
-        "listar_cursos",
-        "deficiencia",
-        "medicamentos",
-        "saude",
-        "saude_mental",
-        "servico_familia",
-        "trabalho",
-        "gestante",
-        "lactante",
-        "parceira_gestante",
-    ];
+$("sexo")?.addEventListener("change", checkSexo);
+$("possui_deficiencia")?.addEventListener("change", checkDeficiencia);
+$("matriculado")?.addEventListener("change", checkMatriculado);
+$("curso")?.addEventListener("change", checkCurso);
+$("possui_trabalho")?.addEventListener("change", checkTrabalho);
+$("possui_familia_em_servico")?.addEventListener("change", checkFamiliar);
+$("faz_uso_de_medicamentos_controlados")?.addEventListener("change", checkMedicamentosControlados);
+$("faz_uso_de_medicamentos")?.addEventListener("change", checkMedicamentos);
+$("possui_demanda_saude")?.addEventListener("change", checkDemandaSaude);
+$("possui_demanda_saude_mental")?.addEventListener("change", checkDemandaSaudeMental);
+$("tec_ref")?.addEventListener("change", checkTecRef);
+$("alcool_ou_drogas")?.addEventListener("change", checkCaps);
+$("ativo_inativo")?.addEventListener("change", checkDtDesligamento);
 
-    camposCondicionais.forEach(campoId => {
-        const label = document.querySelector(`label[for="${campoId}"]`);
-        const asterisco = label?.querySelector(".red-asterisk");
-        if (asterisco) asterisco.style.display = "none";
-    });
+// Oculta asteriscos de campos condicionais no carregamento
+const camposCondicionais = [
+    "listar_cursos", "deficiencia", "medicamentos", "saude",
+    "saude_mental", "servico_familia", "trabalho",
+    "gestante", "lactante", "parceira_gestante",
+];
+camposCondicionais.forEach(campoId => {
+    const label    = document.querySelector(`label[for="${campoId}"]`);
+    const asterisco = label?.querySelector(".red-asterisk");
+    if (asterisco) asterisco.style.display = "none";
+});
 
-
-
+/*-----FUNÇÕES DE TOGGLE----------------------------------------------------------------------------------------------------------*/
 
 function checkSexo() {
     toggleCampo("sexo", "gestante", "F", true);
     toggleCampo("sexo", "lactante", "F", true);
-
     const sexo = $("sexo")?.value;
     if (sexo !== "F") {
-        $("gestante").value = "0";
-        $("lactante").value = "0";
+        const gestante = $("gestante");
+        const lactante = $("lactante");
+        if (gestante) gestante.value = "0";
+        if (lactante) lactante.value = "0";
     }
-
 }
+
 function checkDtDesligamento() {
     toggleCampo("ativo_inativo", "dt_desligamento", "0", true);
 }
@@ -1273,7 +972,7 @@ function checkMedicamentos() {
 }
 
 function checkMedicamentosControlados() {
-    toggleCampo("faz_uso_de_medicamentos_controlados", "medicamentos_controlados", "1", true)
+    toggleCampo("faz_uso_de_medicamentos_controlados", "medicamentos_controlados", "1", true);
 }
 
 function checkDemandaSaudeMental() {
@@ -1281,83 +980,64 @@ function checkDemandaSaudeMental() {
     checkCaps();
 }
 
-function checkCaps(){
+function checkCaps() {
     const saudeMental = $("possui_demanda_saude_mental")?.value;
-    const alcool = $("alcool_ou_drogas")?.value;
-    const caps = $("caps");
-
+    const alcool      = $("alcool_ou_drogas")?.value;
+    const caps        = $("caps");
     if (!caps) return;
 
-    const ativar = 
-    saudeMental === "1" || (alcool && alcool != "Não") ;
-
+    const ativar = saudeMental === "1" || (alcool && alcool !== "Não");
     if (ativar) {
         caps.disabled = false;
         caps.required = true;
     } else {
-        caps.value = "";
+        caps.value    = "";
         caps.disabled = true;
         caps.required = false;
     }
-
 }
-// function checkCadUnico() {
-//     toggleCampo("cad_unico", "cad_unico", "1", true);
-// }
-function checkMatriculado() {
 
+function checkMatriculado() {
     const campoMatriculado = $("matriculado");
     if (!campoMatriculado) return;
 
-    const matriculado = campoMatriculado.value;
-
-    const tipoEscola = $("tipoEscola");
+    const matriculado     = campoMatriculado.value;
+    const tipoEscola      = $("tipoEscola");
     const ensinoModalidade = $("ensinoModalidade");
-    const cicloEstudo = $("cicloEstudo");
-    const frequenciaAula = $("frequenciaAula");
-    const concluiuCurso = $("concluiuCurso");
-    const paroudeEstudar = $("paroudeEstudar");
+    const cicloEstudo     = $("cicloEstudo");
+    const frequenciaAula  = $("frequenciaAula");
+    const concluiuCurso   = $("concluiuCurso");
+    const paroudeEstudar  = $("paroudeEstudar");
 
     if (!tipoEscola || !ensinoModalidade || !cicloEstudo ||
         !frequenciaAula || !concluiuCurso || !paroudeEstudar) return;
 
-    // Habilita tudo primeiro
-    tipoEscola.disabled = false;
-    ensinoModalidade.disabled = false;
-    cicloEstudo.disabled = false;
-    frequenciaAula.disabled = false;
-    concluiuCurso.disabled = false;
-    paroudeEstudar.disabled = false;
+    // Habilita todos primeiro
+    [tipoEscola, ensinoModalidade, cicloEstudo, frequenciaAula, concluiuCurso, paroudeEstudar]
+        .forEach(el => el.disabled = false);
 
     if (matriculado === "1") {
-
-        concluiuCurso.value = "";
-        paroudeEstudar.value = "";
-        concluiuCurso.disabled = true;
+        concluiuCurso.value   = "";
+        paroudeEstudar.value  = "";
+        concluiuCurso.disabled  = true;
         paroudeEstudar.disabled = true;
-
     } else if (matriculado === "0") {
-
-        tipoEscola.value = "";
+        tipoEscola.value      = "";
         ensinoModalidade.value = "";
-        frequenciaAula.value = "";
-        tipoEscola.disabled = true;
+        frequenciaAula.value  = "";
+        tipoEscola.disabled      = true;
         ensinoModalidade.disabled = true;
-        frequenciaAula.disabled = true;
+        frequenciaAula.disabled  = true;
     }
 }
 
 function checkTecRef() {
-
     const campoMse = $("mse");
-    const tec_ref = $("tec_ref");
-
+    const tec_ref  = $("tec_ref");
     if (!campoMse || !tec_ref) return;
 
-    const mse = campoMse.value;
-
-    if (mse === "") {
-        tec_ref.value = "";
+    if (!campoMse.value) {
+        tec_ref.value    = "";
         tec_ref.disabled = true;
     } else {
         tec_ref.disabled = false;
@@ -1365,37 +1045,27 @@ function checkTecRef() {
 }
 
 function checkTrabalho() {
-    toggleCampo("possui_trabalho", "trabalho", "1", true)
+    toggleCampo("possui_trabalho", "trabalho", "1", true);
 }
 
 function checkFamiliar() {
-    toggleCampo("possui_familia_em_servico", "servico_familia", "1", true)
+    toggleCampo("possui_familia_em_servico", "servico_familia", "1", true);
 }
 
 function checkCurso() {
     toggleCampo("curso", "listar_cursos", "1", true);
 }
 
-    
-// ================= UNIDADE ACOLHEDORA =================
+/*----- UNIDADE ACOLHEDORA ----------------------------------------------------------------------------------------------------------*/
 
 const checkboxesDias = document.querySelectorAll('#dias_semana input[type="checkbox"]');
 
 function getCamposUnidade() {
     return [
-        document.getElementById("tipo_local"),
-        document.getElementById("nome_unidade"),
-        document.getElementById("responsavel_unidade"),
-        document.getElementById("telefone_unidade"),
-        document.getElementById("cep_unidade"),
-        document.getElementById("tipo_logradouro"),
-        document.getElementById("logradouro_unidade"),
-        document.getElementById("numero_unidade"),
-        document.getElementById("bairro_unidade"),
-        document.getElementById("atividade_unidade"),
-        document.getElementById("horario_inicio_unidade"),
-        document.getElementById("horario_fim_unidade")
-    ].filter(Boolean);
+        "tipo_local", "nome_unidade", "responsavel_unidade", "telefone_unidade",
+        "cep_unidade", "tipo_logradouro", "logradouro_unidade", "numero_unidade",
+        "bairro_unidade", "atividade_unidade", "horario_inicio_unidade", "horario_fim_unidade"
+    ].map(id => document.getElementById(id)).filter(Boolean);
 }
 
 function existeAlgumCampoPreenchido() {
@@ -1408,9 +1078,7 @@ function existeAlgumDiaSelecionado() {
 
 function atualizarObrigatoriedadeUnidade() {
     const obrigatorio = existeAlgumCampoPreenchido() || existeAlgumDiaSelecionado();
-
     getCamposUnidade().forEach(campo => campo.required = obrigatorio);
-
     document.querySelectorAll('.unidade-obrigatorio').forEach(el => {
         el.style.display = obrigatorio ? 'inline' : 'none';
     });
@@ -1418,19 +1086,17 @@ function atualizarObrigatoriedadeUnidade() {
 
 window.atualizarObrigatoriedadeUnidade = atualizarObrigatoriedadeUnidade;
 
+const idsUnidade = [
+    "tipo_local", "nome_unidade", "responsavel_unidade", "telefone_unidade",
+    "cep_unidade", "tipo_logradouro", "logradouro_unidade", "numero_unidade",
+    "bairro_unidade", "atividade_unidade", "horario_inicio_unidade", "horario_fim_unidade"
+];
 
-document.addEventListener('input', function(e) {
-    const ids = ["tipo_local","nome_unidade","responsavel_unidade","telefone_unidade",
-                 "cep_unidade","tipo_logradouro","logradouro_unidade","numero_unidade",
-                 "bairro_unidade","atividade_unidade","horario_inicio_unidade","horario_fim_unidade"];
-    if (ids.includes(e.target.id)) atualizarObrigatoriedadeUnidade();
+document.addEventListener('input',  function (e) {
+    if (idsUnidade.includes(e.target.id)) atualizarObrigatoriedadeUnidade();
 });
-
-document.addEventListener('change', function(e) {
-    const ids = ["tipo_local","nome_unidade","responsavel_unidade","telefone_unidade",
-                 "cep_unidade","tipo_logradouro","logradouro_unidade","numero_unidade",
-                 "bairro_unidade","atividade_unidade","horario_inicio_unidade","horario_fim_unidade"];
-    if (ids.includes(e.target.id) || e.target.closest('#dias_semana')) {
+document.addEventListener('change', function (e) {
+    if (idsUnidade.includes(e.target.id) || e.target.closest('#dias_semana')) {
         atualizarObrigatoriedadeUnidade();
     }
 });
@@ -1440,175 +1106,115 @@ atualizarObrigatoriedadeUnidade();
 /*-----CANCELAR----------------------------------------------------------------------------------------------------------*/
 
 const btnCancelar = document.getElementById('cancelar');
-if (btnCancelar){
-    btnCancelar.addEventListener('click', function() {
-    window.location.href = '/home'; // Redireciona para a página de consulta ao clicar em Cancelar
-    })
+if (btnCancelar) {
+    btnCancelar.addEventListener('click', function () {
+        window.location.href = '/home';
+    });
+}
+
+/*-----LOGOUT----------------------------------------------------------------------------------------------------------*/
+
+window.confirmLogout = function () {
+    if (confirm("Tem certeza que deseja encerrar a sessão?")) {
+        window.location.href = '/logout';
+    }
 };
 
-/*-----CONFIRMAÇÃO DE LOGOUT----------------------------------------------------------------------------------------------------------*/
+/*-----BUSCAR CEP PESSOA----------------------------------------------------------------------------------------------------------*/
 
-// Função para confirmar logout
-window.confirmLogout = function() {
-    if (confirm("Tem certeza que deseja encerrar a sessão?")) {
-        window.location.href = '/logout'; // Redireciona para a rota de logout se o usuário confirmar
-    } else {
-        // Se o usuário cancelar, não faz nada
-        // Você pode adicionar algum feedback aqui se preferir
-    }
-}
-// Buscar CEP
 const btnBuscarCepPessoa = document.getElementById("buscar_cep_pessoa");
-
 if (btnBuscarCepPessoa) {
     btnBuscarCepPessoa.addEventListener("click", function () {
-        const campoCeppessoa = document.getElementById("cep");
-        
+        const campoCep = document.getElementById("cep");
+        if (!campoCep) return;
 
-        if (!campoCeppessoa) return;
-
-        let cepPessoa = campoCeppessoa.value.replace(/\D/g, "");
-
+        let cepPessoa = campoCep.value.replace(/\D/g, "");
         if (cepPessoa.length !== 8) {
             alert("CEP inválido. Digite um CEP com 8 números.");
             return;
         }
-        
 
         fetch(`https://viacep.com.br/ws/${cepPessoa}/json/`)
-            .then(response => response.json())
+            .then(r => r.json())
             .then(data => {
-                if (data.erro === true) {
-                    alert("CEP não encontrado.");
-                    return;
-                }
-
-                // Validação São Paulo
+                if (data.erro) { alert("CEP não encontrado."); return; }
                 if (data.localidade.toLowerCase().trim() !== "são paulo" || data.uf.toUpperCase().trim() !== "SP") {
                     alert("Este CEP não pertence à cidade de São Paulo.");
-
-                    const rua = document.getElementById("rua");
-                    const bairro_pessoa = document.getElementById("bairro");
-
-                    if (rua) rua.value = "";
-                    if (bairro_pessoa) bairro_pessoa.value = "";
-
+                    const rua   = document.getElementById("rua");
+                    const bairro = document.getElementById("bairro");
+                    if (rua)   rua.value   = "";
+                    if (bairro) bairro.value = "";
                     bloquearCamposEndereco(false);
                     return;
                 }
 
-                let resultado = { tipo: "", nome: "" };
-
-                if (data.logradouro && data.logradouro.trim() !== "") {
+                let nomeRua = "";
+                if (data.logradouro && data.logradouro.trim()) {
                     const partes = data.logradouro.trim().split(" ");
-                    resultado.tipo = partes[0];
-                    resultado.nome = partes.slice(1).join(" ");
+                    nomeRua = partes.slice(1).join(" ");
                 }
 
-                // Só tenta extrair se o select existir
-                // const selectTipo = document.getElementById("tipo_logradouro");
-                // if (selectTipo && data.logradouro && data.logradouro.trim() !== "") {
-                //     resultado = extrairTipoLogradouro(data.logradouro);
-                
-                // }
-
-                const rua = document.getElementById("rua");
-                const bairro_pessoa = document.getElementById("bairro");
-
-                if (rua) rua.value = resultado.nome || "";
-                if (bairro_pessoa) bairro_pessoa.value = data.bairro || "";
-
-                if (rua) rua.dispatchEvent(new Event("input"));
-                if (bairro_pessoa) bairro_pessoa.dispatchEvent(new Event("input"));
+                const rua   = document.getElementById("rua");
+                const bairro = document.getElementById("bairro");
+                if (rua)   { rua.value   = nomeRua || ""; rua.dispatchEvent(new Event("input")); }
+                if (bairro) { bairro.value = data.bairro || ""; bairro.dispatchEvent(new Event("input")); }
 
                 bloquearCamposEndereco(true);
             })
-            .catch(() => {
-                alert("Erro ao buscar o CEP.");
-            });
+            .catch(() => alert("Erro ao buscar o CEP."));
     });
 } else {
-    console.warn("Botão buscar_cep não existe nesta tela (editar).");
+    console.warn("Botão buscar_cep_pessoa não encontrado.");
 }
 
+/*-----BUSCAR CEP UNIDADE----------------------------------------------------------------------------------------------------------*/
 
-
-// Buscar CEP unidade
 const btnBuscarCep = document.getElementById("buscar_cep");
-
 if (btnBuscarCep) {
     btnBuscarCep.addEventListener("click", function () {
         const campoCep = document.getElementById("cep_unidade");
-        
-
         if (!campoCep) return;
 
         let cep_unidade = campoCep.value.replace(/\D/g, "");
-
         if (cep_unidade.length !== 8) {
             alert("CEP inválido. Digite um CEP com 8 números.");
             return;
         }
-        
 
         fetch(`https://viacep.com.br/ws/${cep_unidade}/json/`)
-            .then(response => response.json())
+            .then(r => r.json())
             .then(data => {
-                if (data.erro === true) {
-                    alert("CEP não encontrado.");
-                    return;
-                }
-
-                // Validação São Paulo
+                if (data.erro) { alert("CEP não encontrado."); return; }
                 if (data.localidade.toLowerCase().trim() !== "são paulo" || data.uf.toUpperCase().trim() !== "SP") {
                     alert("Este CEP não pertence à cidade de São Paulo.");
-
-                    const tipo = document.getElementById("tipo_logradouro");
+                    const tipo      = document.getElementById("tipo_logradouro");
                     const logradouro = document.getElementById("logradouro_unidade");
-                    const bairro = document.getElementById("bairro_unidade");
-
-                    if (tipo) tipo.value = "";
+                    const bairro    = document.getElementById("bairro_unidade");
+                    if (tipo)       tipo.value       = "";
                     if (logradouro) logradouro.value = "";
-                    if (bairro) bairro.value = "";
-
+                    if (bairro)     bairro.value     = "";
                     bloquearCamposEndereco(false);
                     return;
                 }
 
-                let resultado = { tipo: "", nome: "" };
-
-                if (data.logradouro && data.logradouro.trim() !== "") {
+                let tipoRua = "", nomeRua = "";
+                if (data.logradouro && data.logradouro.trim()) {
                     const partes = data.logradouro.trim().split(" ");
-                    resultado.tipo = partes[0];
-                    resultado.nome = partes.slice(1).join(" ");
+                    tipoRua  = partes[0];
+                    nomeRua  = partes.slice(1).join(" ");
                 }
 
-                // Só tenta extrair se o select existir
-                // const selectTipo = document.getElementById("tipo_logradouro");
-                // if (selectTipo && data.logradouro && data.logradouro.trim() !== "") {
-                //     resultado = extrairTipoLogradouro(data.logradouro);
-                
-                // }
-
-                const tipo = document.getElementById("tipo_logradouro");
+                const tipo      = document.getElementById("tipo_logradouro");
                 const logradouro = document.getElementById("logradouro_unidade");
-                const bairro = document.getElementById("bairro_unidade");
-
-                if (tipo) tipo.value = resultado.tipo || "";
-                if (logradouro) logradouro.value = resultado.nome || "";
-                if (bairro) bairro.value = data.bairro || "";
-
-                if (logradouro) logradouro.dispatchEvent(new Event("input"));
-                if (bairro) bairro.dispatchEvent(new Event("input"));
+                const bairro    = document.getElementById("bairro_unidade");
+                if (tipo)       tipo.value       = tipoRua || "";
+                if (logradouro) { logradouro.value = nomeRua || ""; logradouro.dispatchEvent(new Event("input")); }
+                if (bairro)     { bairro.value     = data.bairro || ""; bairro.dispatchEvent(new Event("input")); }
 
                 bloquearCamposEndereco(true);
             })
-            .catch(() => {
-                alert("Erro ao buscar o CEP.");
-            });
+            .catch(() => alert("Erro ao buscar o CEP."));
     });
 } else {
-    console.warn("Botão buscar_cep não existe nesta tela (editar).");
+    console.warn("Botão buscar_cep não encontrado.");
 }
-
-

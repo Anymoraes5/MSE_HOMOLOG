@@ -213,9 +213,11 @@ window.onload = function() {
         var ativo_inativo = document.getElementById('ativo_inativo').value;
         var tec_ref = document.getElementById('tec_ref').value;
         var transferido = document.getElementById('transferido').value;
+        console.log('TRANSFERIDO FRONT:', transferido);
         
+
         // Realiza uma requisição fetch para filtrar as pessoas com base nos dados fornecidos
-        fetch('/Adolescente/filtro', {
+        fetch('/adolescente/filtro', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -245,6 +247,7 @@ window.onload = function() {
                     <td>${formatarData(pessoa.dt_nasc)}</td>
                     <td>${pessoa.mse}</td>
                     <td>${pessoa.tec_ref}</td>
+                    
                     
                     <td>
                         <button class="btn btn-warning" onclick="editUsuario(${pessoa.ID})">Editar</button>

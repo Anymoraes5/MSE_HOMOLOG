@@ -16,7 +16,6 @@ function normalizarTexto(str) {
         .trim();
 }
 
-
 //Importa a conexão com o banco de dados
 let { connection } = require('../db/db');
 
@@ -26,7 +25,6 @@ function rota_editarPessoas(app) {
 
     // Rota para a página de edição
     app.get('/editarPessoas', (req, res) => {
-        // Verifica se o usuário está autenticado
         if (req.session.userAuthenticated) {
             let filePath = path.join(__dirname, '..', 'views', 'userGroup_EditarAdolescente.html');
             res.sendFile(filePath);
@@ -35,11 +33,10 @@ function rota_editarPessoas(app) {
         }
     });
 
-    // Rota para buscar os dados do usuário com base no CPF
-    app.get('/pessoas/:ID', (req, res) => {
+    // Rota para buscar os dados do usuário com base no ID
+    app.get('/editandoPessoas/:ID', (req, res) => {
         let ID = req.params.ID;
 
-        // Aqui você faz a consulta ao banco de dados para obter os dados do usuário com o CPF especificado
         connection.query(`SELECT
                             P.ativo_inativo,
                             P.ID,
@@ -95,7 +92,6 @@ function rota_editarPessoas(app) {
                             P.faz_uso_de_medicamentos_controlados,
                             P.medicamentos_controlados,
                             P.possui_trabalho,
-                            -- PS.descricao AS "programas_sociais",
                             P.possui_familia_em_servico,
                             P.possui_filhos,
                             P.responsavel_por_pcd,
@@ -170,9 +166,9 @@ function rota_editarPessoas(app) {
                         LEFT JOIN ubs UBS ON UBS.ID = P.fk_ubs
                         LEFT JOIN adolescente_unidade_acolhedora AUA ON AUA.fk_pessoa = P.ID
                         LEFT JOIN unidade_acolhedora UA ON UA.id = AUA.fk_unidade_acolhedora
-						LEFT JOIN programas_sociais_pessoas PSP ON PSP.fk_id_pessoa = P.ID
+                        LEFT JOIN programas_sociais_pessoas PSP ON PSP.fk_id_pessoa = P.ID
                         LEFT JOIN programas_sociais PS ON PS.ID = PSP.fk_programa_social_id
-                        WHERE P.ID = ?`, [ID], (error, results, fields) => {
+                        WHERE P.ID = ?`, [ID], (error, results) => {
             if (error) {
                 console.error('Erro ao buscar dados do usuário:', error);
                 res.status(500).send('Erro ao buscar dados do usuário.');
@@ -180,711 +176,645 @@ function rota_editarPessoas(app) {
             }
             if (results.length > 0) {
                 let usuario = results[0];
-                    
-                // console.log("DADOS RETORNADOS DO BANCO:", JSON.stringify(usuario, null, 2)); // ← adicione isso
-                    
+
                 usuario.programas_sociais = results
                     .map(r => r.programas_sociais)
                     .filter(Boolean);
 
                 res.json(usuario);
+            } else {
+                res.status(404).send('Usuário não encontrado.');
             }
-
-
-});
+        });
     });
 
-	 app.get('/editandoPessoasProgramas/:ID', (req, res) => {
-				let ID = req.params.ID;
+    app.get('/editandoPessoasProgramas/:ID', (req, res) => {
+        let ID = req.params.ID;
 
-			connection.query(`
-				SELECT PS.descricao
-				FROM programas_sociais PS
-				INNER JOIN programas_sociais_pessoas PSP 
-					ON PS.ID = PSP.fk_programa_social_id
-				WHERE PSP.fk_id_pessoa = ?`,
-				[ID],
-				(error, results) => {
+        connection.query(`
+            SELECT PS.descricao
+            FROM programas_sociais PS
+            INNER JOIN programas_sociais_pessoas PSP 
+                ON PS.ID = PSP.fk_programa_social_id
+            WHERE PSP.fk_id_pessoa = ?`,
+            [ID],
+            (error, results) => {
+                if (error) {
+                    console.error('Erro ao buscar programas sociais:', error);
+                    return res.status(500).json([]);
+                }
+                const programas = results.map(r => r.descricao);
+                res.json(programas);
+            }
+        );
+    });
 
-					if (error) {
-						console.error('Erro ao buscar programas sociais:', error);
-						return res.status(500).json([]);
-					}
+    // CORREÇÃO: rota alinhada com o frontend (/editandoPessoas/:ID)
+    app.put('/editandoPessoas/:ID', (req, res) => {
+        let dataAtual = new Date();
+        let ano = dataAtual.getFullYear();
+        let mes = String(dataAtual.getMonth() + 1).padStart(2, '0');
+        let dia = String(dataAtual.getDate()).padStart(2, '0');
+        let dt_atualizacao = `${ano}-${mes}-${dia}`;
 
-					// Retorna array simples
-					const programas = results.map(r => r.descricao);
-					res.json(programas);
-				}
-			);
-	});
-		
-   app.put('/pessoas/:ID', (req, res) => {
-       let dataAtual = new Date();
+        // CORREÇÃO: ID vem apenas da URL, nunca do body
+        let ID = req.params.ID;
 
-	  // Extrair ano, mês e dia
-       let ano = dataAtual.getFullYear();
-       let mes = String(dataAtual.getMonth() + 1).padStart(2, '0'); // adiciona um zero à esquerda se for necessário
-       let dia = String(dataAtual.getDate()).padStart(2, '0'); // adiciona um zero à esquerda se for necessário
+        var cpf = req.body.cpf.replace(/[.-]/g, '');
+        var cpfValido = utils.validarCPF(cpf);
+        if (!cpfValido.valido) {
+            return res.status(400).json({ error: 'CPF inválido.' });
+        } else {
+            cpf = cpfValido.cpf;
+        }
 
-       // Montar a data no formato desejado (aaaa-mm-dd)
-       let dt_atualizacao = `${ano}-${mes}-${dia}`;
-       let ID = req.params.ID;
-       var cpf = req.body.cpf.replace(/[.-]/g, '');
-       var cpfValido = utils.validarCPF(cpf);
-       if (!cpfValido.valido) {
-           return res.status(500).send('<script>alert("cpf inválido");window.location.href = "/editarPessoas";</script>');
-       } else {
-           
-           cpf = cpfValido.cpf;
-       }
+        let cartao_sus = req.body.cartao_sus.replace(/[.-]/g, '');
+        let cep = req.body.cep.replace(/-/g, '');
+        let telefone = req.body.telefone.replace(/\D/g, '');
 
-    //    let nis = req.body.nis.replace(/[.-]/g, '');
-       let cartao_sus = req.body.cartao_sus.replace(/[.-]/g, '');
-       let cep = req.body.cep.replace(/-/g, "")
-       let telefone = req.body.telefone.replace(/\D/g, '')
-       var {
-		   tipo_local,
-		   nome_unidade,
-		   cep_unidade,
-		   tipo_logradouro,
-		   logradouro_unidade,
-		   numero_unidade,
-		   complemento_unidade,
-		   bairro_unidade,
-		   telefone_unidade,
-		   horario_inicio,
-		   horario_fim,
-		   dias,
-		   responsavel,
-		   atividade,
-           ativo_inativo,    //: ativo_inativo, 
-           dt_cadastro,    //: dt_cadastro, 
-           creas_atual,    //: creas_atual, 
-           mse,    //: mse,
-           tec_ref,    //: tec_ref, 
-           sas,    //: sas, 
-           servico_familia, // : servico_familia,
-           distrito_servico,    //: distrito_servico, 
-           creas_origem,    //: creas_origem, 
-           nome,    //: nome, 
-           nome_social,    //: nome_social, 
-           dt_nasc,    //: dt_nasc, 
-           medidas_mse,    //: medidas_mse, 
-           nome_da_mae,    //: nome_da_mae, 
-           nome_do_pai,    //: nome_do_pai,
-           nome_responsavel,    //: nome_responsavel, 
-           sexo,    //: sexo, 
-           gestante,    //: gestante, 
-           parceira_gestante,    //: parceira_gestante, 
-           lactante,    //: lactante, 
-           raca,    //: raca, 
-           nacionalidade,    //: nacionalidade, 
-           genero,    //: genero, 
-           orientacao_sexual,    //: orientacao_sexual, 
-           estado_civil,    //: estado_civil, 
-           matriculado,    //: matriculado,
-           alfabetizado,    //: alfabetizado, 
-           cicloEstudo,    //: cicloEstudo, 
-           numeroRa,    //: numeroRa,
-           tipoEscola,    //: tipoEscola,
-           ensinoModalidade,    //: ensinoModalidade,
-           frequenciaAula,    //: frequenciaAula,
-           concluiuCurso,    //: concluiuCurso,
-           paroudeEstudar,    //: paroudeEstudar,
-           possui_deficiencia,    //: possui_deficiencia,
-           deficiencia,    //: deficiencia,
-           trabalho,    //: trabalho, 
-           necessita_cuidados_terceiros,    //: necessita_cuidados_terceiros, 
-           possui_demanda_saude,    //: possui_demanda_saude,
-           saude,    //: saude,
-           possui_demanda_saude_mental,    //: possui_demanda_saude,
-           saude_mental,    //: saude,
-           acompanhamento_saude,    //: acompanhamento_saude,
-           faz_uso_de_medicamentos,    //: faz_uso_de_medicamentos,
-           medicamentos,    //: medicamentos, 
-           faz_uso_de_medicamentos_controlados,    //: faz_uso_de_medicamentos_controlados,
-           medicamentos_controlados,    //: medicamentos_controlados, 
-           possui_trabalho,    //: possui_trabalho, 
-           programas_sociais,    //: programas_sociais, 
-           possui_familia_em_servico,    //: possui_familia_em_servico, 
-           possui_filhos,    //: possui_filhos, 
-           responsavel_por_pcd,    //: responsavel_por_pcd, 
-           adolescente_com_trajetoria_de_acolhimento,    //: adolescente_com_trajetoria_de_acolhimento, 
-           alcool_ou_drogas,    //: alcool_ou_drogas, 
-           caps,    //: caps,
-           curso,   //: curso,
-           n_processo,    //: n_processo, 
-           n_processo_apuracao,    //: n_processo_apuracao, 
-           n_pt,    //: n_pt, 
-           vara_da_infancia,    //: vara_da_infancia, 
-           dt_interpretacao_medida,    //: dt_interpretacao_medida, 
-           dt_ultimo_relatorio_enviado,    //: dt_ultimo_relatorio_enviado, 
-           resumo_do_caso,    //: resumo_do_caso, 
-           listar_cursos,   //: listar_cursos,
-           situacao_do_processo,    //: situacao_do_processo, 
-           distrito_pessoa,    //: distrito_pessoa, 
-           ubs, //: ubs,
-           bairro,    //: bairro, 
-           rua,    //: rua, 
-           numero,    //: numero, 
-           complemento,    //: complemento, 
-           ID_contatos,    //:ID_contatos
-           tipo_de_contato,    //: tipo_de_contato, 
-           nome_do_contato,    //: nome_do_contato,  
-           email,    //: email 
-       } = req.body;
+        var {
+            tipo_local,
+            nome_unidade,
+            cep_unidade,
+            tipo_logradouro,
+            logradouro_unidade,
+            numero_unidade,
+            complemento_unidade,
+            bairro_unidade,
+            telefone_unidade,
+            horario_inicio_unidade,
+            horario_fim_unidade,
+            dias_semana,
+            responsavel_unidade,
+            atividade_unidade,
+            ativo_inativo,
+            dt_cadastro,
+            creas_atual,
+            mse,
+            tec_ref,
+            sas,
+            servico_familia,
+            distrito_servico,
+            creas_origem,
+            nome,
+            nome_social,
+            dt_nasc,
+            medidas_mse,
+            nome_da_mae,
+            nome_do_pai,
+            nome_responsavel,
+            sexo,
+            gestante,
+            parceira_gestante,
+            lactante,
+            raca,
+            nacionalidade,
+            genero,
+            orientacao_sexual,
+            estado_civil,
+            matriculado,
+            alfabetizado,
+            cicloEstudo,
+            numeroRa,
+            tipoEscola,
+            ensinoModalidade,
+            frequenciaAula,
+            concluiuCurso,
+            paroudeEstudar,
+            possui_deficiencia,
+            deficiencia,
+            trabalho,
+            necessita_cuidados_terceiros,
+            possui_demanda_saude,
+            saude,
+            possui_demanda_saude_mental,
+            saude_mental,
+            acompanhamento_saude,
+            faz_uso_de_medicamentos,
+            medicamentos,
+            faz_uso_de_medicamentos_controlados,
+            medicamentos_controlados,
+            possui_trabalho,
+            programas_sociais,
+            possui_familia_em_servico,
+            possui_filhos,
+            responsavel_por_pcd,
+            adolescente_com_trajetoria_de_acolhimento,
+            alcool_ou_drogas,
+            caps,
+            curso,
+            n_processo,
+            n_processo_apuracao,
+            n_pt,
+            vara_da_infancia,
+            dt_interpretacao_medida,
+            dt_ultimo_relatorio_enviado,
+            resumo_do_caso,
+            listar_cursos,
+            situacao_do_processo,
+            distrito_pessoa,
+            ubs,
+            bairro,
+            rua,
+            numero,
+            complemento,
+            ID_contatos,
+            tipo_de_contato,
+            nome_do_contato,
+            email,
+        } = req.body;
 
-       nome            = normalizarTexto(nome);
-        nome_social     = normalizarTexto(nome_social);
-        nome_da_mae     = normalizarTexto(nome_da_mae);
-        nome_do_pai     = normalizarTexto(nome_do_pai);
+        nome             = normalizarTexto(nome);
+        nome_social      = normalizarTexto(nome_social);
+        nome_da_mae      = normalizarTexto(nome_da_mae);
+        nome_do_pai      = normalizarTexto(nome_do_pai);
         nome_responsavel = normalizarTexto(nome_responsavel);
-        nome_do_contato = normalizarTexto(nome_do_contato);
+        nome_do_contato  = normalizarTexto(nome_do_contato);
 
-       var dt_desligamento = req.body.dt_desligamento;
-       // Se estiver inativo (ativo_inativo == 0)
-       if (ativo_inativo == 0) {
-           if (dt_desligamento === undefined || dt_desligamento === null || isNaN(new Date(dt_desligamento).getTime())) {
-               dt_desligamento = dt_atualizacao;
-               //console.log(dt_desligamento)
-           } else {
-               // Se uma data foi fornecida, converta para Date e mantenha essa data
-               dt_desligamento = new Date(dt_desligamento);
-               let dt_desligamento_ano = dt_desligamento.getFullYear();
-               let dt_desligamento_mes = String(dt_desligamento.getMonth() + 1).padStart(2, '0'); // Mês com zero à esquerda
-               let dt_desligamento_dia = String(dt_desligamento.getDate() + 1).padStart(2, '0'); // Dia com zero à esquerda
-               dt_desligamento = `${dt_desligamento_ano}-${dt_desligamento_mes}-${dt_desligamento_dia}`;
-               
-           }
-       } else {
-           dt_desligamento = null
-       }
+        // CORREÇÃO: lógica de dt_desligamento sem somar dia extra
+        var dt_desligamento = req.body.dt_desligamento;
+        if (ativo_inativo == 0) {
+            if (!dt_desligamento || isNaN(new Date(dt_desligamento).getTime())) {
+                dt_desligamento = dt_atualizacao;
+            } else {
+                // Usa a data como string diretamente para evitar deslocamento de fuso
+                dt_desligamento = dt_desligamento.split('T')[0];
+            }
+        } else {
+            dt_desligamento = null;
+        }
 
-       // Declara as variáveis globais para armazenar os respectivos ID
-       let idCreasAtual;
-       let idCreasOrigem;
-       let idDeficiencia;
-       let idDistritoServico;
-       let idDistritoPessoa;
-       let idTipoEscola;
-       let idEnsinoModalidade;
-       let idCicloEstudo;
-       let idParouEstudar;
-       let idEstadoCivil;
-       let idGenero;
-       let idMedidasMse;
-       let idMse;
-       let idTecRef;
-       let idNacionalidade;
-       let idOrientacaoSexual;
-       let idRaca;
-       let idTrabalho;
-       let idSas;
-       let idServicoFamilia;
-       let idAlcoolOuDrogas;
-       let idSituacaoProcesso;
-       let idVaraDaInfancia;
-       let idTipoDeContato;
-       let idUbs;
-       let idsProgramasSociais = [];
+        let idCreasAtual;
+        let idCreasOrigem;
+        let idDeficiencia;
+        let idDistritoServico;
+        let idDistritoPessoa;
+        let idTipoEscola;
+        let idEnsinoModalidade;
+        let idCicloEstudo;
+        let idParouEstudar;
+        let idEstadoCivil;
+        let idGenero;
+        let idMedidasMse;
+        let idMse;
+        let idTecRef;
+        let idNacionalidade;
+        let idOrientacaoSexual;
+        let idRaca;
+        let idTrabalho;
+        let idSas;
+        let idServicoFamilia;
+        let idAlcoolOuDrogas;
+        let idSituacaoProcesso;
+        let idVaraDaInfancia;
+        let idTipoDeContato;
+        let idUbs;
+        let idsProgramasSociais = [];
 
-   // Função assíncrona para processar os dados e capturar os IDs
-   async function processarDados() {
-       try {
-            console.log("=== VALORES RECEBIDOS ===");
-            console.log("mse:", mse);
-            console.log("creas_atual:", creas_atual);
-            console.log("creas_origem:", creas_origem);
-            console.log("sas:", sas);
-            console.log("tec_ref:", tec_ref);
-            console.log("=========================");
-           // Captura todos os IDs
-           idCreasOrigem = await IdDescricaoRepository.getIdByDescricao('creas', creas_origem);
-           idCreasAtual = await IdDescricaoRepository.getIdByDescricao('creas', creas_atual);
-           idDeficiencia = await IdDescricaoRepository.getIdByDescricao('deficiencia', deficiencia);
-           idDistritoServico = await IdDescricaoRepository.getIdByDescricao('distrito', distrito_servico);
-           idDistritoPessoa = await IdDescricaoRepository.getIdByDescricao('distrito', distrito_pessoa);
-           idTipoEscola = await IdDescricaoRepository.getIdByDescricao('tipoescola', tipoEscola);
-           idEnsinoModalidade = await IdDescricaoRepository.getIdByDescricao('ensinoModalidade', ensinoModalidade);
-           idCicloEstudo = await IdDescricaoRepository.getIdByDescricao('cicloestudo', cicloEstudo);
-           idParouEstudar = await IdDescricaoRepository.getIdByDescricao('paroudeestudar', paroudeEstudar);
-           idEstadoCivil = await IdDescricaoRepository.getIdByDescricao('estado_civil', estado_civil);
-           idGenero = await IdDescricaoRepository.getIdByDescricao('genero', genero);
-           idMedidasMse = (!isNaN(medidas_mse) && medidas_mse !== '' && medidas_mse !== null && medidas_mse !== undefined)
-                    ? parseInt(medidas_mse)
-                    : await IdDescricaoRepository.getIdByDescricao('medidas_mse', medidas_mse);
-           idMse = (!isNaN(mse) && mse !== '' && mse !== null && mse !== undefined)
-                       ? parseInt(mse)
-                       : await IdDescricaoRepository.getIdByDescricao('mse', mse);
-           idNacionalidade = await IdDescricaoRepository.getIdByDescricao('nacionalidade', nacionalidade);
-           idOrientacaoSexual = await IdDescricaoRepository.getIdByDescricao('orientacao_sexual', orientacao_sexual);
-           idRaca = await IdDescricaoRepository.getIdByDescricao('raca', raca);
-           idTrabalho = await IdDescricaoRepository.getIdByDescricao('trabalho', trabalho);
-           idSas = await IdDescricaoRepository.getIdByDescricao('sas', sas);
-           idServicoFamilia = await IdDescricaoRepository.getIdByDescricao('servico_familia', servico_familia);
-           idAlcoolOuDrogas = await IdDescricaoRepository.getIdByDescricao('alcool_ou_drogas', alcool_ou_drogas);
-           idSituacaoProcesso = await IdDescricaoRepository.getIdByDescricao('situacao_do_processo', situacao_do_processo);
-           idVaraDaInfancia = await IdDescricaoRepository.getIdByDescricao('vara_da_infancia', vara_da_infancia);
-           idTipoDeContato = await IdDescricaoRepository.getIdByDescricao('tipo_de_contato', tipo_de_contato);
-           idUbs = await IdDescricaoRepository.getIdByDescricao('ubs', ubs);
+        // Função auxiliar para buscar tec_ref por nome
+        function getIdByDescricaoTec(nome) {
+            return new Promise((resolve, reject) => {
+                const query = `SELECT ID FROM usuarios WHERE nome = ?`;
+                connection.query(query, [nome], (error, results) => {
+                    if (error) return reject(error);
+                    resolve(results.length > 0 ? results[0].ID : null);
+                });
+            });
+        }
 
-            // Função para obter o ID baseado na descrição de uma tabela específica
-            function getIdByDescricaoTec(nome) {
-                return new Promise((resolve, reject) => {
-                    const query = `SELECT ID FROM usuarios WHERE nome = ?`;
-                    connection.query(query, [nome], (error, results) => {
-                        if (error) {
-                            return reject(error);
-                        }
+        // Função para buscar IDs de programas sociais como Promise
+        function getIdsProgramasSociais(programas) {
+            if (!programas || !Array.isArray(programas)) return Promise.resolve([]);
 
-                        if (results.length > 0) {
-                            resolve(results[0].ID);
-                        } else {
-                            resolve(null);
-                        }
+            const promessas = programas
+                .filter(p => p && p !== '')
+                .map(descricao => {
+                    return new Promise((resolve) => {
+                        IdDescricaoRepository.getIdByDescricaoCadastro('programas_sociais', descricao, (error, id) => {
+                            if (error || !id) {
+                                console.log(`Programa social não encontrado: ${descricao}`);
+                                resolve(null);
+                            } else {
+                                resolve(id);
+                            }
+                        });
                     });
                 });
+
+            return Promise.all(promessas).then(ids => ids.filter(Boolean));
+        }
+
+        async function processarDados() {
+            try {
+                console.log("=== VALORES RECEBIDOS ===");
+                console.log("mse:", mse);
+                console.log("creas_atual:", creas_atual);
+                console.log("creas_origem:", creas_origem);
+                console.log("sas:", sas);
+                console.log("tec_ref:", tec_ref);
+                console.log("=========================");
+
+                // Captura todos os IDs em paralelo para melhor performance
+                [
+                    idCreasOrigem,
+                    idCreasAtual,
+                    idDeficiencia,
+                    idDistritoServico,
+                    idDistritoPessoa,
+                    idTipoEscola,
+                    idEnsinoModalidade,
+                    idCicloEstudo,
+                    idParouEstudar,
+                    idEstadoCivil,
+                    idGenero,
+                    idNacionalidade,
+                    idOrientacaoSexual,
+                    idRaca,
+                    idTrabalho,
+                    idSas,
+                    idServicoFamilia,
+                    idAlcoolOuDrogas,
+                    idSituacaoProcesso,
+                    idVaraDaInfancia,
+                    idTipoDeContato,
+                    idUbs,
+                    idTecRef,
+                    idsProgramasSociais
+                ] = await Promise.all([
+                    IdDescricaoRepository.getIdByDescricao('creas', creas_origem),
+                    IdDescricaoRepository.getIdByDescricao('creas', creas_atual),
+                    IdDescricaoRepository.getIdByDescricao('deficiencia', deficiencia),
+                    IdDescricaoRepository.getIdByDescricao('distrito', distrito_servico),
+                    IdDescricaoRepository.getIdByDescricao('distrito', distrito_pessoa),
+                    IdDescricaoRepository.getIdByDescricao('tipoescola', tipoEscola),
+                    IdDescricaoRepository.getIdByDescricao('ensinoModalidade', ensinoModalidade),
+                    IdDescricaoRepository.getIdByDescricao('cicloestudo', cicloEstudo),
+                    IdDescricaoRepository.getIdByDescricao('paroudeestudar', paroudeEstudar),
+                    IdDescricaoRepository.getIdByDescricao('estado_civil', estado_civil),
+                    IdDescricaoRepository.getIdByDescricao('genero', genero),
+                    IdDescricaoRepository.getIdByDescricao('nacionalidade', nacionalidade),
+                    IdDescricaoRepository.getIdByDescricao('orientacao_sexual', orientacao_sexual),
+                    IdDescricaoRepository.getIdByDescricao('raca', raca),
+                    IdDescricaoRepository.getIdByDescricao('trabalho', trabalho),
+                    IdDescricaoRepository.getIdByDescricao('sas', sas),
+                    IdDescricaoRepository.getIdByDescricao('servico_familia', servico_familia),
+                    IdDescricaoRepository.getIdByDescricao('alcool_ou_drogas', alcool_ou_drogas),
+                    IdDescricaoRepository.getIdByDescricao('situacao_do_processo', situacao_do_processo),
+                    IdDescricaoRepository.getIdByDescricao('vara_da_infancia', vara_da_infancia),
+                    IdDescricaoRepository.getIdByDescricao('tipo_de_contato', tipo_de_contato),
+                    IdDescricaoRepository.getIdByDescricao('ubs', ubs),
+                    getIdByDescricaoTec(tec_ref),
+                    getIdsProgramasSociais(programas_sociais)
+                ]);
+
+                // CORREÇÃO: medidas_mse resolvido sempre por descrição, exceto se já for ID numérico explícito
+                idMse = (!isNaN(mse) && mse !== '' && mse !== null && mse !== undefined)
+                    ? parseInt(mse)
+                    : await IdDescricaoRepository.getIdByDescricao('mse', mse);
+
+                idMedidasMse = await IdDescricaoRepository.getIdByDescricao('medidas_mse', medidas_mse);
+
+                // Normalização de campos opcionais
+                if (utils.verificar_campos(gestante) == null)                          gestante = null;
+                if (utils.verificar_campos(lactante) == null)                          lactante = null;
+                if (utils.verificar_campos(deficiencia) == null)                       deficiencia = null;
+                if (utils.verificar_campos(medicamentos) == null)                      medicamentos = null;
+                if (utils.verificar_campos(saude) == null)                             saude = null;
+                if (utils.verificar_campos(medicamentos_controlados) == null)          medicamentos_controlados = null;
+                if (utils.verificar_campos(saude_mental) == null)                      saude_mental = null;
+                if (utils.verificar_campos(acompanhamento_saude) == null)              acompanhamento_saude = null;
+                if (utils.verificar_campos(numeroRa) == null)                          numeroRa = null;
+                if (utils.verificar_campos(tipoEscola) == null)                        tipoEscola = null;
+                if (utils.verificar_campos(ensinoModalidade) == null)                  ensinoModalidade = null;
+                if (utils.verificar_campos(cicloEstudo) == null)                       cicloEstudo = null;
+                if (utils.verificar_campos(frequenciaAula) == null)                    frequenciaAula = null;
+                if (utils.verificar_campos(concluiuCurso) == null)                     concluiuCurso = null;
+                if (utils.verificar_campos(paroudeEstudar) == null)                    paroudeEstudar = null;
+                if (utils.verificar_campos(cpf) == null)                               cpf = null;
+                if (utils.verificar_campos(orientacao_sexual) == null)                 orientacao_sexual = null;
+                if (utils.verificar_campos(genero) == null)                            genero = null;
+                if (utils.verificar_campos(creas_origem) == null)                      creas_origem = null;
+                if (utils.verificar_campos(nome_social) == null)                       nome_social = null;
+                if (utils.verificar_campos(cartao_sus) == null)                        cartao_sus = null;
+                if (utils.verificar_campos(nome_do_pai) == null)                       nome_do_pai = null;
+                if (utils.verificar_campos(vara_da_infancia) == null)                  vara_da_infancia = null;
+                if (utils.verificar_campos(complemento) == null)                       complemento = null;
+                if (utils.verificar_campos(trabalho) == null)                          trabalho = null;
+                if (utils.verificar_campos(programas_sociais) == null)                 programas_sociais = null;
+                if (utils.verificar_campos(servico_familia) == null)                   servico_familia = null;
+                if (utils.verificar_campos(caps) == null)                              caps = null;
+                if (utils.verificar_campos(curso) == null)                             curso = null;
+                if (utils.verificar_campos(ubs) == null)                               ubs = null;
+                if (utils.verificar_campos(n_pt) == null)                              n_pt = null;
+
+                // CORREÇÃO: atualizarDadosPessoa retorna Promise e só então responde ao cliente
+                await atualizarDadosPessoa();
+
+                res.status(200).json({ message: 'Dados atualizados com sucesso.' });
+
+            } catch (error) {
+                console.error('Erro ao processar dados:', error);
+                if (!res.headersSent) {
+                    res.status(500).json({ error: 'Erro ao processar dados.' });
+                }
             }
-            idTecRef = await getIdByDescricaoTec(tec_ref)
-
-		for (let i = 0; i < programas_sociais.length; i++) {
-				if (!programas_sociais[i] || programas_sociais[i] === '') {
-					console.log("Nenhum programa social selecionado para a entrada " + (i + 1));
-					continue; // Pula para o próximo item se não houver seleção
-				}
-
-				let descricao = programas_sociais[i]; // Definindo a variável 'descricao'
-
-				IdDescricaoRepository.getIdByDescricaoCadastro('programas_sociais', descricao, (error, id) => {
-					if (error) {
-						console.error('Erro ao obter ID do programa social:', error);
-						return;
-					}
-					if (id) {
-						idsProgramasSociais.push(id);
-					} else {
-						console.log(`Programa social não encontrado: ${descricao}`);
-					}
-				});
-			}
-
-        if (utils.verificar_campos(gestante) == null) {
-            gestante = null
-        }
-        if (utils.verificar_campos(lactante) == null) {
-            lactante = null
-        }
-        if (utils.verificar_campos(deficiencia) == null) {
-            deficiencia = null
-        }
-        if (utils.verificar_campos(medicamentos) == null) {
-            medicamentos = null
-        }
-        if (utils.verificar_campos(saude) == null) {
-            saude = null
-        }
-        if (utils.verificar_campos(medicamentos_controlados) == null) {
-            medicamentos_controlados = null
-        }
-        if (utils.verificar_campos(saude_mental) == null) {
-            saude_mental = null
-        }
-        if (utils.verificar_campos(acompanhamento_saude) == null) {
-            acompanhamento_saude = null
-        }
-        if (utils.verificar_campos(numeroRa) == null) {
-            numeroRa = null
-        }
-        if (utils.verificar_campos(tipoEscola) == null) {
-            tipoEscola = null
-        }
-        if (utils.verificar_campos(ensinoModalidade) == null) {
-            ensinoModalidade = null
-        }
-        if (utils.verificar_campos(cicloEstudo) == null) {
-            cicloEstudo = null
-        }
-        if (utils.verificar_campos(frequenciaAula) == null) {
-            frequenciaAula = null
-        }
-        if (utils.verificar_campos(concluiuCurso) == null) {
-            concluiuCurso = null
-        }
-        if (utils.verificar_campos(paroudeEstudar) == null) {
-            paroudeEstudar = null
-        }
-        if (utils.verificar_campos(cpf) == null) {
-            cpf = null
-        }
-        if (utils.verificar_campos(orientacao_sexual) == null) {
-            orientacao_sexual = null
-        }
-        if (utils.verificar_campos(genero) == null) {
-            genero = null
-        }
-        if (utils.verificar_campos(creas_origem) == null) {
-            creas_origem = null
-        }
-        if (utils.verificar_campos(nome_social) == null) {
-            nome_social = null
-        }
-        // if (utils.verificar_campos(nis) == null) {
-        //     nis = null
-        // }
-        if (utils.verificar_campos(cartao_sus) == null) {
-            cartao_sus = null
-        }
-        if (utils.verificar_campos(nome_do_pai) == null) {
-            nome_do_pai = null
-        }
-        if (utils.verificar_campos(vara_da_infancia) == null) {
-            vara_da_infancia = null
-        }
-        if (utils.verificar_campos(complemento) == null) {
-            complemento = null
-        }
-        if (utils.verificar_campos(trabalho) == null) {
-            trabalho = null
-        }
-		if (utils.verificar_campos(programas_sociais) == null) {
-                programas_sociais = null
-            }		
-        if (utils.verificar_campos(servico_familia) == null) {
-            servico_familia = null
-        }
-        if (utils.verificar_campos(caps) == null) {
-            caps = null
-        }
-        if (utils.verificar_campos(curso) == null) {
-            curso = null
-        }
-        if (utils.verificar_campos(ubs) == null) {
-            ubs = null
-        }
-        if (utils.verificar_campos(n_pt) == null) {
-            n_pt = null
         }
 
-           // Todos os IDs foram capturados, agora execute o código de atualização
-           atualizarDadosPessoa();
+        // CORREÇÃO: atualizarDadosPessoa retorna Promise para que processarDados aguarde
+        function atualizarDadosPessoa() {
+            return new Promise((resolve, reject) => {
 
-          res.status(200).json({ message: 'Sucesso.' });
+                connection.query(`UPDATE pessoas SET 
+                    fk_creas_atual = ?,
+                    fk_mse = ?,
+                    fk_tec_ref = ?,
+                    fk_sas = ?,
+                    fk_servico_familia = ?,
+                    fk_distrito_servico = ?,
+                    fk_creas_origem = ?,
+                    nome = ?,
+                    nome_social = ?,
+                    dt_nasc = ?,
+                    cpf = ?,
+                    cartao_sus = ?,
+                    nome_da_mae = ?,
+                    nome_do_pai = ?,
+                    nome_responsavel = ?,
+                    sexo = ?,
+                    fk_raca = ?,
+                    fk_nacionalidade = ?,
+                    fk_genero = ?,
+                    fk_orientacao_sexual = ?,
+                    fk_estado_civil = ?,
+                    matriculado = ?,
+                    alfabetizado = ?,
+                    fk_cicloEstudo = ?,
+                    numeroRa = ?,
+                    fk_tipoEscola = ?,
+                    fk_ensinoModalidade = ?,
+                    frequenciaAula = ?,
+                    concluiuCurso = ?,
+                    fk_paroudeEstudar = ?,
+                    possui_deficiencia = ?,
+                    fk_deficiencia = ?,
+                    fk_trabalho = ?,
+                    necessita_cuidados_terceiros = ?,
+                    possui_demanda_saude = ?,
+                    saude = ?,
+                    possui_demanda_saude_mental = ?,
+                    saude_mental = ?,
+                    acompanhamento_saude = ?,
+                    faz_uso_de_medicamentos = ?,
+                    medicamentos = ?,
+                    faz_uso_de_medicamentos_controlados = ?,
+                    medicamentos_controlados = ?,
+                    possui_trabalho = ?,
+                    possui_familia_em_servico = ?,
+                    gestante = ?,
+                    parceira_gestante = ?,
+                    lactante = ?,
+                    possui_filhos = ?,
+                    responsavel_por_pcd = ?,
+                    adolescente_com_trajetoria_de_acolhimento = ?,
+                    fk_alcool_ou_drogas = ?,
+                    caps = ?,
+                    curso = ?,
+                    fk_distrito_pessoa = ?,
+                    fk_ubs = ?,
+                    cep = ?,
+                    bairro = ?,
+                    rua = ?,
+                    numero = ?,
+                    complemento = ?,
+                    ativo_inativo = ?,
+                    fk_medidas = ?,
+                    dt_cadastro = ?,
+                    dt_atualizacao = ?,
+                    dt_desligamento = ?,
+                    listar_cursos = ?
+                    WHERE ID = ?`,
+                    [
+                        idCreasAtual,
+                        idMse,
+                        idTecRef,
+                        idSas,
+                        idServicoFamilia,
+                        idDistritoServico,
+                        idCreasOrigem,
+                        nome,
+                        nome_social,
+                        dt_nasc,
+                        cpf,
+                        cartao_sus,
+                        nome_da_mae,
+                        nome_do_pai,
+                        nome_responsavel,
+                        sexo,
+                        idRaca,
+                        idNacionalidade,
+                        idGenero,
+                        idOrientacaoSexual,
+                        idEstadoCivil,
+                        matriculado,
+                        alfabetizado,
+                        idCicloEstudo,
+                        numeroRa,
+                        idTipoEscola,
+                        idEnsinoModalidade,
+                        frequenciaAula,
+                        concluiuCurso,
+                        idParouEstudar,
+                        possui_deficiencia,
+                        idDeficiencia,
+                        idTrabalho,
+                        necessita_cuidados_terceiros,
+                        possui_demanda_saude,
+                        saude,
+                        possui_demanda_saude_mental,
+                        saude_mental,
+                        acompanhamento_saude,
+                        faz_uso_de_medicamentos,
+                        medicamentos,
+                        faz_uso_de_medicamentos_controlados,
+                        medicamentos_controlados,
+                        possui_trabalho,
+                        possui_familia_em_servico,
+                        gestante,
+                        parceira_gestante,
+                        lactante,
+                        possui_filhos,
+                        responsavel_por_pcd,
+                        adolescente_com_trajetoria_de_acolhimento,
+                        idAlcoolOuDrogas,
+                        caps,
+                        curso,
+                        idDistritoPessoa,
+                        idUbs,
+                        cep,
+                        bairro,
+                        rua,
+                        numero,
+                        complemento,
+                        ativo_inativo,
+                        idMedidasMse,
+                        dt_cadastro,
+                        dt_atualizacao,
+                        dt_desligamento,
+                        listar_cursos,
+                        ID
+                    ],
+                    (errorUpdate) => {
+                        if (errorUpdate) {
+                            console.error('Erro ao atualizar dados da pessoa:', errorUpdate);
+                            return reject(errorUpdate);
+                        }
 
-       } catch (error) {
+                        connection.query(`UPDATE processos SET
+                            n_processo = ?,
+                            n_processo_apuracao = ?,
+                            n_pt = ?,
+                            fk_vara_da_infancia = ?,
+                            resumo_do_caso = ?,
+                            fk_situacao = ?,
+                            dt_interpretacao_medida = ?,
+                            dt_ultimo_relatorio_enviado = ?
+                            WHERE ID = (
+                                SELECT fk_processos
+                                FROM pessoas
+                                WHERE ID = ?)`,
+                            [
+                                n_processo,
+                                n_processo_apuracao,
+                                n_pt,
+                                idVaraDaInfancia,
+                                resumo_do_caso,
+                                idSituacaoProcesso,
+                                dt_interpretacao_medida,
+                                dt_ultimo_relatorio_enviado,
+                                ID
+                            ],
+                            (errorProcesso) => {
+                                if (errorProcesso) {
+                                    console.error('Erro ao atualizar processos:', errorProcesso);
+                                    return reject(errorProcesso);
+                                }
 
-           console.error('Erro ao capturar um dos IDs:', error);
-       }
-   }
+                                connection.query(`UPDATE unidade_acolhedora UA
+                                    INNER JOIN adolescente_unidade_acolhedora AUA ON AUA.fk_unidade_acolhedora = UA.id
+                                    SET
+                                        UA.tipo_local = ?,
+                                        UA.nome = ?,
+                                        UA.cep_unidade = ?,
+                                        UA.tipo_logradouro = ?,
+                                        UA.logradouro_unidade = ?,
+                                        UA.numero = ?,
+                                        UA.complemento = ?,
+                                        UA.bairro = ?,
+                                        UA.telefone = ?,
+                                        UA.horario_inicio_unidade = ?,
+                                        UA.horario_fim_unidade = ?,
+                                        UA.dias_semana = ?,
+                                        UA.responsavel_unidade = ?,
+                                        UA.atividade_unidade = ?
+                                    WHERE AUA.fk_pessoa = ?`,
+                                    [
+                                        tipo_local,
+                                        nome_unidade,
+                                        cep_unidade,
+                                        tipo_logradouro,
+                                        logradouro_unidade,
+                                        numero_unidade,
+                                        complemento_unidade,
+                                        bairro_unidade,
+                                        telefone_unidade,
+                                        horario_inicio_unidade,
+                                        horario_fim_unidade,
+                                        dias_semana,
+                                        responsavel_unidade,
+                                        atividade_unidade,
+                                        ID
+                                    ],
+                                    (errorUA) => {
+                                        if (errorUA) {
+                                            console.error('Erro ao atualizar unidade acolhedora:', errorUA);
+                                            // Não rejeitamos aqui pois unidade acolhedora é opcional
+                                        }
 
-   function atualizarDadosPessoa() {
-                       
-                       // Atualização dos dados do usuário
-                       connection.query(`UPDATE pessoas SET 
-                           ID = ? , 
-                           fk_creas_atual = ? , 
-                           fk_mse = ? ,
-                           fk_tec_ref = ?,  
-                           fk_sas = ? , 
-                           fk_servico_familia = ?,
-                           fk_distrito_servico = ? , 
-                           fk_creas_origem = ? , 
-                           nome = ? , 
-                           nome_social = ? , 
-                           dt_nasc = ? ,
-                           cpf = ? , 
-                           
-                           cartao_sus = ?,
-                           nome_da_mae = ? , 
-                           nome_do_pai = ? , 
-                           nome_responsavel = ?,
-                           sexo = ? , 
-                           fk_raca = ? , 
-                           fk_nacionalidade = ? , 
-                           fk_genero = ? , 
-                           fk_orientacao_sexual = ? , 
-                           fk_estado_civil = ? , 
-                           matriculado = ?,
-                           alfabetizado = ?,
-                           fk_cicloEstudo = ?,
-                           numeroRa = ?,
-                           fk_tipoEscola = ?,
-                           fk_ensinoModalidade = ?,
-                           frequenciaAula = ?,
-                           concluiuCurso = ?,
-                           fk_paroudeEstudar = ?,
-                           possui_deficiencia = ?, 
-                           fk_deficiencia = ? , 
-                           fk_trabalho = ? , 
-                           necessita_cuidados_terceiros = ? ,
-                           possui_demanda_saude = ?,
-                           saude = ?,
-                           possui_demanda_saude_mental = ?,
-                           saude_mental = ?,
-                           acompanhamento_saude = ?, 
-                           faz_uso_de_medicamentos = ? , 
-                           medicamentos = ?,
-                           faz_uso_de_medicamentos_controlados = ? , 
-                           medicamentos_controlados = ?,
-                           possui_trabalho = ? , 
-                           possui_familia_em_servico = ? , 
-                           gestante = ? , 
-                           parceira_gestante = ?, 
-                           lactante = ? , 
-                           possui_filhos = ? , 
-                           responsavel_por_pcd = ? , 
-                           adolescente_com_trajetoria_de_acolhimento = ? , 
-                           fk_alcool_ou_drogas = ? ,  
-                           caps = ? ,
-                           curso = ? ,
-                           fk_distrito_pessoa = ? , 
-                           fk_ubs = ? ,
-                           cep = ? , 
-                           bairro = ? , 
-                           rua = ? , 
-                           numero = ? , 
-                           complemento = ? , 
-                           ativo_inativo = ? , 
-                           fk_medidas = ?,
-                           dt_cadastro = ? , 
-                           dt_atualizacao = ?,
-                           dt_desligamento = ?,
-                           listar_cursos = ?
-                           WHERE ID = ?;
-                           `, [ID, 
-                               idCreasAtual, 
-                               idMse, 
-                               idTecRef,
-                               idSas, 
-                               idServicoFamilia,
-                               idDistritoServico, 
-                               idCreasOrigem, 
-                               nome, 
-                               nome_social, 
-                               dt_nasc, 
-                               cpf, 
-                               
-                               cartao_sus,
-                               nome_da_mae, 
-                               nome_do_pai, 
-                               nome_responsavel, 
-                               sexo, 
-                               idRaca,  
-                               idNacionalidade, 
-                               idGenero, 
-                               idOrientacaoSexual, 
-                               idEstadoCivil, 
-                               matriculado,
-                               alfabetizado,
-                               idCicloEstudo,
-                               numeroRa,
-                               idTipoEscola,
-                               idEnsinoModalidade, 
-                               frequenciaAula,
-                               concluiuCurso,
-                               idParouEstudar,
-                               possui_deficiencia, 
-                               idDeficiencia, 
-                               idTrabalho, 
-                               necessita_cuidados_terceiros, 
-                               possui_demanda_saude, 
-                               saude, 
-                               possui_demanda_saude_mental, 
-                               saude_mental, 
-                               acompanhamento_saude, 
-                               faz_uso_de_medicamentos,
-                               medicamentos, 
-                               faz_uso_de_medicamentos_controlados,
-                               medicamentos_controlados, 
-                               possui_trabalho, 
-                               possui_familia_em_servico, 
-                               gestante, 
-                               parceira_gestante, 
-                               lactante, 
-                               possui_filhos, 
-                               responsavel_por_pcd, 
-                               adolescente_com_trajetoria_de_acolhimento, 
-                               idAlcoolOuDrogas,  
-                               caps,
-                               curso,
-                               idDistritoPessoa, 
-                               idUbs,
-                               cep, 
-                               bairro, 
-                               rua, 
-                               numero, 
-                               complemento,  
-                               ativo_inativo, 
-                               idMedidasMse, 
-                               dt_cadastro, 
-                               dt_atualizacao, 
-                               dt_desligamento,
-                               listar_cursos,
-                               ID], 
-                               (errorUpdate, resultsUpdate, fieldsUpdate) => {
-                               if (errorUpdate) {
-                                   console.error('Erro ao atualizar dados da pessoa:', errorUpdate);
-                                   res.status(500).send('Erro ao atualizar dados da pessoa.');
-                                   return;
-                               }
-                               
-                               // Atualização dos dados do processo
-                               connection.query(`UPDATE processos SET
-                               n_processo = ? , 
-                               n_processo_apuracao = ?,
-                               n_pt = ?, 
-                               fk_vara_da_infancia = ? , 
-                               resumo_do_caso = ? , 
-                               fk_situacao = ?,
-                               dt_interpretacao_medida = ? , 
-                               dt_ultimo_relatorio_enviado = ? 
-                               WHERE ID = (
-                                           SELECT fk_processos
-                                           FROM pessoas
-                                           WHERE ID = ?);`,   
-                                               [n_processo, 
-                                               n_processo_apuracao, 
-                                               n_pt, 
-                                               idVaraDaInfancia,  
-                                               resumo_do_caso, 
-                                               idSituacaoProcesso, 
-                                               dt_interpretacao_medida, 
-                                               dt_ultimo_relatorio_enviado, 
-                                               ID], 
-                                   (errorUpdate, resultsUpdate, fieldsUpdate) => {
-                                   if (errorUpdate) {
-                                       console.error('Erro ao atualizar os processos:', errorUpdate);
-                                       res.status(500).send('Erro ao atualizar os processos.');
-                                       return;
-                                   }
-								   
-								   // ATUALIZAÇÃO DIRETA DOS CAMPOS DA UNIDADE ACOLHEDORA
-									connection.query(`UPDATE unidade_acolhedora UA
-										INNER JOIN adolescente_unidade_acolhedora AUA ON AUA.fk_unidade_acolhedora = UA.id
-										SET
-											UA.tipo_local = ?,
-											UA.nome = ?,
-											UA.cep = ?,
-											UA.tipo_logradouro = ?,
-											UA.logradouro_unidade = ?,
-											UA.numero = ?,
-											UA.complemento = ?,
-											UA.bairro = ?,
-											UA.telefone = ?,
-											UA.horario_inicio = ?,
-											UA.horario_fim = ?,
-											UA.dias = ?,
-											UA.responsavel = ?,
-											UA.atividade = ?
-										WHERE AUA.fk_pessoa = ?`,
-										[
-											tipo_local,
-											nome_unidade,
-											cep_unidade,
-											tipo_logradouro,
-											logradouro_unidade,
-											numero_unidade,
-											complemento_unidade,
-											bairro_unidade,
-											telefone_unidade,
-											horario_inicio,
-											horario_fim,
-											dias,
-											responsavel,
-											atividade,
-											ID
-										],
-										(errorUA) => {
-											if (errorUA) console.error('Erro ao atualizar unidade acolhedora:', errorUA);
-											else console.log(`Unidade acolhedora da pessoa ${ID} atualizada.`);
-										}
-									);
-								   
-								   // Atualização dos dados do contato
-                                   connection.query(`UPDATE contatos C
-                                   INNER JOIN contatos_pessoas CP ON CP.fk_id_contatos = C.ID
-                                   SET
-                                   C.telefone = ?,
-                                   C.nome = ?,
-                                   C.email = ?
-                                   WHERE
-                                   CP.fk_id_pessoas = ?
-                                   AND C.ID = ?;`, 
-                                       [telefone, 
-                                       nome_do_contato, 
-                                       email, 
-                                       ID, 
-                                       ID_contatos], 
-                                       (errorUpdate, resultsUpdate, fieldsUpdate) => {
-                                       if (errorUpdate) {
-                                           console.error('Erro ao atualizar dados do processo:', errorUpdate);
-                                           res.status(500).send('Erro ao atualizar dados da pessoa.');
-                                           return;
-                                       }
-       
-                                       // Atualização dos dados do processo
-                                       connection.query(`UPDATE contatos_pessoas CP
-                                       SET CP.fk_tipo_de_contato = ?
-                                       WHERE
-                                       CP.fk_id_pessoas = ?
-                                       AND CP.fk_id_contatos = ?;`, 
-                                           [idTipoDeContato, 
-                                           ID, 
-                                           ID_contatos], 
-                                           (errorUpdate, resultsUpdate, fieldsUpdate) => {
-                                           if (errorUpdate) {
-                                               console.error('Erro ao atualizar dados do contato:', errorUpdate);
-                                               res.status(500).send('Erro ao atualizar dados do contato.');
-                                               return;
-                                           }
-								   						   
-								   connection.query(`
-											DELETE FROM programas_sociais_pessoas
-											WHERE fk_id_pessoa = ?;`,
-											[ID],
-											(error) => {
-												if (error) {
-													console.error(`Erro ao deletar programas sociais`, error);
-												} else {
-													console.log(`Programas sociais deletados com sucesso para a pessoa ${ID}.`);
+                                        connection.query(`UPDATE contatos C
+                                            INNER JOIN contatos_pessoas CP ON CP.fk_id_contatos = C.ID
+                                            SET
+                                                C.telefone = ?,
+                                                C.nome = ?,
+                                                C.email = ?
+                                            WHERE
+                                                CP.fk_id_pessoas = ?
+                                                AND C.ID = ?`,
+                                            [telefone, nome_do_contato, email, ID, ID_contatos],
+                                            (errorContato) => {
+                                                if (errorContato) {
+                                                    console.error('Erro ao atualizar contato:', errorContato);
+                                                    return reject(errorContato);
+                                                }
 
-													// Realizando a inserção na tabela programas_sociais_pessoas
-													for (let i = 0; i < idsProgramasSociais.length; i++) {
-														let programaSocialId = idsProgramasSociais[i];
+                                                connection.query(`UPDATE contatos_pessoas CP
+                                                    SET CP.fk_tipo_de_contato = ?
+                                                    WHERE
+                                                        CP.fk_id_pessoas = ?
+                                                        AND CP.fk_id_contatos = ?`,
+                                                    [idTipoDeContato, ID, ID_contatos],
+                                                    (errorTipoContato) => {
+                                                        if (errorTipoContato) {
+                                                            console.error('Erro ao atualizar tipo de contato:', errorTipoContato);
+                                                            return reject(errorTipoContato);
+                                                        }
 
-														if (!programaSocialId || programaSocialId === '') {
-															console.log("************************************************************************");
-															console.log("Não foram enviados programas sociais no formulário.");
-															console.log("PARTE DO INSERT");
-														} else {
-															connection.query(`
-																INSERT IGNORE INTO programas_sociais_pessoas (fk_id_pessoa, fk_programa_social_id)
-																VALUES (?, ?)`,
-																[ID, programaSocialId],
-																(insertError) => {
-																	if (insertError) {
-																		console.error(`Erro ao inserir programa social ID ${programaSocialId} para a pessoa ${ID}:`, insertError);
-																	} else {
-																		console.log(`Programa social ID ${programaSocialId} inserido com sucesso para a pessoa ${ID}.`);
-																	}
-																}
-															);
-														}
-													}
-												}
-											}
-										); 
-       
-										});
-                                   });
-                               });
-                           });
-   }
+                                                        // CORREÇÃO: delete + inserts de programas sociais dentro da cadeia,
+                                                        // resolve a Promise apenas após tudo concluído
+                                                        connection.query(`DELETE FROM programas_sociais_pessoas WHERE fk_id_pessoa = ?`,
+                                                            [ID],
+                                                            (errorDelete) => {
+                                                                if (errorDelete) {
+                                                                    console.error('Erro ao deletar programas sociais:', errorDelete);
+                                                                    return reject(errorDelete);
+                                                                }
 
+                                                                console.log(`Programas sociais deletados para pessoa ${ID}.`);
 
-   processarDados()
+                                                                if (!idsProgramasSociais || idsProgramasSociais.length === 0) {
+                                                                    return resolve();
+                                                                }
 
-       });
-   }
+                                                                // Monta valores para INSERT em lote
+                                                                const valores = idsProgramasSociais.map(psId => [ID, psId]);
 
-// Exporta a função de configuração das rotas
+                                                                connection.query(`INSERT IGNORE INTO programas_sociais_pessoas (fk_id_pessoa, fk_programa_social_id) VALUES ?`,
+                                                                    [valores],
+                                                                    (errorInsert) => {
+                                                                        if (errorInsert) {
+                                                                            console.error('Erro ao inserir programas sociais:', errorInsert);
+                                                                            return reject(errorInsert);
+                                                                        }
+                                                                        console.log(`Programas sociais inseridos para pessoa ${ID}.`);
+                                                                        resolve();
+                                                                    }
+                                                                );
+                                                            }
+                                                        );
+                                                    }
+                                                );
+                                            }
+                                        );
+                                    }
+                                );
+                            }
+                        );
+                    }
+                );
+            });
+        }
+
+        processarDados();
+    });
+}
+
 module.exports = rota_editarPessoas;
